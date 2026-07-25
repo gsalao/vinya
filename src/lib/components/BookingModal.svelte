@@ -59,7 +59,7 @@
 						</div>
 						<label>
 							<span>Anything I should know?</span>
-							<textarea rows="3" bind:value={notes} placeholder="Injuries, first class, nerves. All welcome here."></textarea>
+							<textarea rows="2" bind:value={notes} placeholder="Injuries, first class, nerves. All welcome here."></textarea>
 						</label>
 						<div style="display:flex;gap:14px;align-items:center;margin-top:4px;flex-wrap:wrap">
 							<button class="btn btn-primary lg" type="submit" disabled={busy}>{busy ? 'Sending…' : 'Send request'}</button>

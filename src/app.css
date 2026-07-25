@@ -120,14 +120,15 @@ body.menu-open .hamburger span:nth-child(1){transform:translateY(6.6px) rotate(4
 body.menu-open .hamburger span:nth-child(2){opacity:0}
 body.menu-open .hamburger span:nth-child(3){transform:translateY(-6.6px) rotate(-45deg)}
 .mobile-menu{position:fixed;inset:0;z-index:55;background:var(--cream-50);display:flex;flex-direction:column;
-  padding:110px var(--pad) 52px;opacity:0;visibility:hidden;transform:translateY(-8px);
+  padding:94px var(--pad) 32px;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  opacity:0;visibility:hidden;transform:translateY(-8px);
   transition:opacity .3s var(--ease),transform .3s var(--ease),visibility .3s}
 body.menu-open .mobile-menu{opacity:1;visibility:visible;transform:none}
-.mobile-menu a{font-family:var(--font-display);font-size:clamp(30px,9vw,46px);color:var(--brown-700);
-  padding:16px 0;border-bottom:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center}
+.mobile-menu a{font-family:var(--font-display);font-size:clamp(23px,6.2vw,36px);color:var(--brown-700);
+  padding:clamp(11px,2.4vw,15px) 0;border-bottom:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center}
 .mobile-menu a .n{font-family:var(--font-body);font-size:12px;letter-spacing:.2em;color:var(--text-muted)}
 .mobile-menu a.active{color:var(--rust-500)}
-.mobile-cta{margin-top:auto;display:flex;flex-direction:column;gap:14px;padding-top:32px}
+.mobile-cta{margin-top:auto;display:flex;flex-direction:column;gap:12px;padding-top:clamp(20px,4vw,32px)}
 
 /* ---------- hero (cream, arch, editorial) ---------- */
 .hero{background:linear-gradient(180deg,var(--cream-50),var(--cream-100));border-bottom:1px solid var(--border-subtle);overflow:hidden;position:relative}
@@ -390,6 +391,13 @@ footer{background:var(--brown-800);color:var(--cream-50)}
 @media(max-width:520px){
   .practice-grid,.prices,.gallery,.studio-strip,.spec-grid{grid-template-columns:1fr}
   .foot-grid{grid-template-columns:1fr}
-  .modal-body,.modal-x{padding-left:24px;padding-right:24px}
   .form .two{grid-template-columns:1fr}
+  /* booking modal: fit one screen, no scroll */
+  .modal{padding:14px 12px;align-items:flex-start}
+  .modal-card{margin:0 auto}
+  .modal-x{padding:14px 22px 0}
+  .modal-body{padding:2px 22px 22px}
+  .modal-body h3{margin-bottom:16px}
+  .form{gap:13px}
+  .form input,.form select,.form textarea{padding:11px 16px}
 }

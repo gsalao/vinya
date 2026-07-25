@@ -7,26 +7,41 @@
 
 <svelte:head><title>Vinya Yoga — Breathe, Connect, Bloom</title></svelte:head>
 
-<!-- HERO (cream, contained) -->
+<!-- HERO (cream, arch, editorial) -->
 <section class="hero">
 	<div class="wrap hero-grid">
 		<div>
 			<div class="eyebrow gold reveal" use:reveal>Breathe · Connect · Bloom</div>
 			<h1 class="reveal" use:reveal>Breathe through the hesitation. Bloom into who you already are.</h1>
 			<p class="lede reveal" use:reveal>A small studio in the Netherlands for anyone who wants room to breathe. Unhurried classes and quiet gatherings, all levels welcome.</p>
+			<p class="hero-meta reveal" use:reveal>Small groups · All levels welcome · Netherlands &amp; online</p>
 			<div class="hero-cta reveal" use:reveal>
 				<button class="btn btn-primary lg" onclick={() => openBooking('a class')}>Book a class</button>
 				<a class="btn btn-ghost lg" href="/events">See what's coming</a>
 			</div>
-			<div class="hero-meta reveal" use:reveal>
-				<span>Small groups</span><span class="dot">·</span><span>All levels welcome</span><span class="dot">·</span><span>Netherlands &amp; online</span>
-			</div>
 		</div>
 		<div class="hero-visual reveal" use:reveal>
-			<Ph cap="Studio photo coming" />
+			<div class="arch-frame"><Ph cap="Studio photo coming" tone="gold" /></div>
+			<p class="under">Fewer poses, longer pauses.</p>
 		</div>
 	</div>
 </section>
+
+<!-- brand mantra band -->
+<div class="marquee" aria-hidden="true">
+	<div class="marquee-track">
+		{#each [0, 1] as half (half)}
+			<div class="seq">
+				{#each Array(3) as _, r (r)}
+					<span>Breathe</span><span class="dot">·</span>
+					<span>Connect</span><span class="dot">·</span>
+					<span>Bloom</span><span class="dot">·</span>
+					<span>Vinya</span><span class="dot">·</span>
+				{/each}
+			</div>
+		{/each}
+	</div>
+</div>
 
 <!-- philosophy -->
 <section class="sec">
@@ -85,7 +100,7 @@
 				<button class="btn btn-secondary" onclick={() => openBooking('1:1 Holistic session')}>Book a 1:1 session</button>
 			</div>
 		</div>
-		<div class="media reveal" use:reveal style="order:2"><Ph cap="Nikita Coppens" /></div>
+		<div class="media arch reveal" use:reveal style="order:2"><Ph cap="Nikita Coppens" tone="tan" /></div>
 	</div>
 </section>
 
@@ -125,7 +140,7 @@
 		<blockquote class="blockquote-lg reveal" use:reveal style="margin-top:56px">Leave a little more room to bloom.</blockquote>
 		<div class="gallery" style="margin-top:64px">
 			<div class="g reveal" use:reveal><Ph cap="Practice" tone="sky" /></div>
-			<div class="g reveal" use:reveal><Ph cap="The room" tone="gold" /></div>
+			<div class="g arch reveal" use:reveal><Ph cap="The room" tone="gold" /></div>
 			<div class="g reveal" use:reveal><Ph cap="A gathering" tone="tan" /></div>
 		</div>
 	</div>

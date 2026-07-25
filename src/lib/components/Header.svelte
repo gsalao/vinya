@@ -39,7 +39,9 @@
 			{/each}
 		</nav>
 		<div class="nav-right">
-			<button class="btn btn-primary sm" onclick={() => openBooking('a class')}>Book a class</button>
+			<button class="btn btn-primary sm" onclick={() => openBooking('a class')}>
+				<span class="book-label-l">Book a class</span><span class="book-label-s">Book</span>
+			</button>
 			<button
 				class="hamburger"
 				aria-label="Menu"

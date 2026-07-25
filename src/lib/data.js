@@ -1,8 +1,8 @@
 export const classes = [
-	{ name: 'Slow Flow', tone: 'sage', meta: '60 min · All levels · Mat provided', blurb: 'Long exhales, few poses, plenty of time. The one to start with.', detail: "Unhurried movement with long exhales. If you've never practised before, start here." },
+	{ name: 'Slow Flow', tone: 'tan', meta: '60 min · All levels · Mat provided', blurb: 'Long exhales, few poses, plenty of time. The one to start with.', detail: "Unhurried movement with long exhales. If you've never practised before, start here." },
 	{ name: 'Vinyasa Bloom', tone: 'gold', meta: '75 min · Some experience', blurb: 'Breath-led movement that builds warmth, then lets it settle.', detail: 'Breath-led sequences that build warmth and then let it settle. Options offered throughout.' },
 	{ name: 'Restore & Breathe', tone: 'sky', meta: '60 min · All levels · Bolsters', blurb: 'Supported shapes held long enough for the nervous system to believe you.', detail: 'Few shapes, held long. For weeks that have asked a lot of you.' },
-	{ name: 'Breath & Sound', tone: 'tan', meta: '45 min · All levels · Lying down', blurb: 'Guided breathwork, then sound. You lie down for most of it.', detail: 'Guided breathwork followed by sound. No movement experience needed at all.' }
+	{ name: 'Breath & Sound', tone: 'rust', meta: '45 min · All levels · Lying down', blurb: 'Guided breathwork, then sound. You lie down for most of it.', detail: 'Guided breathwork followed by sound. No movement experience needed at all.' }
 ];
 
 export const timetable = [

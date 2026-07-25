@@ -31,7 +31,7 @@
 			</div>
 		</div>
 		<div class="reveal" use:reveal style="display:flex;flex-direction:column;gap:24px;position:sticky;top:104px">
-			<div class="media" style="border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-card);aspect-ratio:4/5"><Ph cap="The studio" tone="sage" /></div>
+			<div class="media" style="border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-card);aspect-ratio:4/5"><Ph cap="The studio" tone="sky" /></div>
 			<div class="side-card">
 				<div class="k">Find us</div>
 				<div class="row">

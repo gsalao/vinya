@@ -7,24 +7,44 @@
 
 <svelte:head><title>Vinya Yoga — Breathe, Connect, Bloom</title></svelte:head>
 
-<!-- HERO (cream, arch, editorial) -->
+<!-- HERO (copy | seam: braided vine + image edge in one SVG | image) -->
 <section class="hero">
-	<div class="wrap hero-grid">
-		<div>
-			<div class="eyebrow gold reveal" use:reveal>Breathe · Connect · Bloom</div>
-			<h1 class="reveal" use:reveal>Breathe through the hesitation. Bloom into who you already are.</h1>
-			<p class="lede reveal" use:reveal>A small studio in the Netherlands for anyone who wants room to breathe. Unhurried classes and quiet gatherings, all levels welcome.</p>
-			<p class="hero-meta reveal" use:reveal>Small groups · All levels welcome · Netherlands &amp; online</p>
-			<div class="hero-cta reveal" use:reveal>
+	<div class="hero-copy">
+		<div class="hero-copy-inner">
+			<img class="hero-logo" src="/logos/vinya-logo-brown.png" alt="Vinya — Breathe, Connect, Bloom" />
+			<h1>Breathe through the hesitation. Bloom into who you already are.</h1>
+			<div class="hero-cta">
 				<button class="btn btn-primary lg" onclick={() => openBooking('a class')}>Book a class</button>
 				<a class="btn btn-ghost lg" href="/events">See what's coming</a>
 			</div>
 		</div>
-		<div class="hero-visual reveal" use:reveal>
-			<div class="arch-frame"><Ph cap="Studio photo coming" tone="gold" /></div>
-			<p class="under">Fewer poses, longer pauses.</p>
-		</div>
 	</div>
+
+	<!-- horizontal seam (mobile): sits between copy and image.
+	     seam-fill's lower edge IS the image edge (wave about y=150, controls ±26).
+	     Both strands braid around a centreline at y=98 that rides the SAME wave,
+	     so the vine stays parallel to the image with a constant gap. -->
+	<svg class="hero-seam-h" viewBox="0 0 1000 200" preserveAspectRatio="none" aria-hidden="true">
+		<path class="seam-fill" d="M0,0 L0,150 C62,176 188,176 250,150 C312,124 438,124 500,150 C562,176 688,176 750,150 C812,124 938,124 1000,150 L1000,0 Z" />
+		<path class="strand a" pathLength="1000" vector-effect="non-scaling-stroke" d="M-4,98 C62,144 188,144 250,98 C312,92 438,92 500,98 C562,144 688,144 750,98 C812,92 938,92 1004,98" />
+		<path class="strand b" pathLength="1000" vector-effect="non-scaling-stroke" d="M-4,98 C62,104 188,104 250,98 C312,52 438,52 500,98 C562,104 688,104 750,98 C812,52 938,52 1004,98" />
+	</svg>
+
+	<div class="hero-media">
+		<!-- INSERT A PHOTO: put the file in  static/  then replace the <span> line below with:
+		     <img src="/nikita-hero.jpg" alt="Nikita at Vinya" />   -->
+		<span class="cap">Studio photo coming</span>
+	</div>
+
+	<!-- vertical seam (desktop): cream wave = image's left edge, braided vine parallel to it.
+	     Wave sits about x=150 with control offset ±26; the braid centreline is the same
+	     wave at x=114, and each strand adds ±16 to the controls. Gap to the image edge
+	     therefore stays in a 24-48 unit band the whole way down instead of pinching. -->
+	<svg class="hero-seam" viewBox="0 0 200 1000" preserveAspectRatio="none" aria-hidden="true">
+		<path class="seam-fill" d="M0,0 L150,0 C176,62 176,188 150,250 C124,312 124,438 150,500 C176,562 176,688 150,750 C124,812 124,938 150,1000 L0,1000 Z" />
+		<path class="strand a" pathLength="1000" vector-effect="non-scaling-stroke" d="M114,-4 C156,62 156,188 114,250 C104,312 104,438 114,500 C156,562 156,688 114,750 C104,812 104,938 114,1004" />
+		<path class="strand b" pathLength="1000" vector-effect="non-scaling-stroke" d="M114,-4 C124,62 124,188 114,250 C72,312 72,438 114,500 C124,562 124,688 114,750 C72,812 72,938 114,1004" />
+	</svg>
 </section>
 
 <!-- brand mantra band -->
@@ -36,7 +56,7 @@
 					<span>Breathe</span><span class="dot">·</span>
 					<span>Connect</span><span class="dot">·</span>
 					<span>Bloom</span><span class="dot">·</span>
-					<span>Vinya</span><span class="dot">·</span>
+					<span class="brandword">Vinya</span><span class="dot">·</span>
 				{/each}
 			</div>
 		{/each}

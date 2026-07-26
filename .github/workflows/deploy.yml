@@ -12,7 +12,12 @@ concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: true
 
+# The Vercel CLI reads all three of these straight from the environment, so no
+# command below passes --token. An inline --token=${{ secrets.X }} expands to a
+# bare `--token=` when the secret is missing, which the CLI reports as "no
+# existing credentials" rather than "your secret is not set".
 env:
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
   # push to main => production, pull request => throwaway preview
@@ -34,6 +39,24 @@ jobs:
       url: ${{ steps.deploy.outputs.url }}
 
     steps:
+      # First, and before any setup, so a missing secret costs seconds and names
+      # itself instead of surfacing as a credentials error deeper in the job.
+      - name: Check required secrets are present
+        run: |
+          missing=()
+          [ -n "$VERCEL_TOKEN" ]      || missing+=(VERCEL_TOKEN)
+          [ -n "$VERCEL_ORG_ID" ]     || missing+=(VERCEL_ORG_ID)
+          [ -n "$VERCEL_PROJECT_ID" ] || missing+=(VERCEL_PROJECT_ID)
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "::error::Not set for this job: ${missing[*]}"
+            echo "Add them under Settings -> Secrets and variables -> Actions -> Repository secrets."
+            echo "That exact tab: secrets on the Codespaces or Dependabot tabs are invisible here."
+            echo "This job targets the '${{ github.event_name == 'push' && 'production' || 'preview' }}' environment."
+            echo "If you added them as *environment* secrets, they must be on that environment."
+            exit 1
+          fi
+          echo "All three Vercel secrets are present."
+
       - uses: actions/checkout@v4
 
       # No version pin: action-setup reads packageManager from package.json,
@@ -54,17 +77,17 @@ jobs:
       # Fetches project settings plus the environment variables configured in
       # Vercel (PUBLIC_SUPABASE_*), which the build step then reads.
       - name: Pull Vercel project settings
-        run: vercel pull --yes --environment=$VERCEL_ENV --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel pull --yes --environment="$VERCEL_ENV"
 
       # Also the CI build check: a broken build fails here, before anything is
       # uploaded, so a red PR can never be merged into a deployable main.
       - name: Build
-        run: vercel build $PROD_FLAG --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel build $PROD_FLAG
 
       - name: Deploy
         id: deploy
         run: |
-          url=$(vercel deploy --prebuilt $PROD_FLAG --token=${{ secrets.VERCEL_TOKEN }})
+          url=$(vercel deploy --prebuilt $PROD_FLAG)
           echo "url=$url" >> "$GITHUB_OUTPUT"
           echo "### Deployed to \`$VERCEL_ENV\`" >> "$GITHUB_STEP_SUMMARY"
           echo "$url" >> "$GITHUB_STEP_SUMMARY"

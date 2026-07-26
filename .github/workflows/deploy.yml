@@ -1,0 +1,81 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Serialise deploys per branch/PR and drop superseded runs, so a slow older
+# build can never land on top of a newer one and leave main stale.
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  # push to main => production, pull request => throwaway preview
+  VERCEL_ENV: ${{ github.event_name == 'push' && 'production' || 'preview' }}
+  PROD_FLAG: ${{ github.event_name == 'push' && '--prod' || '' }}
+
+jobs:
+  deploy:
+    name: Build and deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    # Surfaces the live URL on the repo's home page sidebar and under
+    # Deployments, and keeps the production link pointing at whatever main last
+    # shipped.
+    environment:
+      name: ${{ github.event_name == 'push' && 'production' || 'preview' }}
+      url: ${{ steps.deploy.outputs.url }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # No version pin: action-setup reads packageManager from package.json,
+      # so the runner uses the same pnpm the lockfile was written with.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@51
+
+      # Fetches project settings plus the environment variables configured in
+      # Vercel (PUBLIC_SUPABASE_*), which the build step then reads.
+      - name: Pull Vercel project settings
+        run: vercel pull --yes --environment=$VERCEL_ENV --token=${{ secrets.VERCEL_TOKEN }}
+
+      # Also the CI build check: a broken build fails here, before anything is
+      # uploaded, so a red PR can never be merged into a deployable main.
+      - name: Build
+        run: vercel build $PROD_FLAG --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy
+        id: deploy
+        run: |
+          url=$(vercel deploy --prebuilt $PROD_FLAG --token=${{ secrets.VERCEL_TOKEN }})
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "### Deployed to \`$VERCEL_ENV\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "$url" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Comment the preview URL on the PR
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BODY: |
+            Preview deploy for ${{ github.event.pull_request.head.sha }}:
+            ${{ steps.deploy.outputs.url }}
+        run: |
+          gh pr comment "${{ github.event.pull_request.number }}" --edit-last --body "$BODY" \
+            || gh pr comment "${{ github.event.pull_request.number }}" --body "$BODY"

@@ -1,16 +1,24 @@
 # Vinya Yoga
 
+### 🌿 Live site: **[vinya-app-gold.vercel.app](https://vinya-app-gold.vercel.app)**
+
+[![Deploy](https://github.com/gsalao/vinya/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/gsalao/vinya/actions/workflows/deploy.yml)
+
 Marketing + booking site for Vinya, a small yoga studio in the Netherlands.
 Built with **SvelteKit**, a **Supabase** backend for booking requests and the
 newsletter, and deployed on **Vercel**.
 
 Pages: Home, Classes, Instructors (Nikita Coppens), Events, About.
 
+`main` is always what is live. Every push to `main` redeploys production; every
+pull request gets its own throwaway preview URL. See
+[CI/CD](#cicd-github-actions--vercel).
+
 ---
 
 ## Run it locally
 
-Requires Node 18+ and [pnpm](https://pnpm.io).
+Requires Node 22 and [pnpm](https://pnpm.io).
 
 ```bash
 pnpm install
@@ -52,17 +60,55 @@ Variables**, then redeploy.
 
 ---
 
-## Deploy to Vercel
+## CI/CD (GitHub Actions → Vercel)
+
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) is the only
+deploy path. It runs on:
+
+| Event                 | What happens                                              |
+| --------------------- | --------------------------------------------------------- |
+| push to `main`        | build, then deploy to **production** (`--prod`)             |
+| pull request → `main` | build, then deploy a **preview**, URL commented on the PR   |
+
+The build runs before anything is uploaded, so a PR that does not compile fails
+red and can never be merged into a deployable `main`. Concurrency is grouped per
+branch with `cancel-in-progress`, so a slow older run cannot land on top of a
+newer one and leave `main` stale.
+
+### Required repository secrets
+
+**Settings → Secrets and variables → Actions**, or via the `gh` CLI:
 
 ```bash
-npm i -g vercel      # if not installed
+# Create a token first at https://vercel.com/account/tokens
+gh secret set VERCEL_TOKEN       # paste the token
+gh secret set VERCEL_ORG_ID      # from .vercel/project.json  -> orgId
+gh secret set VERCEL_PROJECT_ID  # from .vercel/project.json  -> projectId
+```
+
+`.vercel/` is gitignored — it holds the pulled environment file and never
+belongs in the repo.
+
+App environment variables (`PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_ANON_KEY`) do
+**not** go in GitHub. They live in Vercel's project settings; `vercel pull`
+fetches them at build time.
+
+> **Do not also connect this repo under Vercel → Project → Git.** Vercel's own
+> Git integration would deploy the same commit in parallel with this workflow,
+> giving two deployments per push and a race over which one ends up live.
+
+### Deploying by hand
+
+Rarely needed, but the escape hatch:
+
+```bash
+npm i -g vercel
 vercel login
 vercel --prod
 ```
 
-Vercel auto-detects SvelteKit (via `@sveltejs/adapter-auto`) — no extra config
-needed. The first `vercel` run links the project and gives you a
-`*.vercel.app` URL.
+The adapter is pinned to `@sveltejs/adapter-vercel` with an explicit
+`nodejs22.x` runtime, so a local build and a CI build produce identical output.
 
 ---
 

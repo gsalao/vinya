@@ -87,10 +87,31 @@ jobs:
       - name: Deploy
         id: deploy
         run: |
-          url=$(vercel deploy --prebuilt $PROD_FLAG)
+          deployment_url=$(vercel deploy --prebuilt $PROD_FLAG)
+
+          # Every deployment gets an immutable per-deployment URL, and --prod then
+          # repoints the project's production domains at it. That per-deployment URL
+          # changes on every push, so reporting it would leave the repo's Deployments
+          # link pointing at one frozen build. Resolve the stable alias instead:
+          # a custom domain if one is attached, else the shortest *.vercel.app.
+          # Previews have no aliases, so they keep their own URL.
+          url="$deployment_url"
+          if [ -n "$PROD_FLAG" ]; then
+            alias=$(vercel inspect "$deployment_url" --json \
+              | jq -r '[.aliases // [] | .[]] | (map(select(endswith(".vercel.app") | not)) + sort_by(length))[0] // empty')
+            if [ -n "$alias" ]; then
+              url="https://$alias"
+            fi
+          fi
+
           echo "url=$url" >> "$GITHUB_OUTPUT"
-          echo "### Deployed to \`$VERCEL_ENV\`" >> "$GITHUB_STEP_SUMMARY"
-          echo "$url" >> "$GITHUB_STEP_SUMMARY"
+          echo "deployment-url=$deployment_url" >> "$GITHUB_OUTPUT"
+          {
+            echo "### Deployed to \`$VERCEL_ENV\`"
+            echo ""
+            echo "- Live: $url"
+            echo "- This build: $deployment_url"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Comment the preview URL on the PR
         if: github.event_name == 'pull_request'

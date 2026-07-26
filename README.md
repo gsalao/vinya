@@ -75,6 +75,26 @@ red and can never be merged into a deployable `main`. Concurrency is grouped per
 branch with `cancel-in-progress`, so a slow older run cannot land on top of a
 newer one and leave `main` stale.
 
+### Why a deploy shows two URLs
+
+Every deployment gets an **immutable per-deployment URL**
+(`vinya-abc123-gsalaos-projects.vercel.app`) that always points at that one
+build, so you can open any past deploy. A production deploy additionally
+repoints the project's **stable production domains** at itself:
+
+```
+target : production
+aliases: vinya-app-gold.vercel.app, vinya-app-gsalaos-projects.vercel.app, ...
+```
+
+Both serve the same build. `vercel deploy` prints the per-deployment one, so the
+workflow resolves the stable alias afterwards and reports that as the live URL —
+otherwise the repo's Deployments link would freeze on one old build.
+
+Custom domains are attached to the project in Vercel, not configured here.
+`vercel pull` only downloads project settings and environment variables; it does
+not decide where a deploy lands. `--prod` does.
+
 ### Required repository secrets
 
 **Settings → Secrets and variables → Actions**, or via the `gh` CLI:

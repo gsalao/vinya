@@ -20,7 +20,7 @@
 	<div class="wrap foot-grid">
 		<div>
 			<div class="foot-brand"><img src="/logos/vinya-logo-cream.png" alt="Vinya" /></div>
-			<p>Breathe. Connect. Bloom. A small yoga space in the Netherlands with room to breathe.</p>
+			<p>Breathe. Connect. Bloom.</p>
 		</div>
 		<div class="foot-col">
 			<div class="h">Site</div>

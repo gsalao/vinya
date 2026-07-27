@@ -8,7 +8,7 @@
 
 <section>
 	<div class="wrap phead">
-		<div class="eyebrow">About the studio</div>
+		<div class="eyebrow">About Vinya</div>
 		<h1>A yoga space with room to breathe.</h1>
 	</div>
 </section>
@@ -16,12 +16,16 @@
 <section class="sec" style="padding-top:clamp(56px,7vh,80px)">
 	<div class="wrap split" style="align-items:start">
 		<div class="reveal" use:reveal>
-			<p class="lede" style="font-size:var(--text-lg);line-height:1.75;color:var(--brown-700)">Vinya is a small studio in the Netherlands, and we teach slowly. Most people who find us are somewhere in the middle of something: a change, a tiredness, a hesitation they can't name.</p>
-			<p style="font-size:var(--text-base);line-height:1.9;color:var(--text-secondary);margin-top:28px">The practice sits in two places at once: movement, and the body's quieter systems. Breath is rarely just breath. It's where the story is held, and nobody gets hurried out of it. So a class here tends to have fewer poses and longer pauses than you might expect.</p>
-			<p style="font-size:var(--text-base);line-height:1.9;color:var(--text-secondary);margin-top:22px">Vinya means what we believe: we become connected because we bloom, and blooming is endless. There is no finished version of you waiting at the end of a ten-class pass.</p>
+			<p class="lede" style="font-size:var(--text-lg);line-height:1.75;color:var(--brown-700)">Vinya is a yoga inspired initiative in the Netherlands. Most people who find us are somewhere in the middle of: a change, a tiredness, a hesitation they can't name or ready to step out of their comfort zone. Either you're ready to work on your physical and mental state.
+</p>
+			<p style="font-size:var(--text-base);line-height:1.9;color:var(--text-secondary);margin-top:28px">The practice sits in two places at once: The physical and the mental. Breathe is rarely just breathe. It's the beginning of changing the narrative. Using it as a tool to control our mind, so we are choosing who we become.
+</p>
+			<p style="font-size:var(--text-base);line-height:1.9;color:var(--text-secondary);margin-top:22px">Vinya is just creating a space for you to make space for yourself. </p>
 			<div class="about-cards">
-				<div class="spec"><h4>How we teach</h4><p>Invitations, not instructions. You'll always be offered a way out of a shape as clearly as a way in.</p></div>
-				<div class="spec"><h4>Who it's for</h4><p>Complete beginners, returning bodies, and regulars who want to slow down rather than level up.</p></div>
+				<div class="spec"><h4>How we teach</h4><p>Personal attention is our non negotiable. There are hands-on adjustments and deepening, if consent has been given.
+</p></div>
+				<div class="spec"><h4>Who it's for</h4><p>Personal attention is our non negotiable. There is hands-on adjustments and deepening, if consent has been given.
+</p></div>
 				<div class="spec"><h4>Training</h4><p>Teaching hours and certifications, to be confirmed and listed here.</p></div>
 				<div class="spec"><h4>Beyond class</h4><p>1:1 holistic sessions, private groups, and retreats a few times a year.</p></div>
 			</div>

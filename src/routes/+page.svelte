@@ -33,7 +33,7 @@
 	<div class="hero-media">
 		<!-- INSERT A PHOTO: put the file in  static/  then replace the <span> line below with:
 		     <img src="/nikita-hero.jpg" alt="Nikita at Vinya" />   -->
-		<span class="cap">Studio photo coming</span>
+		<span class="cap">Nikita photo coming</span>
 	</div>
 
 	<!-- vertical seam (desktop): cream wave = image's left edge, braided vine parallel to it.
@@ -67,8 +67,9 @@
 <section class="sec">
 	<div class="wrap triptych">
 		<div class="t reveal" use:reveal><div class="h">Breathe</div><p>Breath is the bridge between who you are guarded and who you are open. We start there, every time.</p></div>
-		<div class="t reveal" use:reveal><div class="h">Connect</div><p>Classes stay small on purpose. You'll know the names of the people breathing beside you.</p></div>
-		<div class="t reveal" use:reveal><div class="h">Bloom</div><p>No two blooms look the same. Come as you are today, not as the version you think is ready.</p></div>
+		<div class="t reveal" use:reveal><div class="h">Connect</div><p>Moving together creates connection together. Come for the practice, stay for the connection.
+</p></div>
+		<div class="t reveal" use:reveal><div class="h">Bloom</div><p>Come as you are today, not as the version you think is ready.</p></div>
 	</div>
 </section>
 
@@ -77,7 +78,7 @@
 	<div class="wrap split wide">
 		<div class="media reveal" use:reveal><Ph cap="The studio" tone="sky" /></div>
 		<div class="reveal" use:reveal>
-			<div class="eyebrow">About the studio</div>
+			<div class="eyebrow">About Vinya</div>
 			<h2 style="margin-top:22px">A room that makes space for you.</h2>
 			<p class="lede" style="margin-top:26px">Vinya is a yoga space where movement, breath and the nervous system meet. Slow, warm, and never rushed.</p>
 			<p style="margin-top:22px">We started from a simple belief: we become connected because we bloom. Hesitation doesn't dissolve by pushing through it. It dissolves through breath. That is what every class holds space for, whether it's a Tuesday evening flow or a full-moon gathering.</p>
@@ -131,7 +132,7 @@
 		<div class="reveal" use:reveal>
 			<div class="eyebrow gold" style="color:var(--gold-500)">Next gathering</div>
 			<h2 style="margin-top:14px">Full Moon Flow &amp; Sound Bath</h2>
-			<p>Saturday 19:00 · 90 minutes · €28 · studio location to be confirmed. Slow flow as the light goes, then sound to close.</p>
+			<p>Saturday 19:00 · 90 minutes · €28 · Location to be confirmed. Slow flow as the light goes, then sound to close.</p>
 		</div>
 		<div class="reveal" use:reveal style="display:flex;flex-direction:column;gap:14px">
 			<button class="btn btn-primary lg" onclick={() => openBooking('Full Moon Flow & Sound Bath · 8 Aug')}>Reserve your place</button>

@@ -24,7 +24,7 @@
 			<div class="about-cards">
 				<div class="spec"><h4>How we teach</h4><p>Personal attention is our non negotiable. There are hands-on adjustments and deepening, if consent has been given.
 </p></div>
-				<div class="spec"><h4>Who it's for</h4><p>Personal attention is our non negotiable. There is hands-on adjustments and deepening, if consent has been given.
+				<div class="spec"><h4>Who it's for</h4><p>Complete beginners, and regulars who want to deepen their practice.
 </p></div>
 				<div class="spec"><h4>Training</h4><p>Teaching hours and certifications, to be confirmed and listed here.</p></div>
 				<div class="spec"><h4>Beyond class</h4><p>1:1 holistic sessions, private groups, and retreats a few times a year.</p></div>

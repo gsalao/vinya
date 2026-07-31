@@ -1,6 +1,7 @@
 <script>
 	import { reveal } from '$lib/reveal.js';
 	import Ph from '$lib/components/Ph.svelte';
+	import Photo from '$lib/components/Photo.svelte';
 	import { openBooking } from '$lib/booking.js';
 	import { classes } from '$lib/data.js';
 </script>
@@ -31,9 +32,21 @@
 	</svg>
 
 	<div class="hero-media">
-		<!-- INSERT A PHOTO: put the file in  static/  then replace the <span> line below with:
-		     <img src="/nikita-hero.jpg" alt="Nikita at Vinya" />   -->
-		<span class="cap">Nikita photo coming</span>
+		<!-- INSERT A PHOTO: put the file in  static/images/  then point src at it.
+		     fx / fy frame the crop. Run the dev server, hold ALT and drag the photo
+		     to move it (ALT + scroll to zoom); the new values are copied to your
+		     clipboard, ready to paste back in here. -->
+		<Photo
+			src="/images/nikita-form-2200.jpg"
+			srcset="/images/nikita-form-1400.jpg 1400w, /images/nikita-form-2200.jpg 2200w"
+			sizes="(max-width:820px) 100vw, 50vw"
+			alt="Nikita in a seated backbend on a wooden deck, surrounded by palms"
+			fx={50}
+			fy={78}
+			fyMobile={76}
+			loading="eager"
+			fetchpriority="high"
+		/>
 	</div>
 
 	<!-- vertical seam (desktop): cream wave = image's left edge, braided vine parallel to it.

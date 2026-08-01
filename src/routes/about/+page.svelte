@@ -10,7 +10,7 @@
 <section>
 	<div class="wrap phead">
 		<div class="eyebrow">About Vinya</div>
-		<h1>A yoga space with room to breathe.</h1>
+		<h1>A space with room to breathe.</h1>
 	</div>
 </section>
 

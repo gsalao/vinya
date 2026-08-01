@@ -76,30 +76,6 @@
 	</div>
 </div>
 
-<!-- philosophy -->
-<section class="sec">
-	<div class="wrap triptych">
-		<div class="t reveal" use:reveal><div class="h">Breathe</div><p>Breath is the bridge between who you are guarded and who you are open. We start there, every time.</p></div>
-		<div class="t reveal" use:reveal><div class="h">Connect</div><p>Moving together creates connection together. Come for the practice, stay for the connection.
-</p></div>
-		<div class="t reveal" use:reveal><div class="h">Bloom</div><p>Come as you are today, not as the version you think is ready.</p></div>
-	</div>
-</section>
-
-<!-- about -->
-<section class="sec sunken">
-	<div class="wrap split wide">
-		<div class="media reveal" use:reveal><Ph cap="The studio" tone="sky" /></div>
-		<div class="reveal" use:reveal>
-			<div class="eyebrow">About Vinya</div>
-			<h2 style="margin-top:22px">A room that makes space for you.</h2>
-			<p class="lede" style="margin-top:26px">Vinya is a yoga space where movement, breath and the nervous system meet. Slow, warm, and never rushed.</p>
-			<p style="margin-top:22px">We started from a simple belief: we become connected because we bloom. Hesitation doesn't dissolve by pushing through it. It dissolves through breath. That is what every class holds space for, whether it's a Tuesday evening flow or a full-moon gathering.</p>
-			<div style="margin-top:36px"><a class="tlink" href="/about">More about Vinya <span>→</span></a></div>
-		</div>
-	</div>
-</section>
-
 <!-- practice -->
 <section class="sec">
 	<div class="wrap">
@@ -120,6 +96,33 @@
 		</div>
 	</div>
 </section>
+
+
+
+<!-- about -->
+<section class="sec sunken">
+	<div class="wrap split wide">
+		<div class="media reveal" use:reveal><Ph cap="The studio" tone="sky" /></div>
+		<div class="reveal" use:reveal>
+			<div class="eyebrow">About Vinya</div>
+			<h2 style="margin-top:22px">A space with room to breathe.</h2>
+			<p class="lede" style="margin-top:26px">Vinya is a yoga inspired initiative in the Netherlands. Most people who find us are somewhere in the middle of: a change, a tiredness, a hesitation they can't name or ready to step out of their comfort zone. Either you're ready to work on your physical and mental state.</p>
+			<div style="margin-top:36px"><a class="tlink" href="/about">More about Vinya <span>→</span></a></div>
+		</div>
+	</div>
+</section>
+
+
+<!-- philosophy -->
+<section class="sec">
+	<div class="wrap triptych">
+		<div class="t reveal" use:reveal><div class="h">Breathe</div><p>Breath is the bridge between who you are guarded and who you are open. We start there, every time.</p></div>
+		<div class="t reveal" use:reveal><div class="h">Connect</div><p>Moving together creates connection together. Come for the practice, stay for the connection.
+</p></div>
+		<div class="t reveal" use:reveal><div class="h">Bloom</div><p>Come as you are today, not as the version you think is ready.</p></div>
+	</div>
+</section>
+
 
 <!-- instructor teaser -->
 <section class="sec sunken">

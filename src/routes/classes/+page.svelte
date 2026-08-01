@@ -1,7 +1,7 @@
 <script>
 	import { reveal } from '$lib/reveal.js';
 	import { openBooking } from '$lib/booking.js';
-	import { classes, timetable, prices, faqs } from '$lib/data.js';
+	import { classes, timetable, prices, faqs, venue, offerings } from '$lib/data.js';
 </script>
 
 <svelte:head><title>Classes — Vinya Yoga</title></svelte:head>
@@ -10,7 +10,7 @@
 	<div class="wrap phead">
 		<div class="lead-row">
 			<div><div class="eyebrow">Classes</div><h1>A week with room in it.</h1></div>
-			<p>Four class types, one small studio. Book the week you need. No membership, no pressure to keep a streak.</p>
+			<p>Two classes a week, one small studio. Book the week you need. No membership, no pressure to keep a streak.</p>
 		</div>
 	</div>
 </section>
@@ -33,8 +33,9 @@
 	<div class="wrap">
 		<div class="sec-head row" style="margin-bottom:44px">
 			<div><div class="eyebrow">Weekly rhythm</div><h2 style="margin-top:16px">The timetable</h2></div>
-			<span style="font-size:var(--text-sm);color:var(--text-muted)">Times to be confirmed · tap a session to book</span>
+			<span style="font-size:var(--text-sm);color:var(--text-muted)">Tap a session to book</span>
 		</div>
+		<p style="font-size:var(--text-sm);color:var(--text-muted);margin-bottom:28px">Both facilitated by {venue.name} · {venue.address}</p>
 		<div>
 			{#each timetable as r}
 				<div class="tt-row">
@@ -43,16 +44,12 @@
 						{#each r.slots as s}
 							<div class="slot">
 								<span><strong>{s[0]}</strong> · {s[1]} · {s[2]}</span>
-								<button class="btn btn-primary sm" onclick={() => openBooking(`${s[1]} · ${r.day.slice(0, 3)} ${s[0]}`)}>Book</button>
+								<button class="btn btn-primary sm" onclick={() => openBooking(s[1])}>Book</button>
 							</div>
 						{/each}
 					</div>
 				</div>
 			{/each}
-			<div class="tt-row">
-				<div class="day" style="color:var(--text-muted)">Sunday</div>
-				<div style="font-size:var(--text-sm);color:var(--text-muted)">Rest, or an event when there is one. Look at <a href="/events">what's coming</a>.</div>
-			</div>
 		</div>
 	</div>
 </section>
@@ -67,11 +64,27 @@
 				</div>
 			{/each}
 		</div>
-		<p style="font-size:var(--text-sm);color:var(--text-muted);margin-top:24px">Prices are placeholders until the studio confirms them.</p>
 	</div>
 </section>
 
 <section class="sec sunken">
+	<div class="wrap">
+		<div class="sec-head reveal" use:reveal><div class="eyebrow">Our offerings</div><h2 style="margin-top:18px">Beyond the weekly mat.</h2></div>
+		{#each offerings as g}
+			<div class="offer-cat"><h3>{g.cat}</h3><div class="line"></div></div>
+			<div class="offer-list">
+				{#each g.items as it}
+					<div class="offer-row reveal" use:reveal>
+						<div><h4>{it.name}</h4><p>{it.note}</p></div>
+						<button class="btn btn-secondary" onclick={() => openBooking(it.name)}>Enquire</button>
+					</div>
+				{/each}
+			</div>
+		{/each}
+	</div>
+</section>
+
+<section class="sec">
 	<div class="wrap wrap-narrow">
 		<div class="sec-head reveal" use:reveal><div class="eyebrow">First time?</div><h2 style="margin-top:18px">Everything you're quietly wondering</h2></div>
 		<div class="faq">

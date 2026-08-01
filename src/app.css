@@ -202,7 +202,7 @@ body.menu-open .mobile-menu{opacity:1;visibility:visible;transform:none}
 .split p{font-size:var(--text-base);line-height:1.85;color:var(--text-secondary);max-width:54ch}
 .split .lede{font-size:var(--text-lg);line-height:1.7}
 
-.practice-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:44px}
+.practice-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:44px}
 .practice{border-top:1.5px solid var(--border-default);padding-top:24px;display:flex;flex-direction:column;gap:12px}
 .practice .tone{width:34px;height:4px;border-radius:3px;background:var(--tan-400)}
 .practice .tone.gold{background:var(--gold-400)}.practice .tone.sky{background:var(--sky-400)}.practice .tone.tan{background:var(--tan-400)}.practice .tone.rust{background:var(--rust-400)}
@@ -313,6 +313,15 @@ body.menu-open .mobile-menu{opacity:1;visibility:visible;transform:none}
 .ev-head h2{font-family:var(--font-display);font-size:var(--text-2xl);color:var(--brown-700)}
 .ev-head .line{flex:1;height:1px;background:var(--border-default)}
 .ev-head .n{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-muted)}
+
+.offer-cat{display:flex;align-items:baseline;gap:22px;margin:56px 0 4px}
+.offer-cat:first-child{margin-top:44px}
+.offer-cat h3{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-muted)}
+.offer-cat .line{flex:1;height:1px;background:var(--border-default)}
+.offer-row{display:flex;justify-content:space-between;align-items:center;gap:24px;padding:22px 0;border-top:1px solid var(--border-default)}
+.offer-list:last-of-type .offer-row:last-child{border-bottom:1px solid var(--border-default)}
+.offer-row h4{font-family:var(--font-display);font-size:var(--text-lg);color:var(--brown-700)}
+.offer-row p{font-size:var(--text-sm);color:var(--text-secondary);margin-top:6px;max-width:52ch}
 .ev{display:grid;grid-template-columns:96px 1fr auto;gap:clamp(24px,4vw,52px);align-items:center;padding:32px 0;border-bottom:1px solid var(--border-default)}
 .ev .cal{text-align:center;border:1px solid var(--border-default);border-radius:var(--radius-md);padding:16px 0}
 .ev .cal .d{font-family:var(--font-display);font-size:var(--text-2xl);line-height:1;color:var(--rust-500)}
@@ -415,6 +424,7 @@ footer{background:var(--brown-800);color:var(--cream-50)}
   .about-cards{grid-template-columns:1fr;gap:0}
   .ev{grid-template-columns:72px 1fr;gap:24px}
   .ev .act{grid-column:1/-1;flex-direction:row;align-items:center;justify-content:space-between}
+  .offer-row{flex-direction:column;align-items:flex-start}
 }
 @media(max-width:640px){
   .practice-grid{grid-template-columns:1fr;gap:0}

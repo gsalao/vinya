@@ -80,7 +80,7 @@
 <section class="sec">
 	<div class="wrap">
 		<div class="sec-head row reveal" use:reveal>
-			<div><div class="eyebrow">The practice</div><h2>Four ways to breathe this week</h2></div>
+			<div><div class="eyebrow">The practice</div><h2>Two classes to breathe this week</h2></div>
 			<a class="tlink" href="/classes">See the full timetable <span>→</span></a>
 		</div>
 		<div class="practice-grid">
@@ -162,7 +162,7 @@
 	<div class="wrap">
 		<div class="sec-head reveal" use:reveal><div class="eyebrow">In their words</div><h2 style="margin-top:18px">Quietly, people keep coming back.</h2></div>
 		<div class="quotes">
-			<div class="quote reveal" use:reveal><p>"I came in stiff and a little cynical. I left breathing differently. The room is so quiet you can actually hear yourself soften."</p><div class="who">Marieke · Slow Flow</div></div>
+			<div class="quote reveal" use:reveal><p>"I came in stiff and a little cynical. I left breathing differently. The room is so quiet you can actually hear yourself soften."</p><div class="who">Marieke · Slow Yoga Adjustment</div></div>
 			<div class="quote reveal" use:reveal><p>"First yoga in my life at 43. Nobody made me feel behind. I've been back every week since."</p><div class="who">Tomas · Beginners course</div></div>
 			<div class="quote reveal" use:reveal><p>"The 1:1 sessions with Nikita did more for my sleep than anything else this year. Gentle, and exactly what I needed."</p><div class="who">Sanne · 1:1 Holistic</div></div>
 		</div>

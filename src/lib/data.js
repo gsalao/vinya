@@ -1,27 +1,54 @@
 export const classes = [
-	{ name: 'Slow Flow', tone: 'tan', meta: '60 min · All levels · Mat provided', blurb: 'Long exhales, few poses, plenty of time. The one to start with.', detail: "Unhurried movement with long exhales. If you've never practised before, start here." },
-	{ name: 'Vinyasa Bloom', tone: 'gold', meta: '75 min · Some experience', blurb: 'Breath-led movement that builds warmth, then lets it settle.', detail: 'Breath-led sequences that build warmth and then let it settle. Options offered throughout.' },
-	{ name: 'Restore & Breathe', tone: 'sky', meta: '60 min · All levels · Bolsters', blurb: 'Supported shapes held long enough for the nervous system to believe you.', detail: 'Few shapes, held long. For weeks that have asked a lot of you.' },
-	{ name: 'Breath & Sound', tone: 'rust', meta: '45 min · All levels · Lying down', blurb: 'Guided breathwork, then sound. You lie down for most of it.', detail: 'Guided breathwork followed by sound. No movement experience needed at all.' }
+	{ name: 'Kundalini Yoga', tone: 'tan', meta: '60 min · All levels · Mat provided', blurb: 'Breath, mantra and movement built in kriyas that rise slowly, then let go.', detail: 'Kriyas that build slowly through breath, mantra and movement, then let go. No experience needed.' },
+	{ name: 'Slow Yoga Adjustment', tone: 'sky', meta: '60 min · All levels · Hands-on adjustment', blurb: 'Slow shapes, held long, with hands-on adjustment so you feel exactly where you hold on.', detail: 'Slow shapes held long, with hands-on adjustment throughout so you feel exactly where you hold on.' }
 ];
 
 export const timetable = [
-	{ day: 'Monday', slots: [['07:30', 'Slow Flow', '60 min'], ['18:30', 'Vinyasa Bloom', '75 min']] },
-	{ day: 'Tuesday', slots: [['19:00', 'Restore & Breathe', '60 min']] },
-	{ day: 'Wednesday', slots: [['07:30', 'Slow Flow', '60 min'], ['18:30', 'Breath & Sound', '45 min']] },
-	{ day: 'Thursday', slots: [['18:30', 'Vinyasa Bloom', '75 min']] },
-	{ day: 'Saturday', slots: [['09:30', 'Vinyasa Bloom', '75 min'], ['11:15', 'Slow Flow', '60 min']] }
+	{ day: 'Tuesday', slots: [['10:30', 'Kundalini Yoga', '60 min']] },
+	{ day: 'Sunday', slots: [['12:45', 'Slow Yoga Adjustment', '60 min']] }
 ];
 
+export const venue = {
+	name: 'Tru Colours',
+	address: 'Geschutswerf 12-14, 1018 BX Amsterdam'
+};
+
 export const prices = [
-	{ lbl: 'Drop-in', amt: '€18', note: 'One class, whenever it suits.' },
-	{ lbl: '5-class pass', amt: '€80', note: 'Valid three months. No rush.' },
-	{ lbl: '10-class pass', amt: '€150', note: 'Valid six months. Most people land here.', feature: true },
-	{ lbl: '1:1 session', amt: '€65', note: '75 min, yoga or holistic.' }
+	{ lbl: 'Drop-in', amt: '€15', note: 'One class, whenever it suits.' },
+	{ lbl: '5-class pass', amt: '€50', note: 'Valid three months. No rush.' },
+	{ lbl: '10-class pass', amt: '€90', note: 'Valid six months. Most people land here.', feature: true },
+	{ lbl: '1:1 session', amt: '€60', note: '75 min, yoga or holistic.' }
+];
+
+export const offerings = [
+	{
+		cat: 'Weekly', items: [
+			{ name: 'Multi-Style Yoga Classes', note: 'A rotating mix of styles across the week, beyond the set timetable.' },
+			{ name: 'Pre & Post Natal Yoga', note: 'Gentle, safe practice through pregnancy and after.' }
+		]
+	},
+	{
+		cat: 'Monthly', items: [
+			{ name: 'Community Yoga & Brunch', note: 'Practice together, then stay for food.' },
+			{ name: 'Social Events', note: 'Gatherings beyond the mat.' }
+		]
+	},
+	{
+		cat: 'Private', items: [
+			{ name: 'Birthday Celebration', note: 'Yoga as part of the celebration, wherever you are hosting.' },
+			{ name: 'Friend Gathering', note: 'A private class with your own group.' },
+			{ name: '1:1 Sessions', note: 'One on one, yoga or holistic.' }
+		]
+	},
+	{
+		cat: 'Corporate Teambuilding', items: [
+			{ name: 'Yoga, Soundhealing & Brunch', note: 'A team morning off-site, on the mat and around the table.' }
+		]
+	}
 ];
 
 export const faqs = [
-	{ q: "I've never done yoga. Is that really okay?", a: "Yes, and you won't be the only one. Slow Flow and Breath & Sound are both built for a first class. Tell us when you arrive and your teacher will keep an eye on you without making it obvious." },
+	{ q: "I've never done yoga. Is that really okay?", a: "Yes, and you won't be the only one. Kundalini Yoga and Slow Yoga Adjustment are both built for a first class. Tell us when you arrive and your teacher will keep an eye on you without making it obvious." },
 	{ q: 'What should I bring?', a: 'Comfortable clothes, water, and socks if you get cold. Mats, bolsters and blankets are here. Bring your own mat if you would rather.' },
 	{ q: 'How early should I arrive?', a: 'Ten minutes is plenty. Doors close at the start time so the room stays quiet. If you are running late, message us and we will let you in between sections.' },
 	{ q: 'Do I need to book in advance?', a: 'Please do, groups are small and classes fill. Book through the form on this site and you will get a confirmation by email.' },
@@ -44,6 +71,8 @@ export const events = [
 ];
 
 export const bookOptions = [
-	'Slow Flow', 'Vinyasa Bloom', 'Restore & Breathe', 'Breath & Sound', '1:1 Holistic session', 'Beginners course (4 evenings)',
+	'Kundalini Yoga', 'Slow Yoga Adjustment', '1:1 Holistic session', 'Beginners course (4 evenings)',
+	'Multi-Style Yoga Classes', 'Pre & Post Natal Yoga', 'Community Yoga & Brunch', 'Social Events',
+	'Birthday Celebration', 'Friend Gathering', '1:1 Sessions', 'Yoga, Soundhealing & Brunch',
 	'Full Moon Flow & Sound Bath · 8 Aug', 'Bloom Slowly: beginners workshop · 23 Aug', 'Sunrise Rooftop Flow · 5 Sep', 'Breath & Body day retreat · 26 Sep'
 ];

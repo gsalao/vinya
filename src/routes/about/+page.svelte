@@ -2,6 +2,7 @@
 	import { reveal } from '$lib/reveal.js';
 	import Ph from '$lib/components/Ph.svelte';
 	import { openBooking } from '$lib/booking.js';
+	import { venue } from '$lib/data.js';
 </script>
 
 <svelte:head><title>About — Vinya Yoga</title></svelte:head>
@@ -39,7 +40,7 @@
 			<div class="side-card">
 				<div class="k">Find us</div>
 				<div class="row">
-					<span>Studio location, to confirm</span>
+					<span>{venue.name} · {venue.address}</span>
 					<span>Instagram @vinya (to confirm)</span>
 					<span>hello@vinya.yoga (placeholder)</span>
 				</div>

@@ -1,6 +1,10 @@
+export const providers = {
+	truColours: { name: 'Tru Colours', address: 'Geschutswerf 12-14, 1018 BX Amsterdam' }
+};
+
 export const classes = [
-	{ name: 'Kundalini Yoga', tone: 'tan', meta: '60 min · All levels · Mat provided', blurb: 'Breath, mantra and movement built in kriyas that rise slowly, then let go.', detail: 'Kriyas that build slowly through breath, mantra and movement, then let go. No experience needed.' },
-	{ name: 'Slow Yoga Adjustment', tone: 'sky', meta: '60 min · All levels · Hands-on adjustment', blurb: 'Slow shapes, held long, with hands-on adjustment so you feel exactly where you hold on.', detail: 'Slow shapes held long, with hands-on adjustment throughout so you feel exactly where you hold on.' }
+	{ name: 'Kundalini Yoga', tone: 'tan', meta: '60 min · All levels · Mat provided', blurb: 'Breath, mantra and movement built in kriyas that rise slowly, then let go.', provider: 'truColours' },
+	{ name: 'Slow Yoga Adjustment', tone: 'sky', meta: '60 min · All levels · Hands-on adjustment', blurb: 'Slow shapes, held long, with hands-on adjustment so you feel exactly where you hold on.', provider: 'truColours' }
 ];
 
 export const timetable = [
@@ -8,10 +12,13 @@ export const timetable = [
 	{ day: 'Sunday', slots: [['12:45', 'Slow Yoga Adjustment', '60 min']] }
 ];
 
-export const venue = {
-	name: 'Tru Colours',
-	address: 'Geschutswerf 12-14, 1018 BX Amsterdam'
-};
+export const venue = providers.truColours;
+
+export function locationOf(className) {
+	const c = classes.find((cl) => cl.name === className);
+	const p = c && providers[c.provider];
+	return p ? `${p.name} · ${p.address}` : '';
+}
 
 export const prices = [
 	{ lbl: 'Drop-in', amt: '€15', note: 'One class, whenever it suits.' },

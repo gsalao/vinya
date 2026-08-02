@@ -273,24 +273,35 @@ body.menu-open .mobile-menu{opacity:1;visibility:visible;transform:none}
 .spec h4{font-family:var(--font-display);font-size:var(--text-xl);color:var(--brown-700)}
 .spec p{font-size:var(--text-sm);line-height:1.75;color:var(--text-secondary);margin-top:10px}
 
-/* classes list */
-.class-list{border-top:1px solid var(--border-default)}
-.class-row{display:grid;grid-template-columns:1.5fr 2fr auto;gap:clamp(24px,4vw,56px);align-items:center;
+/* classes list: shared column tracks via subgrid, so "Tru Colours…" lines up
+   across rows regardless of how long each row's Book button label is */
+.class-list{border-top:1px solid var(--border-default);display:grid;grid-template-columns:1.5fr 2fr auto;column-gap:clamp(24px,4vw,56px)}
+.class-row{display:grid;grid-template-columns:subgrid;grid-column:1/-1;align-items:center;
   padding:clamp(30px,4vw,44px) 0;border-bottom:1px solid var(--border-default)}
 .class-row .lead{display:flex;flex-direction:column;gap:10px}
 .class-row .tone{width:38px;height:4px;border-radius:3px;background:var(--tan-400)}
 .class-row .tone.gold{background:var(--gold-400)}.class-row .tone.sky{background:var(--sky-400)}.class-row .tone.tan{background:var(--tan-400)}.class-row .tone.rust{background:var(--rust-400)}
 .class-row h3{font-size:var(--text-2xl);color:var(--brown-700)}
 .class-row .meta{font-size:var(--text-xs);letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted)}
-.class-row p{font-size:var(--text-base);line-height:1.8;color:var(--text-secondary);max-width:52ch}
+.class-row .row-trigger-txt{font-size:var(--text-base);line-height:1.8;color:var(--text-secondary);max-width:52ch}
+
+/* shared tap-to-expand affordance: class rows + timetable slots open the same detail overlay */
+.row-trigger{background:none;border:none;padding:0;margin:0;text-align:left;cursor:pointer;font:inherit;display:flex;flex-direction:column;gap:6px;align-items:flex-start;color:inherit}
+.row-trigger:focus-visible{outline:2px solid var(--sky-500);outline-offset:4px;border-radius:4px}
+.tap-cue{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--tan-500)}
+.tap-cue .arrow{transition:transform .2s var(--ease)}
+.row-trigger:hover .tap-cue,.row-trigger:focus-visible .tap-cue{color:var(--rust-500)}
+.row-trigger:hover .tap-cue .arrow,.row-trigger:focus-visible .tap-cue .arrow{transform:translateX(3px)}
 
 .tt-row{display:grid;grid-template-columns:180px 1fr;gap:40px;align-items:center;padding:26px 0;border-top:1px solid var(--border-default)}
 .tt-row:last-child{border-bottom:1px solid var(--border-default)}
 .tt-row .day{font-family:var(--font-display);font-size:var(--text-xl);color:var(--brown-700)}
 .tt-slots{display:flex;gap:14px;flex-wrap:wrap}
-.slot{display:flex;align-items:center;gap:16px;border:1px solid var(--border-default);border-radius:var(--radius-pill);padding:9px 9px 9px 22px}
+.slot{display:flex;align-items:center;gap:16px;flex-wrap:wrap;row-gap:8px;border:1px solid var(--border-default);border-radius:var(--radius-pill);padding:9px 9px 9px 22px}
 .slot span{font-size:var(--text-sm);color:var(--text-secondary);white-space:nowrap}
 .slot strong{color:var(--brown-700);font-weight:500}
+.slot .row-trigger{flex-direction:row;align-items:center;gap:14px;flex:1;min-width:0}
+.slot .tap-cue{font-size:10.5px;color:var(--tan-500)}
 
 .prices{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
 .price{border:1px solid var(--border-default);border-radius:var(--radius-lg);padding:34px 30px}
@@ -421,6 +432,9 @@ footer{background:var(--brown-800);color:var(--cream-50)}
   .studio-strip{grid-template-columns:1fr 1fr}
   .foot-grid{grid-template-columns:1fr 1fr;gap:40px}
   .tt-row{grid-template-columns:1fr;gap:14px}
+  .slot{max-width:100%}
+  .slot span{white-space:normal}
+  .slot .row-trigger{flex-wrap:wrap;row-gap:4px}
   .about-cards{grid-template-columns:1fr;gap:0}
   .ev{grid-template-columns:72px 1fr;gap:24px}
   .ev .act{grid-column:1/-1;flex-direction:row;align-items:center;justify-content:space-between}

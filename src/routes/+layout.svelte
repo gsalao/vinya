@@ -6,10 +6,17 @@
 	import Header from '$lib/components/Header.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import BookingModal from '$lib/components/BookingModal.svelte';
+	import DetailModal from '$lib/components/DetailModal.svelte';
+	import { booking } from '$lib/booking.js';
+	import { detail } from '$lib/detail.js';
 	let { children } = $props();
 
 	injectAnalytics({ mode: dev ? 'development' : 'production' });
 	injectSpeedInsights();
+
+	$effect(() => {
+		document.body.style.overflow = $booking.open || $detail.open ? 'hidden' : '';
+	});
 </script>
 
 <svelte:head>
@@ -21,3 +28,4 @@
 <main>{@render children()}</main>
 <Footer />
 <BookingModal />
+<DetailModal />

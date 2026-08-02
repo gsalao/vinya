@@ -1,6 +1,6 @@
 <script>
 	import { booking, closeBooking } from '$lib/booking.js';
-	import { bookOptions, timetable } from '$lib/data.js';
+	import { bookOptions, timetable, locationOf } from '$lib/data.js';
 	import { submitBooking } from '$lib/supabase.js';
 
 	let sent = $state(false);
@@ -18,7 +18,7 @@
 	function slotFor(className) {
 		for (const r of timetable) {
 			for (const s of r.slots) {
-				if (s[1] === className) return { day: r.day, time: s[0], end: addMinutes(s[0], parseInt(s[2], 10)), duration: s[2] };
+				if (s[1] === className) return { day: r.day, time: s[0], end: addMinutes(s[0], parseInt(s[2], 10)), duration: s[2], location: locationOf(className) };
 			}
 		}
 		return null;
@@ -56,16 +56,14 @@
 			selected = bookOptions.includes($booking.item) ? $booking.item : bookOptions[0];
 		}
 	});
-	$effect(() => {
-		document.body.style.overflow = $booking.open ? 'hidden' : '';
-	});
-
 	async function submit(e) {
 		e.preventDefault();
 		if (busy) return;
 		busy = true;
 		const dateStr = selectedDate ? fmtDate(new Date(selectedDate)) : slot?.day;
-		const session = slot ? `${selected} · ${slot.day} ${dateStr} · ${slot.time}–${slot.end}` : selected;
+		const session = slot
+			? `${selected} · ${slot.day} ${dateStr} · ${slot.time}–${slot.end}${slot.location ? ` · ${slot.location}` : ''}`
+			: selected;
 		await submitBooking({ session, name, email, notes });
 		busy = false;
 		sent = true;
@@ -102,7 +100,7 @@
 									{#each dateOptions as d}<option value={d.toISOString()}>{slot.day} ({fmtDate(d)})</option>{/each}
 								</select>
 							</label>
-							<p class="form-note">{slot.time}–{slot.end} · {slot.duration}</p>
+							<p class="form-note">{slot.time}–{slot.end} · {slot.duration}{slot.location ? ` · ${slot.location}` : ''}</p>
 						{/if}
 						<div class="two">
 							<label><span>Your name</span><input required bind:value={name} placeholder="Your name" /></label>

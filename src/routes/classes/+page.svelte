@@ -1,7 +1,16 @@
 <script>
 	import { reveal } from '$lib/reveal.js';
 	import { openBooking } from '$lib/booking.js';
-	import { classes, timetable, prices, faqs, venue, offerings } from '$lib/data.js';
+	import { classes, timetable, prices, faqs, offerings, locationOf } from '$lib/data.js';
+	import { openDetail } from '$lib/detail.js';
+
+	function classDetail(c) {
+		openDetail({ eyebrow: 'Class', title: c.name, meta: c.meta, body: c.blurb, location: locationOf(c.name), bookLabel: c.name });
+	}
+	function slotDetail(day, s) {
+		const [time, name, duration] = s;
+		openDetail({ eyebrow: 'Session', title: name, meta: `${day} · ${time} · ${duration}`, location: locationOf(name), bookLabel: name });
+	}
 </script>
 
 <svelte:head><title>Classes — Vinya Yoga</title></svelte:head>
@@ -10,7 +19,7 @@
 	<div class="wrap phead">
 		<div class="lead-row">
 			<div><div class="eyebrow">Classes</div><h1>A week with room in it.</h1></div>
-			<p>Two classes a week, one small studio. Book the week you need. No membership, no pressure to keep a streak.</p>
+			<p>Classes facilitated in different studios. Book the class you need. No membership, no pressure to keep a streak.</p>
 		</div>
 	</div>
 </section>
@@ -21,7 +30,10 @@
 			{#each classes as c}
 				<div class="class-row reveal" use:reveal>
 					<div class="lead"><div class="tone {c.tone}"></div><h3>{c.name}</h3><div class="meta">{c.meta}</div></div>
-					<p>{c.detail}</p>
+					<button class="row-trigger" onclick={() => classDetail(c)}>
+						<span class="row-trigger-txt">{locationOf(c.name)}</span>
+						<span class="tap-cue">Details <span class="arrow">→</span></span>
+					</button>
 					<button class="btn btn-secondary" onclick={() => openBooking(c.name)}>Book {c.name}</button>
 				</div>
 			{/each}
@@ -35,7 +47,6 @@
 			<div><div class="eyebrow">Weekly rhythm</div><h2 style="margin-top:16px">The timetable</h2></div>
 			<span style="font-size:var(--text-sm);color:var(--text-muted)">Tap a session to book</span>
 		</div>
-		<p style="font-size:var(--text-sm);color:var(--text-muted);margin-bottom:28px">Both facilitated by {venue.name} · {venue.address}</p>
 		<div>
 			{#each timetable as r}
 				<div class="tt-row">
@@ -43,7 +54,10 @@
 					<div class="tt-slots">
 						{#each r.slots as s}
 							<div class="slot">
-								<span><strong>{s[0]}</strong> · {s[1]} · {s[2]}</span>
+								<button class="row-trigger" onclick={() => slotDetail(r.day, s)}>
+									<span class="row-trigger-txt"><strong>{s[0]}</strong> · {s[1]} · {s[2]}</span>
+									<span class="tap-cue">Details <span class="arrow">→</span></span>
+								</button>
 								<button class="btn btn-primary sm" onclick={() => openBooking(s[1])}>Book</button>
 							</div>
 						{/each}

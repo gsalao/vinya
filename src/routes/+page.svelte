@@ -116,7 +116,7 @@
 <!-- philosophy -->
 <section class="sec">
 	<div class="wrap triptych">
-		<div class="t reveal" use:reveal><div class="h">Breathe</div><p>Breath is the bridge between who you are guarded and who you are open. We start there, every time.</p></div>
+		<div class="t reveal" use:reveal><div class="h">Breathe</div><p>Breathe is the bridge between who you are guarded and who you are open. We start there, every time.</p></div>
 		<div class="t reveal" use:reveal><div class="h">Connect</div><p>Moving together creates connection together. Come for the practice, stay for the connection.
 </p></div>
 		<div class="t reveal" use:reveal><div class="h">Bloom</div><p>Come as you are today, not as the version you think is ready.</p></div>

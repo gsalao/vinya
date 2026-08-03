@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 64" width="220" height="64">
+	<rect x="14" y="16" width="32" height="32" rx="8" fill="none" stroke="#86acbb" stroke-width="3"/>
+	<rect x="24" y="26" width="12" height="12" rx="2" fill="#86acbb"/>
+	<text x="60" y="29" font-family="Georgia, serif" font-size="17" fill="#2c1a10">Studio</text>
+	<text x="60" y="48" font-family="Georgia, serif" font-size="17" fill="#2c1a10">Two</text>
+</svg>

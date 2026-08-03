@@ -3,7 +3,12 @@
 	import Ph from '$lib/components/Ph.svelte';
 	import Photo from '$lib/components/Photo.svelte';
 	import { openBooking } from '$lib/booking.js';
-	import { classes } from '$lib/data.js';
+	import { classes, partners } from '$lib/data.js';
+
+	let openTip = $state(null);
+	function toggleTip(i) {
+		openTip = openTip === i ? null : i;
+	}
 </script>
 
 <svelte:head><title>Vinya Yoga — Breathe, Connect, Bloom</title></svelte:head>
@@ -181,8 +186,44 @@
 	</div>
 </section>
 
-<!-- jump -->
+<!-- partners & facilitators -->
 <section class="sec">
+	<div class="wrap">
+		<div class="divider reveal" use:reveal><div class="line"></div><span class="lbl">Partners &amp; Facilitators</span><div class="line"></div></div>
+		<div class="partners" style="margin-top:56px">
+			{#each partners as p, i (p.name)}
+				{#if p.href}
+					<a
+						class="partner-logo reveal"
+						use:reveal
+						href={p.href}
+						target="_blank"
+						rel="noopener noreferrer"
+						aria-label={p.name}
+					>
+						<img src={p.logo} alt={p.name} loading="lazy" />
+						<span class="tip">{p.name}</span>
+					</a>
+				{:else}
+					<button
+						type="button"
+						class="partner-logo reveal"
+						class:open={openTip === i}
+						use:reveal
+						aria-label={p.name}
+						onclick={() => toggleTip(i)}
+					>
+						<img src={p.logo} alt={p.name} loading="lazy" />
+						<span class="tip">{p.name}</span>
+					</button>
+				{/if}
+			{/each}
+		</div>
+	</div>
+</section>
+
+<!-- jump -->
+<section class="sec sunken">
 	<div class="wrap">
 		<div class="eyebrow reveal" use:reveal style="margin-bottom:12px">Where to next</div>
 		<div class="jump reveal" use:reveal>

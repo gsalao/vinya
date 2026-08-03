@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 64" width="220" height="64">
+	<circle cx="30" cy="32" r="18" fill="none" stroke="#b5985c" stroke-width="3"/>
+	<circle cx="30" cy="32" r="6" fill="#b5985c"/>
+	<text x="60" y="29" font-family="Georgia, serif" font-size="17" fill="#2c1a10">Partner</text>
+	<text x="60" y="48" font-family="Georgia, serif" font-size="17" fill="#2c1a10">One</text>
+</svg>

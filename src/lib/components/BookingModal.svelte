@@ -5,10 +5,11 @@
 
 	let sent = $state(false);
 	let busy = $state(false);
-	let selected = $state(bookOptions[0]);
+	let selected = $state([]);
 	let name = $state('');
 	let email = $state('');
 	let notes = $state('');
+	let dateByItem = $state({});
 
 	function addMinutes(time, mins) {
 		const [h, m] = time.split(':').map(Number);
@@ -23,7 +24,6 @@
 		}
 		return null;
 	}
-	let slot = $derived(slotFor(selected));
 
 	const DOW = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 	const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -44,29 +44,50 @@
 		return `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
 	}
 
-	let dateOptions = $derived(slot ? nextDates(slot.day) : []);
-	let selectedDate = $state(null);
+	let itemsWithSlots = $derived(selected.map((n) => ({ name: n, slot: slotFor(n) })).filter((x) => x.slot));
+
 	$effect(() => {
-		selectedDate = dateOptions.length ? dateOptions[0].toISOString() : null;
+		for (const { name: n, slot } of itemsWithSlots) {
+			if (!dateByItem[n]) dateByItem[n] = nextDates(slot.day)[0].toISOString();
+		}
 	});
+
+	function toggle(o) {
+		selected = selected.includes(o) ? selected.filter((x) => x !== o) : [...selected, o];
+	}
+
+	let pickerSummary = $derived(
+		selected.length === 0
+			? 'Tap to choose — pick one or more'
+			: selected.length <= 2
+				? selected.join(', ')
+				: `${selected.slice(0, 2).join(', ')} +${selected.length - 2} more`
+	);
 
 	$effect(() => {
 		if ($booking.open) {
 			sent = false;
-			selected = bookOptions.includes($booking.item) ? $booking.item : bookOptions[0];
+			selected = $booking.item && bookOptions.includes($booking.item) ? [$booking.item] : [];
+			dateByItem = {};
 		}
 	});
 	async function submit(e) {
 		e.preventDefault();
-		if (busy) return;
+		if (busy || !selected.length) return;
 		busy = true;
-		const dateStr = selectedDate ? fmtDate(new Date(selectedDate)) : slot?.day;
-		const session = slot
-			? `${selected} · ${slot.day} ${dateStr} · ${slot.time}–${slot.end}${slot.location ? ` · ${slot.location}` : ''}`
-			: selected;
+		const session = selected
+			.map((o) => {
+				const slot = slotFor(o);
+				if (!slot) return o;
+				const dateStr = fmtDate(new Date(dateByItem[o]));
+				return `${o} · ${slot.day} ${dateStr} · ${slot.time}–${slot.end}${slot.location ? ` · ${slot.location}` : ''}`;
+			})
+			.join('; ');
 		await submitBooking({ session, name, email, notes });
 		busy = false;
 		sent = true;
+		selected = [];
+		dateByItem = {};
 		name = '';
 		email = '';
 		notes = '';
@@ -87,21 +108,29 @@
 					<div class="eyebrow">Booking request</div>
 					<h3>Hold a place for me</h3>
 					<form class="form" onsubmit={submit}>
-						<label>
-							<span>What would you like to join?</span>
-							<select bind:value={selected}>
-								{#each bookOptions as o}<option value={o}>{o}</option>{/each}
-							</select>
-						</label>
-						{#if slot}
+						<details class="join-picker">
+							<summary>
+								<span>What would you like to join?</span>
+								<span class="picker-summary">{pickerSummary}</span>
+							</summary>
+							<div class="check-grid">
+								{#each bookOptions as o}
+									<label class="check-chip">
+										<input type="checkbox" checked={selected.includes(o)} onchange={() => toggle(o)} />
+										<span>{o}</span>
+									</label>
+								{/each}
+							</div>
+						</details>
+						{#each itemsWithSlots as { name: n, slot }}
 							<label>
-								<span>Which {slot.day}?</span>
-								<select bind:value={selectedDate}>
-									{#each dateOptions as d}<option value={d.toISOString()}>{slot.day} ({fmtDate(d)})</option>{/each}
+								<span>Which {slot.day} for {n}?</span>
+								<select bind:value={dateByItem[n]}>
+									{#each nextDates(slot.day) as d}<option value={d.toISOString()}>{slot.day} ({fmtDate(d)})</option>{/each}
 								</select>
 							</label>
 							<p class="form-note">{slot.time}–{slot.end} · {slot.duration}{slot.location ? ` · ${slot.location}` : ''}</p>
-						{/if}
+						{/each}
 						<div class="two">
 							<label><span>Your name</span><input required bind:value={name} placeholder="Your name" /></label>
 							<label><span>Email</span><input required type="email" bind:value={email} placeholder="you@email.com" /></label>
@@ -111,7 +140,7 @@
 							<textarea rows="2" bind:value={notes} placeholder="Injuries, first class, nerves. All welcome here."></textarea>
 						</label>
 						<div style="display:flex;gap:14px;align-items:center;margin-top:4px;flex-wrap:wrap">
-							<button class="btn btn-primary lg" type="submit" disabled={busy}>{busy ? 'Sending…' : 'Send request'}</button>
+							<button class="btn btn-primary lg" type="submit" disabled={busy || !selected.length}>{busy ? 'Sending…' : 'Send request'}</button>
 							<span class="form-note">No payment now. You'll hear back by email.</span>
 						</div>
 					</form>

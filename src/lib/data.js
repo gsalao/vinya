@@ -2,6 +2,32 @@ export const providers = {
 	truColours: { name: 'Tru Colours', address: 'Geschutswerf 12-14, 1018 BX Amsterdam' }
 };
 
+// Add a new teacher by adding an entry here. photo.src/srcset point at files in
+// static/images/; fx/fy are the focal point (see Photo.svelte for the ALT-drag tool).
+export const teachers = [
+	{
+		slug: 'nikita-coppens',
+		name: 'Nikita Coppens',
+		role: 'Yoga teacher · Holistic therapeut',
+		intro: 'Nikita came to yoga the long way around, through years of care work, and it shows in how she holds a room. Patient, attuned, and unhurried.',
+		highlights: [
+			'Originally from the Netherlands',
+			'Teaches yoga, breathwork, and Kirtan',
+			'Also offers 1:1 holistic sessions',
+			'Background in Dutch mental-health care (GGZ)',
+			'Studied yoga, sound healing and alternative medicine in India'
+		],
+		photo: {
+			src: '/images/nikita-standing-2200.jpg',
+			srcset: '/images/nikita-standing-1400.jpg 1400w, /images/nikita-standing-2200.jpg 2200w',
+			alt: 'Nikita Coppens standing in natural light',
+			fx: 50,
+			fy: 20
+		},
+		cta: { label: 'Book a 1:1 with Nikita', option: '1:1 Holistic session' }
+	}
+];
+
 export const classes = [
 	{ name: 'Kundalini Yoga', tone: 'tan', meta: '60 min · All levels · Mat provided', blurb: 'Breath, mantra and movement built in kriyas that rise slowly, then let go.', provider: 'truColours' },
 	{ name: 'Slow Yoga Adjustment', tone: 'sky', meta: '60 min · All levels · Hands-on adjustment', blurb: 'Slow shapes, held long, with hands-on adjustment so you feel exactly where you hold on.', provider: 'truColours' }
@@ -75,6 +101,15 @@ export const events = [
 			{ d: '26', w: 'Sat', name: 'Breath & Body: a day retreat', det: '09:30 to 16:00 · €95 · Lunch included', p: 'Two practices, a long lunch, and holistic bodywork in between. Eight people only.', rem: '8 places' }
 		]
 	}
+];
+
+// Add a new partner/facilitator by adding an entry here. logo points at a file in
+// static/logos/. href is optional — with it the logo links out, without it the
+// logo just shows its tooltip.
+export const partners = [
+	{ name: 'Partner One', logo: '/logos/partner-placeholder-1.svg', href: 'https://example.com' },
+	{ name: 'Studio Two', logo: '/logos/partner-placeholder-2.svg' },
+	{ name: 'Collective Three', logo: '/logos/partner-placeholder-3.svg', href: 'https://example.com' }
 ];
 
 export const bookOptions = [

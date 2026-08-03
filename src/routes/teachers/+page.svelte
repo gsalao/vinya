@@ -1,92 +1,85 @@
 <script>
+	import { fade } from 'svelte/transition';
 	import { reveal } from '$lib/reveal.js';
 	import Ph from '$lib/components/Ph.svelte';
+	import Photo from '$lib/components/Photo.svelte';
 	import { openBooking } from '$lib/booking.js';
+	import { teachers } from '$lib/data.js';
+
+	let idx = $state(0);
+	let t = $derived(teachers[idx]);
+	const prevTeacher = () => (idx = (idx - 1 + teachers.length) % teachers.length);
+	const nextTeacher = () => (idx = (idx + 1) % teachers.length);
 </script>
 
 <svelte:head><title>Teachers — Vinya Yoga</title></svelte:head>
 
 <section>
-	<div class="wrap phead">
-		<div class="eyebrow">Teachers</div>
-		<h1>The person holding the room.</h1>
-		<p>Vinya is small and personal on purpose. For now that means one teacher who knows every regular by name, with room to grow the circle as the studio does.</p>
+	<div class="wrap phead" style="padding-top:clamp(32px,5vh,56px);text-align:center">
+		<div class="eyebrow">Who we are</div>
+		<h1 style="margin:14px auto 0">Meet our teachers.</h1>
 	</div>
 </section>
 
-<!-- TOP: balanced two columns (portrait + intro) -->
-<section class="sec" style="padding-top:clamp(48px,6vh,76px)">
-	<div class="wrap teacher-top">
-		<div class="portrait reveal" use:reveal><Ph cap="Nikita Coppens" /></div>
-		<div class="intro reveal" use:reveal>
-			<div class="eyebrow" style="color:var(--rust-500)">Founder &amp; teacher</div>
-			<h2>Nikita Coppens</h2>
-			<p class="tagline">A guide into slow, honest yoga, and the quiet work of the nervous system.</p>
-			<div class="role">Yoga teacher · Holistic therapeut · Netherlands</div>
-			<p class="intro-lede">Nikita came to yoga the long way around, through years of care work, and it shows in how she holds a room. Patient, attuned, and unhurried.</p>
-			<div class="chips">
-				<span class="chip">Yoga</span><span class="chip">Sound healing</span><span class="chip">Holistic therapy</span><span class="chip">Breathwork</span><span class="chip">1:1 sessions</span><span class="chip">Community</span>
-			</div>
-			<div class="facts">
-				<div class="k">At a glance</div>
-				<div class="row">
-					<div><span>Based in</span><b>Netherlands</b></div>
-					<div><span>Teaches</span><b>Yoga &amp; breathwork</b></div>
-					<div><span>Also offers</span><b>1:1 holistic sessions</b></div>
-					<div><span>Background</span><b>Mental-health care (GGZ)</b></div>
-					<div><span>Studied in</span><b>India</b></div>
-				</div>
-			</div>
-			<div class="intro-cta">
-				<button class="btn btn-primary" onclick={() => openBooking('1:1 Holistic session')}>Book a 1:1 with Nikita</button>
-				<a class="btn btn-secondary" href="/classes">See the timetable</a>
-			</div>
-		</div>
-	</div>
-</section>
-
-<!-- FULL-WIDTH: story + studio strip -->
-<section class="sec sunken">
+<!-- TOP: teacher showcase, cycle with the arrows when more than one teacher -->
+<section class="sec" style="padding-top:clamp(20px,3vh,36px)">
 	<div class="wrap">
-		<div class="story reveal" use:reveal>
-			<div class="eyebrow">Her story</div>
-			<div class="bio-measure">
-				<p>Before Vinya, Nikita worked in mental-health care across the Netherlands, as a personal support worker in a sheltered-living organisation. Her caseload was wide and often complex: people living with a mild intellectual disability, borderline, or schizophrenia. She wrote care plans, carried her own caseload, and arranged support through WMO, WLZ and PGB. Work like that teaches you to meet a person where they are, not where a plan says they should be.</p>
-				<p>Her attention kept circling the same question: lasting change, approached holistically. She trained further as an addiction counsellor with Elsden Trainingen, then followed the question further still, to India, where she studied yoga, sound healing and alternative medicine. It widened what health could mean to her. Not only care, but awareness and connection, body and mind treated as one.</p>
-				<p>For the past four years she has been holding gatherings where people come together and, through breath, movement or sound, find a little healing of body and mind. She believes deeply in community and in breaking loneliness: a safe room where people can be themselves and not have to stand alone in whatever they are moving through.</p>
-				<p>At Vinya she brings both halves together, professional care and a broader view of wellbeing, into classes and 1:1 holistic sessions. The intention is always the same. Leave with a little more room to breathe.</p>
+		<div class="teacher-carousel">
+			<button class="car-arrow prev" onclick={prevTeacher} disabled={teachers.length < 2} aria-label="Previous teacher">←</button>
+
+			{#key idx}
+				<div class="teacher-card reveal in" in:fade={{ duration: 220 }}>
+					<div class="portrait">
+						<Photo src={t.photo.src} srcset={t.photo.srcset} sizes="(max-width:820px) 100vw, 40vw" alt={t.photo.alt} fx={t.photo.fx} fy={t.photo.fy} />
+					</div>
+					<div class="info">
+						<h2>{t.name}</h2>
+						<div class="role">{t.role}</div>
+						<p class="intro-lede">{t.intro}</p>
+						<ul class="highlight-list">
+							{#each t.highlights as h}<li>{h}</li>{/each}
+						</ul>
+						<div class="intro-cta">
+							<button class="btn btn-primary" onclick={() => openBooking(t.cta.option)}>{t.cta.label}</button>
+							<a class="btn btn-secondary" href="/classes">See the timetable</a>
+						</div>
+					</div>
+				</div>
+			{/key}
+
+			<button class="car-arrow next" onclick={nextTeacher} disabled={teachers.length < 2} aria-label="Next teacher">→</button>
+		</div>
+		{#if teachers.length > 1}
+			<div class="car-dots">
+				{#each teachers as team, i}<button class="dot" class:active={i === idx} onclick={() => (idx = i)} aria-label={`Show ${team.name}`}></button>{/each}
 			</div>
-		</div>
-		<div class="studio-strip reveal" use:reveal>
-			<div class="g"><Ph cap="In the studio" tone="sky" /></div>
-			<div class="g"><Ph cap="A gathering" tone="gold" /></div>
-			<div class="g"><Ph cap="Breathwork" tone="tan" /></div>
-		</div>
+		{/if}
 	</div>
 </section>
+
 
 <!-- FULL-WIDTH: how she works -->
-<section class="sec">
+<section class="sec sunken">
 	<div class="wrap">
-		<div class="sec-head reveal" use:reveal><div class="eyebrow">How Nikita works</div><h2 style="margin-top:18px">Care first, always.</h2></div>
+		<div class="sec-head reveal" use:reveal style="text-align:center;margin-left:auto;margin-right:auto"><div class="eyebrow">How Vinya teachers work</div><h2 style="margin-top:18px">Care first, always.</h2></div>
 		<div class="spec-grid">
-			<div class="spec reveal" use:reveal><h4>How she teaches</h4><p>Patient and attuned. She meets you where you are today, offering an invitation as clearly as an instruction.</p></div>
+			<div class="spec reveal" use:reveal><h4>How we teaches</h4><p>Patient and attuned. She meets you where you are today, offering an invitation as clearly as an instruction.</p></div>
 			<div class="spec reveal" use:reveal><h4>Care background</h4><p>Years in Dutch mental-health care (GGZ) as a personal support worker, and trained as an addiction counsellor.</p></div>
 			<div class="spec reveal" use:reveal><h4>Studied in India</h4><p>Yoga, sound healing and alternative medicine, where her view of health widened to body and mind as one.</p></div>
 			<div class="spec reveal" use:reveal><h4>Beyond class</h4><p>1:1 holistic sessions and community sound-healing gatherings, built around not standing alone.</p></div>
 		</div>
-		<div class="reveal" use:reveal style="margin-top:52px;display:flex;gap:14px;flex-wrap:wrap">
-			<button class="btn btn-primary" onclick={() => openBooking('1:1 Holistic session')}>Book a 1:1 with Nikita</button>
+		<div class="reveal" use:reveal style="margin-top:52px;display:flex;gap:14px;flex-wrap:wrap;justify-content:center">
+			<button class="btn btn-primary" onclick={() => openBooking('1:1 Holistic session')}>Book a 1:1 session</button>
 			<a class="btn btn-secondary" href="/classes">See the timetable</a>
 		</div>
 	</div>
 </section>
 
-<section class="sec sunken">
+<section class="sec">
 	<div class="wrap wrap-narrow" style="text-align:center">
 		<div class="divider reveal" use:reveal><div class="line"></div><span class="lbl">Growing the circle</span><div class="line"></div></div>
 		<blockquote class="blockquote-lg reveal" use:reveal style="margin-top:48px;max-width:24ch">Room for more teachers, when the right ones arrive.</blockquote>
-		<p class="reveal" use:reveal style="font-size:var(--text-base);line-height:1.85;color:var(--text-secondary);margin:28px auto 0;max-width:52ch">Vinya will stay small, but not solo forever. As guest teachers and workshop leaders join, they'll be introduced here, each with their own way of holding the room.</p>
+		<p class="reveal" use:reveal style="font-size:var(--text-base);line-height:1.85;color:var(--text-secondary);margin:28px auto 0;max-width:52ch">Vinya is always open for collaboration. As guest teachers and workshop leaders join, they'll be introduced here, each with their own way of holding the room.</p>
 		<div class="reveal" use:reveal style="margin-top:36px"><button class="btn btn-secondary" onclick={() => openBooking('a class')}>Get in touch about teaching</button></div>
 	</div>
 </section>

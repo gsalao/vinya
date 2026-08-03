@@ -98,7 +98,7 @@
 	</div>
 </section>
 
-<section class="sec">
+<section class="sec" id="faq">
 	<div class="wrap wrap-narrow">
 		<div class="sec-head reveal" use:reveal><div class="eyebrow">First time?</div><h2 style="margin-top:18px">Everything you're quietly wondering</h2></div>
 		<div class="faq">

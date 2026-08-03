@@ -1,7 +1,7 @@
 <script>
 	import { subscribeEmail } from '$lib/supabase.js';
 	let email = $state('');
-	let note = $state('No more than once a month.');
+	let note = $state('');
 	let busy = $state(false);
 
 	async function join() {
@@ -28,7 +28,7 @@
 		</div>
 		<div class="foot-col">
 			<div class="h">Practical</div>
-			<a href="/classes">First-timer FAQ</a><a href="/classes">Passes &amp; prices</a><a href="/about">Find us</a>
+			<a href="/classes#faq">First-timer FAQ</a><a href="/classes">Passes &amp; prices</a><a href="/about">Find us</a>
 		</div>
 		<div class="foot-col">
 			<div class="h">Stay close</div>
@@ -42,6 +42,5 @@
 	</div>
 	<div class="wrap foot-bottom">
 		<span>© 2026 Vinya Yoga</span>
-		<span>Prototype · content placeholders throughout</span>
 	</div>
 </footer>

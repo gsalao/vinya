@@ -5,7 +5,7 @@
 	import { venue } from '$lib/data.js';
 </script>
 
-<svelte:head><title>About — Vinya Yoga</title></svelte:head>
+<svelte:head><title>About: Vinya Yoga</title></svelte:head>
 
 <section>
 	<div class="wrap phead">
@@ -37,14 +37,6 @@
 		</div>
 		<div class="reveal" use:reveal style="display:flex;flex-direction:column;gap:24px;position:sticky;top:104px">
 			<div class="media" style="border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-card);aspect-ratio:4/5"><Ph cap="The studio" tone="sky" /></div>
-			<div class="side-card">
-				<div class="k">Find us</div>
-				<div class="row">
-					<span>{venue.name} · {venue.address}</span>
-					<span>Instagram @vinya (to confirm)</span>
-					<span>hello@vinya.yoga (placeholder)</span>
-				</div>
-			</div>
 		</div>
 	</div>
 </section>

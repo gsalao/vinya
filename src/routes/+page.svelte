@@ -11,7 +11,7 @@
 	}
 </script>
 
-<svelte:head><title>Vinya Yoga — Breathe, Connect, Bloom</title></svelte:head>
+<svelte:head><title>Vinya Yoga</title></svelte:head>
 
 <!-- HERO (copy | seam: braided vine + image edge in one SVG | image) -->
 <section class="hero">

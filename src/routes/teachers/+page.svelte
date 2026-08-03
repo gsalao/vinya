@@ -12,7 +12,7 @@
 	const nextTeacher = () => (idx = (idx + 1) % teachers.length);
 </script>
 
-<svelte:head><title>Teachers — Vinya Yoga</title></svelte:head>
+<svelte:head><title>Teachers: Vinya Yoga</title></svelte:head>
 
 <section>
 	<div class="wrap phead" style="padding-top:clamp(32px,5vh,56px);text-align:center">

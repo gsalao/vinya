@@ -6,7 +6,7 @@
 	let archiveOpen = $state(false);
 </script>
 
-<svelte:head><title>Events — Vinya Yoga</title></svelte:head>
+<svelte:head><title>Events: Vinya Yoga</title></svelte:head>
 
 <section>
 	<div class="wrap phead">

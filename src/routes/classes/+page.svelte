@@ -13,7 +13,7 @@
 	}
 </script>
 
-<svelte:head><title>Classes — Vinya Yoga</title></svelte:head>
+<svelte:head><title>Classes: Vinya Yoga</title></svelte:head>
 
 <section>
 	<div class="wrap phead">

@@ -68,7 +68,7 @@
 	</div>
 </section>
 
-<section class="sec">
+<section class="sec" id="prices">
 	<div class="wrap">
 		<div class="sec-head reveal" use:reveal><div class="eyebrow">Passes &amp; prices</div><h2 style="margin-top:18px">Pay for the week you need.</h2></div>
 		<div class="prices">

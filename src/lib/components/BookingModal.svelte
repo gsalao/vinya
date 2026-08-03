@@ -1,9 +1,11 @@
 <script>
 	import { booking, closeBooking } from '$lib/booking.js';
 	import { bookOptions, timetable, locationOf } from '$lib/data.js';
-	import { submitBooking } from '$lib/supabase.js';
+	import { submitBooking, supabaseEnabled } from '$lib/supabase.js';
 
 	let sent = $state(false);
+	let simulated = $state(false);
+	let failed = $state('');
 	let busy = $state(false);
 	let selected = $state([]);
 	let name = $state('');
@@ -67,6 +69,7 @@
 	$effect(() => {
 		if ($booking.open) {
 			sent = false;
+			failed = '';
 			selected = $booking.item && bookOptions.includes($booking.item) ? [$booking.item] : [];
 			dateByItem = {};
 		}
@@ -75,6 +78,7 @@
 		e.preventDefault();
 		if (busy || !selected.length) return;
 		busy = true;
+		failed = '';
 		const session = selected
 			.map((o) => {
 				const slot = slotFor(o);
@@ -83,8 +87,16 @@
 				return `${o} · ${slot.day} ${dateStr} · ${slot.time}–${slot.end}${slot.location ? ` · ${slot.location}` : ''}`;
 			})
 			.join('; ');
-		await submitBooking({ session, name, email, notes });
+		const res = await submitBooking({ session, name, email, notes });
 		busy = false;
+		// Never claim a place is held when nothing reached the backend: without that
+		// the form reads "Held, gently." whether the row was written, the insert was
+		// rejected, or there is no backend configured at all.
+		if (!res.ok) {
+			failed = 'That did not go through. Please try again in a moment.';
+			return;
+		}
+		simulated = Boolean(res.simulated);
 		sent = true;
 		selected = [];
 		dateByItem = {};
@@ -143,12 +155,20 @@
 							<button class="btn btn-primary lg" type="submit" disabled={busy || !selected.length}>{busy ? 'Sending…' : 'Send request'}</button>
 							<span class="form-note">No payment now. You'll hear back by email.</span>
 						</div>
+						{#if failed}<p class="form-alert" role="alert">{failed}</p>{/if}
+						{#if !supabaseEnabled}
+							<p class="form-alert" role="status">Prototype mode. No booking backend is connected yet, so this form will not reach anyone.</p>
+						{/if}
 					</form>
 				{:else}
 					<div class="eyebrow">Request sent</div>
 					<h3>Held, gently.</h3>
 					<div style="display:flex;flex-direction:column;gap:18px">
-						<p style="font-size:var(--text-base);line-height:1.8;color:var(--text-secondary)">Your request is in. You'll get a confirmation by email within a day, and payment can be on arrival or by transfer, whichever is easier.</p>
+						{#if simulated}
+							<p class="form-alert" role="status">Prototype mode. Nothing was actually sent, because no booking backend is connected yet.</p>
+						{:else}
+							<p style="font-size:var(--text-base);line-height:1.8;color:var(--text-secondary)">Your request is in. You'll get a confirmation by email within a day, and payment can be on arrival or by transfer, whichever is easier.</p>
+						{/if}
 						<div><button class="btn btn-secondary" onclick={closeBooking}>Close</button></div>
 					</div>
 				{/if}

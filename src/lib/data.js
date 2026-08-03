@@ -20,6 +20,7 @@ export const teachers = [
 		photo: {
 			src: '/images/nikita-standing-2200.jpg',
 			srcset: '/images/nikita-standing-1400.jpg 1400w, /images/nikita-standing-2200.jpg 2200w',
+			srcsetWebp: '/images/nikita-standing-1400.webp 1400w, /images/nikita-standing-2200.webp 2200w',
 			alt: 'Nikita Coppens standing in natural light',
 			fx: 50,
 			fy: 20
@@ -112,9 +113,24 @@ export const partners = [
 	{ name: 'Collective Three', logo: '/logos/partner-placeholder-3.svg', href: 'https://example.com' }
 ];
 
+// The one place an event's booking label is spelled out. Number() drops the
+// leading zero the calendar chip needs ('08'), so the label the Reserve button
+// sends and the label in the picker can't drift apart.
+export function eventLabel(item, group) {
+	return `${item.name} · ${Number(item.d)} ${group.month.slice(0, 3)}`;
+}
+
+// Picker entries that aren't a class, an offering or an event.
+const standaloneBookOptions = ['1:1 Holistic session', 'Beginners course (4 evenings)'];
+
+// Derived, never hand-kept. openBooking() preselects on an exact match against
+// this list, so a label written out a second time anywhere else opens an empty
+// picker with the submit button disabled — which is what /events used to do.
 export const bookOptions = [
-	'Kundalini Yoga', 'Slow Yoga Adjustment', '1:1 Holistic session', 'Beginners course (4 evenings)',
-	'Multi-Style Yoga Classes', 'Pre & Post Natal Yoga', 'Community Yoga & Brunch', 'Social Events',
-	'Birthday Celebration', 'Friend Gathering', '1:1 Sessions', 'Yoga, Soundhealing & Brunch',
-	'Full Moon Flow & Sound Bath · 8 Aug', 'Bloom Slowly: beginners workshop · 23 Aug', 'Sunrise Rooftop Flow · 5 Sep', 'Breath & Body day retreat · 26 Sep'
+	...new Set([
+		...classes.map((c) => c.name),
+		...standaloneBookOptions,
+		...offerings.flatMap((g) => g.items.map((i) => i.name)),
+		...events.flatMap((g) => g.items.map((i) => eventLabel(i, g)))
+	])
 ];

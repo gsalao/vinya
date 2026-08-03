@@ -3,7 +3,11 @@
 	import Ph from '$lib/components/Ph.svelte';
 	import Photo from '$lib/components/Photo.svelte';
 	import { openBooking } from '$lib/booking.js';
-	import { classes, partners } from '$lib/data.js';
+	import { classes, partners, events, eventLabel } from '$lib/data.js';
+
+	// The band below shows the next gathering. Its copy is written out here, but the
+	// booking label is taken from the events data so it always matches the picker.
+	const nextGathering = eventLabel(events[0].items[0], events[0]);
 
 	let openTip = $state(null);
 	function toggleTip(i) {
@@ -44,6 +48,7 @@
 		<Photo
 			src="/images/nikita-form-2200.jpg"
 			srcset="/images/nikita-form-1400.jpg 1400w, /images/nikita-form-2200.jpg 2200w"
+			srcsetWebp="/images/nikita-form-1400.webp 1400w, /images/nikita-form-2200.webp 2200w"
 			sizes="(max-width:820px) 100vw, 50vw"
 			alt="Nikita in a seated backbend on a wooden deck, surrounded by palms"
 			fx={50}
@@ -154,7 +159,7 @@
 			<p>Saturday 19:00 · 90 minutes · €28 · Location to be confirmed. Slow flow as the light goes, then sound to close.</p>
 		</div>
 		<div class="reveal" use:reveal style="display:flex;flex-direction:column;gap:14px">
-			<button class="btn btn-primary lg" onclick={() => openBooking('Full Moon Flow & Sound Bath · 8 Aug')}>Reserve your place</button>
+			<button class="btn btn-primary lg" onclick={() => openBooking(nextGathering)}>Reserve your place</button>
 			<a style="font-size:var(--text-sm);color:var(--tan-300);text-align:center;letter-spacing:.06em" href="/events">All events</a>
 		</div>
 	</div>
@@ -229,7 +234,7 @@
 		<div class="jump reveal" use:reveal>
 			<a href="/classes"><span>Find a class for you</span><span class="arrow">→</span></a>
 			<a href="/events"><span>Workshops &amp; gatherings</span><span class="arrow">→</span></a>
-			<a href="/classes"><span>Passes &amp; prices</span><span class="arrow">→</span></a>
+			<a href="/classes#prices"><span>Passes &amp; prices</span><span class="arrow">→</span></a>
 			<a href="/teachers"><span>Meet your teachers</span><span class="arrow">→</span></a>
 		</div>
 	</div>

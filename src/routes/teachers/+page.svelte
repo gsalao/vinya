@@ -25,12 +25,14 @@
 <section class="sec" style="padding-top:clamp(20px,3vh,36px)">
 	<div class="wrap">
 		<div class="teacher-carousel">
-			<button class="car-arrow prev" onclick={prevTeacher} disabled={teachers.length < 2} aria-label="Previous teacher">←</button>
+			{#if teachers.length > 1}
+				<button class="car-arrow prev" onclick={prevTeacher} aria-label="Previous teacher">←</button>
+			{/if}
 
 			{#key idx}
 				<div class="teacher-card reveal in" in:fade={{ duration: 220 }}>
 					<div class="portrait">
-						<Photo src={t.photo.src} srcset={t.photo.srcset} sizes="(max-width:820px) 100vw, 40vw" alt={t.photo.alt} fx={t.photo.fx} fy={t.photo.fy} />
+						<Photo src={t.photo.src} srcset={t.photo.srcset} srcsetWebp={t.photo.srcsetWebp} sizes="(max-width:820px) 100vw, 40vw" alt={t.photo.alt} fx={t.photo.fx} fy={t.photo.fy} />
 					</div>
 					<div class="info">
 						<h2>{t.name}</h2>
@@ -47,7 +49,9 @@
 				</div>
 			{/key}
 
-			<button class="car-arrow next" onclick={nextTeacher} disabled={teachers.length < 2} aria-label="Next teacher">→</button>
+			{#if teachers.length > 1}
+				<button class="car-arrow next" onclick={nextTeacher} aria-label="Next teacher">→</button>
+			{/if}
 		</div>
 		{#if teachers.length > 1}
 			<div class="car-dots">
@@ -63,9 +67,9 @@
 	<div class="wrap">
 		<div class="sec-head reveal" use:reveal style="text-align:center;margin-left:auto;margin-right:auto"><div class="eyebrow">How Vinya teachers work</div><h2 style="margin-top:18px">Care first, always.</h2></div>
 		<div class="spec-grid">
-			<div class="spec reveal" use:reveal><h4>How we teaches</h4><p>Patient and attuned. She meets you where you are today, offering an invitation as clearly as an instruction.</p></div>
-			<div class="spec reveal" use:reveal><h4>Care background</h4><p>Years in Dutch mental-health care (GGZ) as a personal support worker, and trained as an addiction counsellor.</p></div>
-			<div class="spec reveal" use:reveal><h4>Studied in India</h4><p>Yoga, sound healing and alternative medicine, where her view of health widened to body and mind as one.</p></div>
+			<div class="spec reveal" use:reveal><h4>How we teach</h4><p>Patient and attuned. We meet you where you are today, offering an invitation as clearly as an instruction.</p></div>
+			<div class="spec reveal" use:reveal><h4>Care background</h4><p>Years in Dutch mental-health care (GGZ) as a personal support worker, and training as an addiction counsellor.</p></div>
+			<div class="spec reveal" use:reveal><h4>Studied in India</h4><p>Yoga, sound healing and alternative medicine, where our view of health widened to body and mind as one.</p></div>
 			<div class="spec reveal" use:reveal><h4>Beyond class</h4><p>1:1 holistic sessions and community sound-healing gatherings, built around not standing alone.</p></div>
 		</div>
 		<div class="reveal" use:reveal style="margin-top:52px;display:flex;gap:14px;flex-wrap:wrap;justify-content:center">

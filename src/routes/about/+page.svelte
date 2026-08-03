@@ -3,6 +3,11 @@
 	import Ph from '$lib/components/Ph.svelte';
 	import Photo from '$lib/components/Photo.svelte';
 	import { openBooking } from '$lib/booking.js';
+	import { providers } from '$lib/data.js';
+
+	const venues = Object.values(providers);
+	const mapsUrl = (v) =>
+		`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${v.name} ${v.address}`)}`;
 </script>
 
 <svelte:head><title>About: Vinya Yoga</title></svelte:head>
@@ -51,6 +56,7 @@
 			<Photo
 				src="/images/nikita-standing-2200.jpg"
 				srcset="/images/nikita-standing-1400.jpg 1400w, /images/nikita-standing-2200.jpg 2200w"
+				srcsetWebp="/images/nikita-standing-1400.webp 1400w, /images/nikita-standing-2200.webp 2200w"
 				sizes="(max-width:820px) 100vw, 46vw"
 				alt="Nikita Coppens standing in natural light"
 				fx={50}
@@ -66,6 +72,26 @@
 			<p style="margin-top:22px">For the past four years she has been holding gatherings where people come together and, through breath, movement or sound, find a little healing of body and mind. She believes deeply in community and in breaking loneliness: a safe room where people can be themselves and not have to stand alone in whatever they are moving through.</p>
 			<p style="margin-top:22px">At Vinya she brings both halves together, professional care and a broader view of wellbeing, into classes and 1:1 holistic sessions. The intention is always the same. Leave with a little more room to breathe.</p>
 			<div style="margin-top:36px"><a class="tlink" href="/teachers">Meet the teachers <span>→</span></a></div>
+		</div>
+	</div>
+</section>
+
+<!-- 4. Find us. `providers` in data.js was exported and never rendered, so the
+     footer's "Find us" link had nowhere to land and the address appeared only
+     inside a class detail overlay. -->
+<section class="sec sunken" id="find-us">
+	<div class="wrap wrap-narrow" style="text-align:center">
+		<div class="divider reveal" use:reveal><div class="line"></div><span class="lbl">Find us</span><div class="line"></div></div>
+		<h2 class="reveal" use:reveal style="font-size:var(--text-3xl);color:var(--brown-700);margin-top:48px">Where we practice.</h2>
+		<p class="reveal" use:reveal style="font-size:var(--text-base);line-height:1.85;color:var(--text-secondary);margin:22px auto 0;max-width:52ch">Classes are held at partner studios around the city. Every class on the timetable says where it meets.</p>
+		<div class="venues">
+			{#each venues as v (v.name)}
+				<div class="venue reveal" use:reveal>
+					<div class="k">{v.name}</div>
+					<p>{v.address}</p>
+					<a class="tlink" href={mapsUrl(v)} target="_blank" rel="noopener noreferrer">Open in maps <span>→</span></a>
+				</div>
+			{/each}
 		</div>
 	</div>
 </section>
@@ -109,6 +135,34 @@
 		letter-spacing: 0.04em;
 		color: var(--text-muted);
 		margin-top: 12px;
+	}
+
+	/* auto-fit so a second venue sits beside the first instead of needing a new rule */
+	.venues {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+		gap: 20px;
+		margin-top: clamp(40px, 5vw, 56px);
+	}
+	.venue {
+		border: 1px solid var(--border-default);
+		border-radius: var(--radius-lg);
+		padding: 32px 28px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 12px;
+	}
+	.venue .k {
+		font-family: var(--font-display);
+		font-size: var(--text-xl);
+		color: var(--brown-700);
+	}
+	.venue p {
+		font-size: var(--text-sm);
+		line-height: 1.7;
+		color: var(--text-secondary);
+		max-width: 30ch;
 	}
 
 	@media (max-width: 1000px) {

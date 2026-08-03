@@ -8,10 +8,15 @@
 		if (!email || busy) return;
 		busy = true;
 		const res = await subscribeEmail(email);
-		note = res.ok
-			? "You're on the list. Nothing else will land in your inbox."
-			: 'Something went wrong. Please try again.';
-		if (res.ok) email = '';
+		if (!res.ok) {
+			note = 'Something went wrong. Please try again.';
+		} else if (res.simulated) {
+			// Same rule as the booking form: no backend means no signup, so say so.
+			note = 'Prototype mode. No mailing list is connected yet, so nothing was saved.';
+		} else {
+			note = "You're on the list. Nothing else will land in your inbox.";
+			email = '';
+		}
 		busy = false;
 	}
 </script>
@@ -28,7 +33,7 @@
 		</div>
 		<div class="foot-col">
 			<div class="h">Practical</div>
-			<a href="/classes#faq">First-timer FAQ</a><a href="/classes">Passes &amp; prices</a><a href="/about">Find us</a>
+			<a href="/classes#faq">First-timer FAQ</a><a href="/classes#prices">Passes &amp; prices</a><a href="/about#find-us">Find us</a>
 		</div>
 		<div class="foot-col">
 			<div class="h">Stay close</div>

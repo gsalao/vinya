@@ -1,7 +1,7 @@
 <script>
 	import { reveal } from '$lib/reveal.js';
 	import { openBooking } from '$lib/booking.js';
-	import { events } from '$lib/data.js';
+	import { events, eventLabel } from '$lib/data.js';
 
 	let archiveOpen = $state(false);
 </script>
@@ -25,7 +25,7 @@
 					<div class="cal"><div class="d">{e.d}</div><div class="w">{e.w}</div></div>
 					<div class="info"><h3>{e.name}</h3><div class="det">{e.det}</div><p>{e.p}</p></div>
 					<div class="act">
-						<button class="btn btn-primary" onclick={() => openBooking(`${e.name} · ${e.d} ${g.month.slice(0, 3)}`)}>Reserve</button>
+						<button class="btn btn-primary" onclick={() => openBooking(eventLabel(e, g))}>Reserve</button>
 						<span class="rem">{e.rem}</span>
 					</div>
 				</div>

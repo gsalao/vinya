@@ -39,7 +39,8 @@
   color-scheme:light;
 }
 *{box-sizing:border-box}
-html{scroll-behavior:smooth;overflow-x:clip}
+/* scroll-padding clears the 78px sticky header, so #faq and #prices don't land underneath it */
+html{scroll-behavior:smooth;overflow-x:clip;scroll-padding-top:96px}
 body{margin:0;background:var(--surface-page);color:var(--text-primary);
   font-family:var(--font-body);font-size:var(--text-base);line-height:1.65;-webkit-font-smoothing:antialiased;
   text-rendering:optimizeLegibility;overflow-x:clip}
@@ -413,6 +414,9 @@ footer{background:var(--brown-800);color:var(--cream-50)}
 .form input:focus,.form select:focus,.form textarea:focus{border-color:var(--sky-500)}
 .form .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .form-note{font-size:12.5px;color:var(--text-muted);line-height:1.6}
+/* quiet but unmissable: a failed or simulated submit must never read as a success */
+.form-alert{font-size:var(--text-sm);line-height:1.6;color:var(--rust-600);background:rgba(157,62,34,.07);
+  border:1px solid rgba(157,62,34,.22);border-radius:var(--radius-md);padding:12px 16px;margin:0}
 .check-grid{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}
 .check-chip{position:relative;display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:var(--radius-pill);
   border:1.5px solid var(--border-default);background:var(--surface-card);font-size:var(--text-sm);

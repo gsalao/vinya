@@ -7,6 +7,8 @@
        zoom       1 = fit, higher crops in around that point
        *Mobile    optional separate framing below 820px, where the box is a very
                   different shape. Falls back to the desktop values when unset.
+       srcsetWebp optional WebP twin of `srcset`. Browsers that support it take it,
+                  everything else falls through to the JPEG in `srcset` / `src`.
 
      While `npm run dev` is running you can hold ALT and drag the photo to move it,
      or ALT + scroll to zoom. The values are copied to the clipboard on release,
@@ -19,6 +21,7 @@
 	let {
 		src,
 		srcset = undefined,
+		srcsetWebp = undefined,
 		sizes = undefined,
 		alt = '',
 		fx = 50,
@@ -113,7 +116,12 @@
 	onpointercancel={up}
 	onwheel={wheel}
 >
-	<img {src} {srcset} {sizes} {alt} {loading} {fetchpriority} decoding="async" draggable="false" />
+	<!-- WebP first, JPEG for anything that can't take it. The <img> keeps every
+	     attribute it had, so a photo without a webp set renders exactly as before. -->
+	<picture>
+		{#if srcsetWebp}<source type="image/webp" srcset={srcsetWebp} {sizes} />{/if}
+		<img {src} {srcset} {sizes} {alt} {loading} {fetchpriority} decoding="async" draggable="false" />
+	</picture>
 	{#if cap}<span class="cap">{cap}</span>{/if}
 	{#if dev && badge}<span class="focal-badge">{badge} · copied</span>{/if}
 </div>

@@ -80,7 +80,7 @@
 <section class="sec">
 	<div class="wrap">
 		<div class="sec-head row reveal" use:reveal>
-			<div><div class="eyebrow">The practice</div><h2>Two classes to breathe this week</h2></div>
+			<div><div class="eyebrow">The practice</div><h2>Schedule for this week</h2></div>
 			<a class="tlink" href="/classes">See the full timetable <span>→</span></a>
 		</div>
 		<div class="practice-grid">
@@ -128,13 +128,11 @@
 <section class="sec sunken">
 	<div class="wrap split">
 		<div class="reveal" use:reveal style="order:1">
-			<div class="eyebrow">Your teacher</div>
-			<h2 style="margin-top:22px">Held by someone who came to yoga the long way around.</h2>
-			<p class="lede" style="margin-top:26px">Every class at Vinya is led by <span class="italic" style="color:var(--brown-700)">Nikita Coppens</span>, yoga teacher and holistic therapeut, based in the Netherlands.</p>
-			<p style="margin-top:20px">Years in mental-health care, then addiction counselling, then study in India: yoga, sound healing, alternative medicine. She teaches the way she learned to care. Patient, attuned, unhurried.</p>
+			<div class="eyebrow">Your teachers</div>
+			<h2 style="margin-top:22px">Held by people who came to yoga the long way around.</h2>
 			<div style="margin-top:36px;display:flex;gap:14px;flex-wrap:wrap">
-				<a class="btn btn-primary" href="/instructors">Meet Nikita</a>
-				<button class="btn btn-secondary" onclick={() => openBooking('1:1 Holistic session')}>Book a 1:1 session</button>
+				<a class="btn btn-primary" href="/teachers">Meet the teachers</a>
+				<a class="btn btn-secondary" href="/classes">Explore our offerings</a>
 			</div>
 		</div>
 		<div class="media arch reveal" use:reveal style="order:2"><Ph cap="Nikita Coppens" tone="tan" /></div>
@@ -191,7 +189,7 @@
 			<a href="/classes"><span>Find a class for you</span><span class="arrow">→</span></a>
 			<a href="/events"><span>Workshops &amp; gatherings</span><span class="arrow">→</span></a>
 			<a href="/classes"><span>Passes &amp; prices</span><span class="arrow">→</span></a>
-			<a href="/instructors"><span>Meet your teacher</span><span class="arrow">→</span></a>
+			<a href="/teachers"><span>Meet your teachers</span><span class="arrow">→</span></a>
 		</div>
 	</div>
 </section>

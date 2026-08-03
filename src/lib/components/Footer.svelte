@@ -24,7 +24,7 @@
 		</div>
 		<div class="foot-col">
 			<div class="h">Site</div>
-			<a href="/">Home</a><a href="/classes">Classes</a><a href="/instructors">Instructors</a><a href="/events">Events</a><a href="/about">About</a>
+			<a href="/">Home</a><a href="/classes">Classes</a><a href="/teachers">Teachers</a><a href="/events">Events</a><a href="/about">About</a>
 		</div>
 		<div class="foot-col">
 			<div class="h">Practical</div>

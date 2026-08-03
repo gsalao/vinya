@@ -8,7 +8,7 @@
 	const links = [
 		{ href: '/', label: 'Home' },
 		{ href: '/classes', label: 'Classes' },
-		{ href: '/instructors', label: 'Instructors' },
+		{ href: '/teachers', label: 'Teachers' },
 		{ href: '/events', label: 'Events' },
 		{ href: '/about', label: 'About' }
 	];
@@ -62,6 +62,6 @@
 	{/each}
 	<div class="mobile-cta">
 		<button class="btn btn-primary lg" onclick={() => { close(); openBooking('a class'); }}>Book a class</button>
-		<a class="btn btn-secondary lg" href="/instructors" onclick={close}>Meet Nikita</a>
+		<a class="btn btn-secondary lg" href="/teachers" onclick={close}>Meet Nikita</a>
 	</div>
 </div>

@@ -4,11 +4,11 @@
 	import { openBooking } from '$lib/booking.js';
 </script>
 
-<svelte:head><title>Instructors — Vinya Yoga</title></svelte:head>
+<svelte:head><title>Teachers — Vinya Yoga</title></svelte:head>
 
 <section>
 	<div class="wrap phead">
-		<div class="eyebrow">Instructors</div>
+		<div class="eyebrow">Teachers</div>
 		<h1>The person holding the room.</h1>
 		<p>Vinya is small and personal on purpose. For now that means one teacher who knows every regular by name, with room to grow the circle as the studio does.</p>
 	</div>

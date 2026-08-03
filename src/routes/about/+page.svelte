@@ -1,42 +1,143 @@
 <script>
 	import { reveal } from '$lib/reveal.js';
 	import Ph from '$lib/components/Ph.svelte';
+	import Photo from '$lib/components/Photo.svelte';
 	import { openBooking } from '$lib/booking.js';
-	import { venue } from '$lib/data.js';
 </script>
 
 <svelte:head><title>About: Vinya Yoga</title></svelte:head>
 
-<section>
-	<div class="wrap phead">
-		<div class="eyebrow">About Vinya</div>
-		<h1>A space with room to breathe.</h1>
+<!-- 1. About Vinya. The heading sits inside the left column rather than above the
+     split, which buys the photo the vertical room to fill its own column: both
+     sides then land at roughly the same height, centred against each other, and
+     the whole thing still stops at the fold. -->
+<section class="sec about-hero">
+	<div class="wrap split about-split">
+		<div class="reveal" use:reveal>
+			<div class="eyebrow">About Vinya</div>
+			<h1>A space with room to breathe.</h1>
+			<p class="lede" style="font-size:var(--text-lg);line-height:1.75;color:var(--brown-700);margin-top:34px">Vinya is a yoga inspired initiative in the Netherlands. Most people who find us are somewhere in the middle of: a change, a tiredness, a hesitation they can’t name or ready to step out of their comfort zone. Either you’re ready to work on your physical and mental state.</p>
+			<p style="font-size:var(--text-base);line-height:1.9;color:var(--text-secondary);margin-top:26px">The practice sits in two places at once: The physical and the mental. Breathe is rarely just breathe. It’s the beginning of changing the narrative. Using it as a tool to control our mind, so we are choosing who we become.</p>
+			<p style="font-size:var(--text-base);line-height:1.9;color:var(--text-secondary);margin-top:22px">Vinya is just creating a space for you to make space for yourself.</p>
+		</div>
+		<div class="media reveal" use:reveal><Ph cap="The studio" tone="sky" /></div>
 	</div>
 </section>
 
-<section class="sec" style="padding-top:clamp(56px,7vh,80px)">
-	<div class="wrap split" style="align-items:start">
-		<div class="reveal" use:reveal>
-			<p class="lede" style="font-size:var(--text-lg);line-height:1.75;color:var(--brown-700)">Vinya is a yoga inspired initiative in the Netherlands. Most people who find us are somewhere in the middle of: a change, a tiredness, a hesitation they can't name or ready to step out of their comfort zone. Either you're ready to work on your physical and mental state.
-</p>
-			<p style="font-size:var(--text-base);line-height:1.9;color:var(--text-secondary);margin-top:28px">The practice sits in two places at once: The physical and the mental. Breathe is rarely just breathe. It's the beginning of changing the narrative. Using it as a tool to control our mind, so we are choosing who we become.
-</p>
-			<p style="font-size:var(--text-base);line-height:1.9;color:var(--text-secondary);margin-top:22px">Vinya is just creating a space for you to make space for yourself. </p>
-			<div class="about-cards">
-				<div class="spec"><h4>How we teach</h4><p>Personal attention is our non negotiable. There are hands-on adjustments and deepening, if consent has been given.
-</p></div>
-				<div class="spec"><h4>Who it's for</h4><p>Complete beginners, and regulars who want to deepen their practice.
-</p></div>
-				<div class="spec"><h4>Training</h4><p>Teaching hours and certifications, to be confirmed and listed here.</p></div>
-				<div class="spec"><h4>Beyond class</h4><p>1:1 holistic sessions, private groups, and retreats a few times a year.</p></div>
-			</div>
-			<div style="display:flex;gap:14px;margin-top:48px;flex-wrap:wrap">
-				<button class="btn btn-primary" onclick={() => openBooking('1:1 Holistic session')}>Book a 1:1 session</button>
-				<a class="btn btn-secondary" href="/classes">See the timetable</a>
-			</div>
+<!-- 2. The four specifics, as a row in the shape of the home page triptych -->
+<section class="sec sunken">
+	<div class="wrap">
+		<div class="sec-head reveal" use:reveal style="text-align:center;margin-left:auto;margin-right:auto">
+			<div class="eyebrow">What to expect</div>
+			<h2 style="margin-top:18px">How the room is held.</h2>
 		</div>
-		<div class="reveal" use:reveal style="display:flex;flex-direction:column;gap:24px;position:sticky;top:104px">
-			<div class="media" style="border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-card);aspect-ratio:4/5"><Ph cap="The studio" tone="sky" /></div>
+		<div class="triptych quad">
+			<div class="t reveal" use:reveal><div class="h">How we teach</div><p>Personal attention is our non negotiable. There are hands-on adjustments and deepening, if consent has been given.</p></div>
+			<div class="t reveal" use:reveal><div class="h">Who it’s for</div><p>Complete beginners, and regulars who want to deepen their practice.</p></div>
+			<div class="t reveal" use:reveal><div class="h">Training</div><p>Teaching hours and certifications, to be confirmed and listed here.</p></div>
+			<div class="t reveal" use:reveal><div class="h">Beyond class</div><p>1:1 holistic sessions, private groups, and retreats a few times a year.</p></div>
+		</div>
+		<div class="reveal" use:reveal style="margin-top:56px;display:flex;gap:14px;flex-wrap:wrap;justify-content:center">
+			<button class="btn btn-primary" onclick={() => openBooking('1:1 Holistic session')}>Book a 1:1 session</button>
+			<a class="btn btn-secondary" href="/classes">See the timetable</a>
 		</div>
 	</div>
 </section>
+
+<!-- 3. The founder. Mirror of section 1: photo on the left, story on the right. -->
+<section class="sec">
+	<div class="wrap split founder" style="align-items:start">
+		<div class="media reveal" use:reveal>
+			<Photo
+				src="/images/nikita-standing-2200.jpg"
+				srcset="/images/nikita-standing-1400.jpg 1400w, /images/nikita-standing-2200.jpg 2200w"
+				sizes="(max-width:820px) 100vw, 46vw"
+				alt="Nikita Coppens standing in natural light"
+				fx={50}
+				fy={20}
+			/>
+		</div>
+		<div class="reveal" use:reveal>
+			<div class="eyebrow">About the founder</div>
+			<h2 style="margin-top:22px">Nikita Coppens</h2>
+			<div class="role">Founder · Yoga, breathwork and Kirtan</div>
+			<p class="lede" style="margin-top:28px">Before Vinya, Nikita worked in mental-health care across the Netherlands, as a personal support worker in a sheltered-living organisation. Her caseload was wide and often complex: people living with a mild intellectual disability, borderline, or schizophrenia. She wrote care plans, carried her own caseload, and arranged support through WMO, WLZ and PGB. Work like that teaches you to meet a person where they are, not where a plan says they should be.</p>
+			<p style="margin-top:22px">Her attention kept circling the same question: lasting change, approached holistically. She trained further as an addiction counsellor with Elsden Trainingen, then followed the question further still, to India, where she studied yoga, sound healing and alternative medicine. It widened what health could mean to her. Not only care, but awareness and connection, body and mind treated as one.</p>
+			<p style="margin-top:22px">For the past four years she has been holding gatherings where people come together and, through breath, movement or sound, find a little healing of body and mind. She believes deeply in community and in breaking loneliness: a safe room where people can be themselves and not have to stand alone in whatever they are moving through.</p>
+			<p style="margin-top:22px">At Vinya she brings both halves together, professional care and a broader view of wellbeing, into classes and 1:1 holistic sessions. The intention is always the same. Leave with a little more room to breathe.</p>
+			<div style="margin-top:36px"><a class="tlink" href="/teachers">Meet the teachers <span>→</span></a></div>
+		</div>
+	</div>
+</section>
+
+<style>
+	/* section 1 breathes to the fold, not past it */
+	.about-hero {
+		padding-top: clamp(36px, 5vh, 64px);
+		padding-bottom: clamp(48px, 7vh, 88px);
+	}
+	.about-split {
+		align-items: center;
+	}
+	.about-split h1 {
+		font-size: clamp(28px, 3.9vw, 50px);
+		line-height: 1.07;
+		color: var(--brown-700);
+		margin: 20px 0 0;
+		max-width: 20ch;
+	}
+	/* fill the column, then take the height from that width. Capping the height
+	   instead would hand the 4/5 ratio the width, which is what left the photo
+	   sitting narrow and off to one side of its column. */
+	.about-split .media {
+		width: 100%;
+	}
+
+	/* triptych, four across */
+	.quad {
+		grid-template-columns: repeat(4, 1fr);
+		gap: clamp(28px, 3.4vw, 56px);
+	}
+
+	.founder .media {
+		aspect-ratio: 4 / 5;
+		position: sticky;
+		top: 104px;
+	}
+	.role {
+		font-size: var(--text-sm);
+		letter-spacing: 0.04em;
+		color: var(--text-muted);
+		margin-top: 12px;
+	}
+
+	@media (max-width: 1000px) {
+		.quad {
+			grid-template-columns: 1fr 1fr;
+			gap: 0 clamp(28px, 4vw, 48px);
+		}
+	}
+	@media (max-width: 820px) {
+		/* the h1 lives in the copy column now, so the stacked order has to keep the
+		   title first: the global .split rule would float the photo above it */
+		.about-split .media {
+			order: 0;
+			margin-top: 8px;
+		}
+		/* relative, never static: Photo is absolutely positioned with inset:0, so
+		   taking the containing block away lets it stretch over the whole story */
+		.founder .media {
+			position: relative;
+			top: auto;
+			width: 100%;
+			max-width: 420px;
+			margin-inline: auto;
+		}
+	}
+	@media (max-width: 560px) {
+		.quad {
+			grid-template-columns: 1fr;
+			gap: 0;
+		}
+	}
+</style>

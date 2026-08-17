@@ -35,9 +35,13 @@
 	     Both strands braid around a centreline at y=98 that rides the SAME wave,
 	     so the vine stays parallel to the image with a constant gap. -->
 	<svg class="hero-seam-h" viewBox="0 0 1000 200" preserveAspectRatio="none" aria-hidden="true">
+		<defs>
+			<clipPath id="vine-h-a" clipPathUnits="userSpaceOnUse"><rect class="vine-wipe h" x="-20" y="-20" width="1040" height="240" /></clipPath>
+			<clipPath id="vine-h-b" clipPathUnits="userSpaceOnUse"><rect class="vine-wipe h b" x="-20" y="-20" width="1040" height="240" /></clipPath>
+		</defs>
 		<path class="seam-fill" d="M0,0 L0,150 C62,176 188,176 250,150 C312,124 438,124 500,150 C562,176 688,176 750,150 C812,124 938,124 1000,150 L1000,0 Z" />
-		<path class="strand a" pathLength="1000" vector-effect="non-scaling-stroke" d="M-4,98 C62,144 188,144 250,98 C312,92 438,92 500,98 C562,144 688,144 750,98 C812,92 938,92 1004,98" />
-		<path class="strand b" pathLength="1000" vector-effect="non-scaling-stroke" d="M-4,98 C62,104 188,104 250,98 C312,52 438,52 500,98 C562,104 688,104 750,98 C812,52 938,52 1004,98" />
+		<path class="strand a" clip-path="url(#vine-h-a)" vector-effect="non-scaling-stroke" d="M-4,98 C62,144 188,144 250,98 C312,92 438,92 500,98 C562,144 688,144 750,98 C812,92 938,92 1004,98" />
+		<path class="strand b" clip-path="url(#vine-h-b)" vector-effect="non-scaling-stroke" d="M-4,98 C62,104 188,104 250,98 C312,52 438,52 500,98 C562,104 688,104 750,98 C812,52 938,52 1004,98" />
 	</svg>
 
 	<div class="hero-media">
@@ -64,9 +68,13 @@
 	     wave at x=114, and each strand adds ±16 to the controls. Gap to the image edge
 	     therefore stays in a 24-48 unit band the whole way down instead of pinching. -->
 	<svg class="hero-seam" viewBox="0 0 200 1000" preserveAspectRatio="none" aria-hidden="true">
+		<defs>
+			<clipPath id="vine-v-a" clipPathUnits="userSpaceOnUse"><rect class="vine-wipe" x="-20" y="-20" width="240" height="1040" /></clipPath>
+			<clipPath id="vine-v-b" clipPathUnits="userSpaceOnUse"><rect class="vine-wipe b" x="-20" y="-20" width="240" height="1040" /></clipPath>
+		</defs>
 		<path class="seam-fill" d="M0,0 L150,0 C176,62 176,188 150,250 C124,312 124,438 150,500 C176,562 176,688 150,750 C124,812 124,938 150,1000 L0,1000 Z" />
-		<path class="strand a" pathLength="1000" vector-effect="non-scaling-stroke" d="M114,-4 C156,62 156,188 114,250 C104,312 104,438 114,500 C156,562 156,688 114,750 C104,812 104,938 114,1004" />
-		<path class="strand b" pathLength="1000" vector-effect="non-scaling-stroke" d="M114,-4 C124,62 124,188 114,250 C72,312 72,438 114,500 C124,562 124,688 114,750 C72,812 72,938 114,1004" />
+		<path class="strand a" clip-path="url(#vine-v-a)" vector-effect="non-scaling-stroke" d="M114,-4 C156,62 156,188 114,250 C104,312 104,438 114,500 C156,562 156,688 114,750 C104,812 104,938 114,1004" />
+		<path class="strand b" clip-path="url(#vine-v-b)" vector-effect="non-scaling-stroke" d="M114,-4 C124,62 124,188 114,250 C72,312 72,438 114,500 C124,562 124,688 114,750 C72,812 72,938 114,1004" />
 	</svg>
 </section>
 

@@ -160,14 +160,23 @@ body.menu-open .mobile-menu{opacity:1;visibility:visible;transform:none}
 .hero-seam{position:absolute;top:0;bottom:0;left:43%;width:14%;height:100%;z-index:3;pointer-events:none}
 .hero-seam-h{display:none}
 .seam-fill{fill:var(--cream-50)}
-.strand{fill:none;stroke-linecap:round;stroke-dasharray:1000;stroke-dashoffset:1000;
-  animation:vineDraw 3.1s var(--ease) .3s forwards}
+.strand{fill:none;stroke-linecap:round}
 .strand.a{stroke:var(--tan-500);stroke-width:1.5;opacity:.62}
-.strand.b{stroke:var(--gold-500);stroke-width:1.5;opacity:.8;animation-delay:.55s}
-@keyframes vineDraw{to{stroke-dashoffset:0}}
-/* must sit AFTER .strand: the global reduce block kills the animation, so without
-   this the vine would stay stuck at its undrawn dashoffset and never appear */
-@media(prefers-reduced-motion:reduce){.strand{stroke-dashoffset:0}}
+.strand.b{stroke:var(--gold-500);stroke-width:1.5;opacity:.8}
+/* The draw is a clip wipe, not a stroke-dasharray. A dash draw silently breaks here:
+   vector-effect:non-scaling-stroke measures the dash in screen px, while pathLength
+   normalises in user units, so on a tall viewport the device path outruns the dash and
+   the vine stops partway down. A moving clip rect has no length to run out of, so the
+   vine reaches the end at every viewport size. Both paths run monotonically along the
+   wipe axis, so a wipe reads exactly like a draw. */
+.vine-wipe{transform:translateY(-1040px);animation:vineWipeV 3.1s var(--ease) .3s forwards}
+.vine-wipe.h{transform:translateX(-1040px);animation-name:vineWipeH}
+.vine-wipe.b{animation-delay:.85s}
+@keyframes vineWipeV{to{transform:translateY(0)}}
+@keyframes vineWipeH{to{transform:translateX(0)}}
+/* must sit AFTER .vine-wipe: the global reduce block kills the animation, so without
+   this the vine would stay parked off-viewBox and never appear */
+@media(prefers-reduced-motion:reduce){.vine-wipe,.vine-wipe.h{transform:none}}
 
 /* arch motif (signature shape, used sparingly) */
 .split .media.arch,.gallery .g.arch{border-radius:999px 999px var(--radius-lg) var(--radius-lg)}

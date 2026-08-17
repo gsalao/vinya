@@ -67,10 +67,11 @@
 			<div class="eyebrow">About the founder</div>
 			<h2 style="margin-top:22px">Nikita Coppens</h2>
 			<div class="role">Founder · Yoga, breathwork and Kirtan</div>
-			<p class="lede" style="margin-top:28px">Before Vinya, Nikita worked in mental-health care across the Netherlands, as a personal support worker in a sheltered-living organisation. Her caseload was wide and often complex: people living with a mild intellectual disability, borderline, or schizophrenia. She wrote care plans, carried her own caseload, and arranged support through WMO, WLZ and PGB. Work like that teaches you to meet a person where they are, not where a plan says they should be.</p>
-			<p style="margin-top:22px">Her attention kept circling the same question: lasting change, approached holistically. She trained further as an addiction counsellor with Elsden Trainingen, then followed the question further still, to India, where she studied yoga, sound healing and alternative medicine. It widened what health could mean to her. Not only care, but awareness and connection, body and mind treated as one.</p>
-			<p style="margin-top:22px">For the past four years she has been holding gatherings where people come together and, through breath, movement or sound, find a little healing of body and mind. She believes deeply in community and in breaking loneliness: a safe room where people can be themselves and not have to stand alone in whatever they are moving through.</p>
-			<p style="margin-top:22px">At Vinya she brings both halves together, professional care and a broader view of wellbeing, into classes and 1:1 holistic sessions. The intention is always the same. Leave with a little more room to breathe.</p>
+			<p class="lede" style="margin-top:28px">Before starting Vinya, Nikita has been studying different forms of yoga in India, exploring the body, movement, breath and the connection between physical and mental wellbeing. After her studies, she travelled to Sri Lanka, where she taught yoga and continued to deepen her experience of working with the body.
+</p>
+			<p style="margin-top:22px">Before starting Vinya, Nikita has been studying different forms of yoga in India, exploring the body, movement, breath and the connection between physical and mental wellbeing. After her studies, she travelled to Sri Lanka, where she taught yoga and continued to deepen her experience of working with the body.
+</p>
+			<p style="margin-top:22px">Originally from Amsterdam, Nikita now lives and works there, bringing these different experiences together through Vinya. Through yoga, movement, breath and sound, she creates spaces where people can reconnect with their bodies and create more space for healing, awareness and connection.</p>
 			<div style="margin-top:36px"><a class="tlink" href="/teachers">Meet the teachers <span>→</span></a></div>
 		</div>
 	</div>

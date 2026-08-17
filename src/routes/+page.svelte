@@ -1,6 +1,5 @@
 <script>
 	import { reveal } from '$lib/reveal.js';
-	import Ph from '$lib/components/Ph.svelte';
 	import Photo from '$lib/components/Photo.svelte';
 	import { openBooking } from '$lib/booking.js';
 	import { classes, partners, events, eventLabel } from '$lib/data.js';
@@ -120,7 +119,14 @@
 <!-- about -->
 <section class="sec sunken">
 	<div class="wrap split wide">
-		<div class="media reveal" use:reveal><Ph cap="The studio" tone="sky" /></div>
+		<div class="media reveal" use:reveal>
+			<Photo
+				src="/images/vinya-studio-a.jpeg"
+				alt="A kirtan circle seated on cushions in a garden, harmonium at the centre"
+				fx={50}
+				fy={50}
+			/>
+		</div>
 		<div class="reveal" use:reveal>
 			<div class="eyebrow">About Vinya</div>
 			<h2 style="margin-top:22px">A space with room to breathe.</h2>
@@ -153,7 +159,14 @@
 				<a class="btn btn-secondary" href="/classes">Explore our offerings</a>
 			</div>
 		</div>
-		<div class="media arch reveal" use:reveal style="order:2"><Ph cap="Nikita Coppens" tone="tan" /></div>
+		<div class="media arch reveal" use:reveal style="order:2">
+			<Photo
+				src="/images/nikita-practice.JPG"
+				alt="Nikita sounding a singing bowl over someone resting in savasana"
+				fx={50}
+				fy={45}
+			/>
+		</div>
 	</div>
 </section>
 
@@ -192,9 +205,30 @@
 		<div class="divider reveal" use:reveal><div class="line"></div><span class="lbl">In this together</span><div class="line"></div></div>
 		<blockquote class="blockquote-lg reveal" use:reveal style="margin-top:56px">Leave a little more room to bloom.</blockquote>
 		<div class="gallery" style="margin-top:64px">
-			<div class="g reveal" use:reveal><Ph cap="Practice" tone="sky" /></div>
-			<div class="g arch reveal" use:reveal><Ph cap="The room" tone="gold" /></div>
-			<div class="g reveal" use:reveal><Ph cap="A gathering" tone="tan" /></div>
+			<div class="g reveal" use:reveal>
+				<Photo
+					src="/images/vinya-studio-a.jpeg"
+					alt="A kirtan circle seated on cushions in a garden, harmonium at the centre"
+					fx={50}
+					fy={50}
+				/>
+			</div>
+			<div class="g arch reveal" use:reveal>
+				<Photo
+					src="/images/nikita-practice.JPG"
+					alt="Nikita sounding a singing bowl over someone resting in savasana"
+					fx={50}
+					fy={45}
+				/>
+			</div>
+			<div class="g reveal" use:reveal>
+				<Photo
+					src="/images/vinya-studio-b.jpeg"
+					alt="An evening kirtan in the hall, musicians on the low stage under warm lights"
+					fx={50}
+					fy={52}
+				/>
+			</div>
 		</div>
 	</div>
 </section>

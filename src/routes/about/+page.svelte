@@ -1,6 +1,5 @@
 <script>
 	import { reveal } from '$lib/reveal.js';
-	import Ph from '$lib/components/Ph.svelte';
 	import Photo from '$lib/components/Photo.svelte';
 	import { openBooking } from '$lib/booking.js';
 	import { providers } from '$lib/data.js';
@@ -25,7 +24,15 @@
 			<p style="font-size:var(--text-base);line-height:1.9;color:var(--text-secondary);margin-top:26px">The practice sits in two places at once: The physical and the mental. Breathe is rarely just breathe. It’s the beginning of changing the narrative. Using it as a tool to control our mind, so we are choosing who we become.</p>
 			<p style="font-size:var(--text-base);line-height:1.9;color:var(--text-secondary);margin-top:22px">Vinya is just creating a space for you to make space for yourself.</p>
 		</div>
-		<div class="media reveal" use:reveal><Ph cap="The studio" tone="sky" /></div>
+		<div class="media reveal" use:reveal>
+			<Photo
+				src="/images/vinya-studio-b.jpeg"
+				alt="An evening kirtan in the hall, musicians on the low stage under warm lights"
+				fx={50}
+				fy={52}
+				fyMobile={60}
+			/>
+		</div>
 	</div>
 </section>
 

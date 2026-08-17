@@ -47,7 +47,42 @@ six-digit code that was emailed to *them*, which is what stops strangers booking
 under someone else's address. There is no database: the code is proved with a
 signed token, and the owner's mailbox is the record.
 
-You need seven environment variables. Here is where each one comes from.
+Six environment variables are required — `MAIL_HOST`, `MAIL_PORT`, `MAIL_USER`,
+`MAIL_PASS`, `MAIL_TO`, `OTP_SECRET` — plus optional `MAIL_FROM` and `MAIL_CC`.
+
+The steps below go in order: prove the app works first, then add Gmail, then test
+locally, then deploy. Following them out of order means debugging two things at
+once.
+
+### The flow sends two different emails
+
+Read this before testing, so the first email does not look wrong:
+
+| # | Goes to | Subject | When |
+| - | ------- | ------- | ---- |
+| 1 | the **visitor** | `104197 is your Vinya confirmation code` | on **Send request** |
+| 2 | the **studio** (`MAIL_TO`) | `[VINYA] Kundalini Yoga` | after the code is confirmed |
+
+The code sits in the subject of the first on purpose — it is readable from a
+phone notification without opening the mail.
+
+### Step 0 — See both emails locally, before touching Google
+
+```bash
+cp .env.example .env
+pnpm dev
+```
+
+The shipped `.env.example` already has `MAIL_DEV_ECHO=1`, so both emails print in
+your terminal instead of being sent. Book a class, copy the six-digit code out of
+the terminal, enter it, and watch the second email print.
+
+If both appear, the app is working and everything below is purely mail
+configuration. Stop the server before continuing.
+
+> Echo mode still needs `OTP_SECRET` and `MAIL_TO` set to something — any value
+> will do. `MAIL_TO` is not read in echo mode, but the endpoint refuses a booking
+> with no recipient rather than reporting a success nobody received.
 
 ### Step 1 — Turn on 2-Step Verification for the studio Google account
 
@@ -88,19 +123,66 @@ Copy the whole line it prints. That is `OTP_SECRET`. It is only used to sign
 confirmation codes; changing it later just invalidates codes already in flight,
 which is harmless.
 
-### Step 4 — Decide who receives bookings
+### Step 4 — Fill in `.env`
 
-`MAIL_TO` is a comma-separated list, and everyone on it gets the booking. Add or
-remove people here later without touching the code.
+`MAIL_HOST` and `MAIL_PORT` are already correct for Gmail. Set the rest:
 
 ```
-MAIL_TO=nikita@example.com,studio@example.com
-MAIL_CC=accounts@example.com
+MAIL_USER=studio@gmail.com
+MAIL_PASS=abcdefghijklmnop
+MAIL_FROM=Vinya <studio@gmail.com>
+MAIL_TO=studio@gmail.com
+OTP_SECRET=<the line from step 3>
+MAIL_DEV_ECHO=
 ```
 
-`MAIL_CC` is optional; leave it blank if you do not need one.
+**Clear `MAIL_DEV_ECHO`.** Left at `1`, mail keeps printing to the terminal and
+never sends.
 
-### Step 5 — Put the values into Vercel
+`MAIL_USER` is the account mail is **sent from**; `MAIL_TO` is who **receives**
+bookings. Often the same address, but they do not have to be. `MAIL_TO` and
+`MAIL_CC` are comma-separated lists, and everyone on them gets a copy — add or
+remove people there later without touching code.
+
+### Step 5 — Preflight the credentials on their own
+
+```bash
+pnpm mail:check                   # connect and authenticate
+pnpm mail:check you@gmail.com     # also send a real test message
+```
+
+Run this before testing the form. It separates "are the SMTP credentials right"
+from "does the form work", so a failure has one cause instead of two. It checks
+for the mistakes that actually happen — spaces left in the app password, the
+account password used instead of an app password, 2-Step Verification switched
+off — and names the likely fix.
+
+Check the destination inbox **and its spam folder**. The first message from a new
+sender usually lands in spam; mark it *Not spam* so later codes reach the inbox.
+
+Do not continue until this passes.
+
+### Step 6 — Test the real flow locally
+
+```bash
+pnpm dev
+```
+
+1. Book a class
+2. In the email field use a **second address you can open** — you are playing the
+   visitor here, not the studio
+3. Choose a pass and **Cash on arrival**, then **Send request**
+4. That second inbox receives the six-digit code
+5. Enter it and confirm
+6. `MAIL_TO` receives `[VINYA] <class name>`
+7. Press **Reply** on it — it must address the visitor, not the studio. That is
+   the `Reply-To` working
+
+Then repeat with **Tikkie now** and any photo attached, and check the mail reads
+`Mode of Payment: Tikkie €90 — 10-class pass (receipt attached)` with the file
+attached.
+
+### Step 7 — Put the values into Vercel
 
 1. Open <https://vercel.com/dashboard> and click the **vinya-app** project
 2. **Settings** (top tabs) → **Environment Variables** (left sidebar)
@@ -118,62 +200,34 @@ MAIL_CC=accounts@example.com
    | `MAIL_CC`    | optional, comma-separated                         |
    | `OTP_SECRET` | the line from step 3                              |
 
-   `MAIL_USER` is the account mail is **sent from**; `MAIL_TO` is who **receives**
-   bookings. They are often the same address, but they do not have to be.
-
 4. Click **Save**.
 5. Environment variables only apply to **new** deployments. Go to
    **Deployments**, open the most recent one, click the **⋯** menu → **Redeploy**.
+6. Repeat step 6's test against the live URL.
 
-> Do not prefix any of these with `PUBLIC_`. That prefix is what makes a variable
+Do **not** add `MAIL_DEV_ECHO` here. It is ignored in production builds anyway,
+but there is no reason for it to exist in Vercel.
+
+> Never prefix any of these with `PUBLIC_`. That prefix is what makes a variable
 > visible to the browser, and it would publish your mail password.
 
-### Step 6 — Check it works
+### Troubleshooting
 
-Open the live site, book any class with your own email address, and confirm you
-receive a code and the studio receives the booking. If the form says *"Booking is
-not configured on this site yet"*, a variable is missing or the redeploy in step
-5 has not finished.
+| Symptom | Cause |
+| ------- | ----- |
+| Only the code email appears, never the booking one | Expected — the second is sent after the code is confirmed |
+| `Not configured — MAIL_TO is empty…` (local) | That exact variable is blank in `.env` |
+| *"Booking is not configured on this site yet"* (live) | A variable is missing, or the redeploy has not finished |
+| Mail still only prints to the terminal | `MAIL_DEV_ECHO` is still set |
+| `535 Username and Password not accepted` | Account password used instead of an app password, or 2-Step Verification is off |
+| `Invalid login` with a 16-character password | Spaces left in `MAIL_PASS` |
+| The code never arrives | Spam folder; mark it *Not spam* |
+| Works locally but not on Vercel | Not redeployed, or the variables are not ticked for Production |
+| `curl` returns *"Cross-site POST form submissions are forbidden"* | Expected. `/api/booking` is form-encoded and SvelteKit rejects cross-site posts. Add `-H "Origin: http://localhost:5173"` to mimic a browser |
 
-### Running it locally
-
-Copy `.env.example` to `.env` and fill in the same values. To test the flow
-without sending real mail, set `MAIL_DEV_ECHO=1` — both emails are then printed
-in your terminal instead of sent. That flag is ignored in production builds, so
-it cannot silently swallow a real booking.
-
-Echo mode still needs `OTP_SECRET` and `MAIL_TO` set to something; `MAIL_TO` can
-be any address. It is not read in echo mode, but the endpoint refuses a booking
-with no recipient rather than reporting a success nobody received.
-
-Running locally, a missing variable is named in the response itself
-(`Not configured — MAIL_TO is empty…`). In production that becomes a single
-generic message, because which variable is unset is nobody else's business.
-
-### The flow sends two different emails
-
-Worth knowing before testing, so the first one does not look wrong:
-
-| # | Goes to | Subject | When |
-| - | ------- | ------- | ---- |
-| 1 | the **visitor** | `104197 is your Vinya confirmation code` | on **Send request** |
-| 2 | the **studio** (`MAIL_TO`) | `[VINYA] Kundalini Yoga` | after the code is confirmed |
-
-The code sits in the subject of the first on purpose — it is readable from a
-phone notification without opening the mail.
-
-### Preflight: check the credentials on their own
-
-```bash
-pnpm mail:check                   # connect and authenticate
-pnpm mail:check you@gmail.com     # also send a real test message
-```
-
-Run this before testing the booking form. It separates "are the SMTP credentials
-right" from "does the form work", so a failure has one cause instead of two. It
-reads `.env`, checks for the mistakes that actually happen — spaces left in the
-app password, the account password used instead of an app password, 2-Step
-Verification switched off — and names the likely fix.
+Locally a missing variable is named in the response itself. In production that
+collapses to one generic message, because which variable is unset is nobody
+else's business.
 
 ### What the studio receives
 

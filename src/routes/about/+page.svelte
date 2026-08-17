@@ -5,8 +5,11 @@
 	import { providers } from '$lib/data.js';
 
 	const venues = Object.values(providers);
-	const mapsUrl = (v) =>
-		`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${v.name} ${v.address}`)}`;
+	const query = (v) => encodeURIComponent(`${v.name} ${v.address}`);
+	const mapsUrl = (v) => `https://www.google.com/maps/search/?api=1&query=${query(v)}`;
+	// `output=embed` is the keyless embed: it pans and zooms like the real map, so
+	// no Maps JavaScript API key (and no billing account) is needed for a preview.
+	const embedUrl = (v) => `https://www.google.com/maps?q=${query(v)}&output=embed`;
 </script>
 
 <svelte:head><title>About: Vinya Yoga</title></svelte:head>
@@ -95,9 +98,19 @@
 		<div class="venues">
 			{#each venues as v (v.name)}
 				<div class="venue reveal" use:reveal>
-					<div class="k">{v.name}</div>
-					<p>{v.address}</p>
-					<a class="tlink" href={mapsUrl(v)} target="_blank" rel="noopener noreferrer">Open in maps <span>→</span></a>
+					<div class="venue-copy">
+						<div class="k">{v.name}</div>
+						<p>{v.address}</p>
+						<a class="tlink" href={mapsUrl(v)} target="_blank" rel="noopener noreferrer">Open in maps <span>→</span></a>
+					</div>
+					<div class="venue-map">
+						<iframe
+							src={embedUrl(v)}
+							title="Map showing {v.name}, {v.address}"
+							loading="lazy"
+							referrerpolicy="no-referrer-when-downgrade"
+						></iframe>
+					</div>
 				</div>
 			{/each}
 		</div>
@@ -152,14 +165,42 @@
 		gap: 20px;
 		margin-top: clamp(40px, 5vw, 56px);
 	}
+	/* wrap, not a media query: the card's own width is what decides whether the
+	   map fits beside the address, and that width depends on how many venues
+	   share the row as much as it does on the viewport. Below ~600px of card the
+	   two flex-basis floors can no longer both fit, so the map drops underneath. */
 	.venue {
 		border: 1px solid var(--border-default);
 		border-radius: var(--radius-lg);
-		padding: 32px 28px;
+		padding: clamp(22px, 2.4vw, 30px);
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: clamp(20px, 2.4vw, 30px);
+	}
+	.venue-copy {
+		flex: 1 1 240px;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		gap: 12px;
+	}
+	/* aspect-ratio keeps it landscape at every width; max-height stops the ratio
+	   from turning a wide card into a tall one on a big screen. */
+	.venue-map {
+		flex: 1 1 320px;
+		aspect-ratio: 16 / 10;
+		max-height: 260px;
+		border: 1px solid var(--border-default);
+		border-radius: var(--radius-md);
+		overflow: hidden;
+		background: var(--border-subtle);
+	}
+	.venue-map iframe {
+		display: block;
+		width: 100%;
+		height: 100%;
+		border: 0;
 	}
 	.venue .k {
 		font-family: var(--font-display);

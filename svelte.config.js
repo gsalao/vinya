@@ -34,6 +34,11 @@ const config = {
 				'style-src': ['self', 'unsafe-inline'],
 				'img-src': ['self', 'data:'],
 				'font-src': ['self'],
+				// The About page embeds the venue map (google.com/maps?output=embed).
+				// Without this, frame-src falls back to default-src 'self' and the
+				// map renders as an empty box. Scoped to that one host: nothing else
+				// on the site is allowed to frame a third party.
+				'frame-src': ['https://www.google.com'],
 				// Payment happens on tikkie.me, so form posts and framing stay off
 				// this origin entirely.
 				'form-action': ['self'],

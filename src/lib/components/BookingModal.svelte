@@ -1,7 +1,8 @@
 <script>
 	import { booking, closeBooking } from '$lib/booking.js';
-	import { bookOptions, timetable, locationOf } from '$lib/data.js';
+	import { bookOptions, timetable, locationOf, prices, priceById, isOneToOne } from '$lib/data.js';
 	import { submitBooking, supabaseEnabled } from '$lib/supabase.js';
+	import PayPanel from './PayPanel.svelte';
 
 	let sent = $state(false);
 	let simulated = $state(false);
@@ -12,6 +13,27 @@
 	let email = $state('');
 	let notes = $state('');
 	let dateByItem = $state({});
+
+	// HAVE_PASS is the one pay option with no Tikkie link behind it, so it is kept
+	// distinct from a price id rather than faked as one.
+	const HAVE_PASS = 'have-pass';
+	let payChoice = $state('drop-in');
+	let payTouched = $state(false);
+	let paid = $state(null);
+
+	let oneToOne = $derived(selected.some(isOneToOne));
+
+	// Follow the selection until the visitor expresses a preference, then stop
+	// moving under them. Picking a 1:1 and watching your chosen 10-class pass
+	// silently flip to €60 is worse than the default being wrong once.
+	$effect(() => {
+		if (!payTouched) payChoice = oneToOne ? '1on1' : 'drop-in';
+	});
+
+	function choosePay(id) {
+		payChoice = id;
+		payTouched = true;
+	}
 
 	function addMinutes(time, mins) {
 		const [h, m] = time.split(':').map(Number);
@@ -72,6 +94,8 @@
 			failed = '';
 			selected = $booking.item && bookOptions.includes($booking.item) ? [$booking.item] : [];
 			dateByItem = {};
+			payTouched = false;
+			paid = null;
 		}
 	});
 	async function submit(e) {
@@ -87,7 +111,13 @@
 				return `${o} · ${slot.day} ${dateStr} · ${slot.time}–${slot.end}${slot.location ? ` · ${slot.location}` : ''}`;
 			})
 			.join('; ');
-		const res = await submitBooking({ session, name, email, notes });
+		// Folded into notes rather than given its own column: the booking_requests
+		// table is not ours to migrate from here, and an insert naming a column that
+		// does not exist fails the whole request.
+		const chosen = payChoice === HAVE_PASS ? null : priceById(payChoice);
+		const payLine = chosen ? `Intends to pay: ${chosen.lbl} (${chosen.amt})` : 'Says they already have a pass';
+		const body = notes.trim();
+		const res = await submitBooking({ session, name, email, notes: body ? `${body}\n— ${payLine}` : payLine });
 		busy = false;
 		// Never claim a place is held when nothing reached the backend: without that
 		// the form reads "Held, gently." whether the row was written, the insert was
@@ -97,6 +127,9 @@
 			return;
 		}
 		simulated = Boolean(res.simulated);
+		// Captured before the reset below, because the confirmation screen still
+		// needs to show the code for whatever they picked.
+		paid = chosen;
 		sent = true;
 		selected = [];
 		dateByItem = {};
@@ -151,9 +184,31 @@
 							<span>Anything I should know?</span>
 							<textarea rows="2" bind:value={notes} placeholder="Injuries, first class, nerves. All welcome here."></textarea>
 						</label>
+						<fieldset class="pay-pick">
+							<legend>How would you like to pay?</legend>
+							<div class="check-grid">
+								{#each prices as p}
+									<label class="check-chip">
+										<input type="radio" name="pay" value={p.id} checked={payChoice === p.id} onchange={() => choosePay(p.id)} />
+										<span>{p.lbl} · {p.amt}</span>
+									</label>
+								{/each}
+								<label class="check-chip">
+									<input type="radio" name="pay" value={HAVE_PASS} checked={payChoice === HAVE_PASS} onchange={() => choosePay(HAVE_PASS)} />
+									<span>I already have a pass</span>
+								</label>
+							</div>
+							<p class="form-note">
+								{#if payChoice === HAVE_PASS}
+									Nothing to pay now. We'll check your remaining classes when we confirm.
+								{:else}
+									You'll get a Tikkie code to pay with once you send this. Nothing is charged here.
+								{/if}
+							</p>
+						</fieldset>
 						<div style="display:flex;gap:14px;align-items:center;margin-top:4px;flex-wrap:wrap">
 							<button class="btn btn-primary lg" type="submit" disabled={busy || !selected.length}>{busy ? 'Sending…' : 'Send request'}</button>
-							<span class="form-note">No payment now. You'll hear back by email.</span>
+							<span class="form-note">You'll hear back by email within a day.</span>
 						</div>
 						{#if failed}<p class="form-alert" role="alert">{failed}</p>{/if}
 						{#if !supabaseEnabled}
@@ -167,7 +222,13 @@
 						{#if simulated}
 							<p class="form-alert" role="status">Prototype mode. Nothing was actually sent, because no booking backend is connected yet.</p>
 						{:else}
-							<p style="font-size:var(--text-base);line-height:1.8;color:var(--text-secondary)">Your request is in. You'll get a confirmation by email within a day, and payment can be on arrival or by transfer, whichever is easier.</p>
+							<p style="font-size:var(--text-base);line-height:1.8;color:var(--text-secondary)">Your request is in. You'll get a confirmation by email within a day.</p>
+						{/if}
+						{#if paid}
+							<PayPanel price={paid} compact />
+							<p class="form-note">Paying now saves a step, but you can also settle on arrival. Your place is held either way.</p>
+						{:else}
+							<p class="form-note">Nothing to pay now — we'll check your remaining classes when we confirm.</p>
 						{/if}
 						<div><button class="btn btn-secondary" onclick={closeBooking}>Close</button></div>
 					</div>

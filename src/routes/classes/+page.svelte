@@ -3,6 +3,7 @@
 	import { openBooking } from '$lib/booking.js';
 	import { classes, timetable, prices, faqs, offerings, locationOf } from '$lib/data.js';
 	import { openDetail } from '$lib/detail.js';
+	import { openPay } from '$lib/pay.js';
 
 	function classDetail(c) {
 		openDetail({ eyebrow: 'Class', title: c.name, meta: c.meta, body: c.blurb, location: locationOf(c.name), bookLabel: c.name });
@@ -73,11 +74,14 @@
 		<div class="sec-head reveal" use:reveal><div class="eyebrow">Passes &amp; prices</div><h2 style="margin-top:18px">Pay for the week you need.</h2></div>
 		<div class="prices">
 			{#each prices as p}
-				<div class="price {p.feature ? 'feature' : ''} reveal" use:reveal>
-					<div class="lbl">{p.lbl}</div><div class="amt">{p.amt}</div><p>{p.note}</p>
-				</div>
+				<!-- spans, not div/p: a button's content model is phrasing content only -->
+				<button class="price {p.feature ? 'feature' : ''} reveal" use:reveal onclick={() => openPay(p.id)}>
+					<span class="lbl">{p.lbl}</span><span class="amt">{p.amt}</span><span class="note">{p.note}</span>
+					<span class="tap-cue">Pay {p.amt} <span class="arrow">→</span></span>
+				</button>
 			{/each}
 		</div>
+		<p class="prices-note">Paying a pass and booking a class are separate — pay whenever suits, book when you know the date.</p>
 	</div>
 </section>
 

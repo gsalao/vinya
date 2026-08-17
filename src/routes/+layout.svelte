@@ -7,15 +7,17 @@
 	import Footer from '$lib/components/Footer.svelte';
 	import BookingModal from '$lib/components/BookingModal.svelte';
 	import DetailModal from '$lib/components/DetailModal.svelte';
+	import PayModal from '$lib/components/PayModal.svelte';
 	import { booking } from '$lib/booking.js';
 	import { detail } from '$lib/detail.js';
+	import { pay } from '$lib/pay.js';
 	let { children } = $props();
 
 	injectAnalytics({ mode: dev ? 'development' : 'production' });
 	injectSpeedInsights();
 
 	$effect(() => {
-		document.body.style.overflow = $booking.open || $detail.open ? 'hidden' : '';
+		document.body.style.overflow = $booking.open || $detail.open || $pay.open ? 'hidden' : '';
 	});
 </script>
 
@@ -29,3 +31,4 @@
 <Footer />
 <BookingModal />
 <DetailModal />
+<PayModal />

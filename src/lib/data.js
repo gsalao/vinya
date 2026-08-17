@@ -47,12 +47,29 @@ export function locationOf(className) {
 	return p ? `${p.name} · ${p.address}` : '';
 }
 
+// `pay.url` is the source of truth, not the QR image. The image is generated
+// from that same Tikkie link, so the two can never disagree, and the URL is what
+// gets rendered as text next to the code: a visitor can read a domain to check
+// it is really tikkie.me, but nobody can read a QR by eye.
+//
+// The `?utm_medium=qr` that Tikkie bakes into the code is deliberately absent
+// here. It is true of a scan and false of a click, and these links are the click.
 export const prices = [
-	{ lbl: 'Drop-in', amt: '€15', note: 'One class, whenever it suits.' },
-	{ lbl: '5-class pass', amt: '€50', note: 'Valid three months. No rush.' },
-	{ lbl: '10-class pass', amt: '€90', note: 'Valid six months. Most people land here.', feature: true },
-	{ lbl: '1:1 session', amt: '€60', note: '75 min, yoga or holistic.' }
+	{ id: 'drop-in', lbl: 'Drop-in', amt: '€15', note: 'One class, whenever it suits.',
+	  pay: { url: 'https://tikkie.me/pay/hbhaj5t0kco445btahr7', qr: '/qr/tikkie-drop-in.png' } },
+	{ id: '5-class', lbl: '5-class pass', amt: '€50', note: 'Valid three months. No rush.',
+	  pay: { url: 'https://tikkie.me/pay/lnldc5puflb6knrj4nr4', qr: '/qr/tikkie-5-class.png' } },
+	{ id: '10-class', lbl: '10-class pass', amt: '€90', note: 'Valid six months. Most people land here.', feature: true,
+	  pay: { url: 'https://tikkie.me/pay/b0v2fuqfv0f8umcb4cqu', qr: '/qr/tikkie-10-class.png' } },
+	{ id: '1on1', lbl: '1:1 session', amt: '€60', note: '75 min, yoga or holistic.',
+	  pay: { url: 'https://tikkie.me/pay/79ocuktsdsb8uaetuvek', qr: '/qr/tikkie-1on1.png' } }
 ];
+
+export const priceById = (id) => prices.find((p) => p.id === id) ?? null;
+
+// A 1:1 booking cannot be paid for with a class pass, so the booking form pins
+// it to the €60 price instead of letting someone select a €15 drop-in for it.
+export const isOneToOne = (name) => /1:1|one to one|one-to-one/i.test(name);
 
 export const offerings = [
 	{

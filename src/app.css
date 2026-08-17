@@ -427,25 +427,43 @@ footer{background:var(--brown-800);color:var(--cream-50)}
 /* modal */
 .modal{position:fixed;inset:0;z-index:80;background:rgba(44,26,16,.55);backdrop-filter:blur(3px);display:flex;align-items:flex-start;justify-content:center;padding:40px 20px;overflow:auto;animation:scrim .26s var(--ease)}
 @keyframes scrim{from{opacity:0}to{opacity:1}}
-.modal-card{background:var(--surface-page);border-radius:var(--radius-lg);box-shadow:var(--shadow-lifted);width:560px;max-width:100%;margin:auto;animation:bloom .32s var(--ease)}
+/* The card is a column with its own scroll rather than a block that grows the
+   page: the booking form gains a date picker per class chosen, so no fixed
+   height keeps the submit button reachable. dvh, not vh, because mobile browser
+   chrome makes vh taller than what is actually on screen. */
+/* overflow:hidden clips children to the rounded shape. The sticky action row is
+   full-bleed, so without this its square corners sit outside the card's curve. */
+.modal-card{background:var(--surface-page);border-radius:var(--radius-lg);box-shadow:var(--shadow-lifted);width:560px;max-width:100%;margin:auto;
+  display:flex;flex-direction:column;max-height:calc(100dvh - 80px);overflow:hidden;animation:bloom .32s var(--ease)}
 @keyframes bloom{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-.modal-x{padding:26px 40px 0;display:flex;justify-content:flex-end}
-.modal-x button{border:none;background:var(--cream-100);width:40px;height:40px;border-radius:50%;cursor:pointer;color:var(--brown-700);font-size:20px;line-height:1}
-.modal-body{padding:6px 40px 40px}
-.modal-body .eyebrow{margin-bottom:14px}
-.modal-body h3{font-family:var(--font-display);font-size:var(--text-2xl);color:var(--brown-700);line-height:1.2;margin-bottom:26px}
-.form{display:flex;flex-direction:column;gap:18px}
-.form label{display:flex;flex-direction:column;gap:7px}
+.modal-x{padding:18px 34px 0;display:flex;justify-content:flex-end;flex:none}
+.modal-x button{border:none;background:var(--cream-100);width:36px;height:36px;border-radius:50%;cursor:pointer;color:var(--brown-700);font-size:19px;line-height:1}
+/* min-height:0 lets a flex child actually shrink; without it the body refuses to
+   scroll and pushes the card past the viewport instead. */
+.modal-body{padding:2px 34px 30px;overflow-y:auto;min-height:0;flex:1}
+/* A sticky action row supplies its own bottom spacing. Without this the padding
+   below it becomes dead scrollable space the row floats above. */
+.modal-body:has(.form-actions){padding-bottom:0}
+.modal-body .eyebrow{margin-bottom:10px}
+.modal-body h3{font-family:var(--font-display);font-size:var(--text-2xl);color:var(--brown-700);line-height:1.2;margin-bottom:18px}
+.form{display:flex;flex-direction:column;gap:14px;padding-bottom:4px}
+.form label{display:flex;flex-direction:column;gap:6px}
 .form label span{font-size:var(--text-sm);color:var(--text-secondary)}
-.form input,.form select,.form textarea{padding:13px 18px;border-radius:var(--radius-md);border:1.5px solid var(--border-default);background:var(--surface-card);font-family:var(--font-body);font-size:var(--text-base);color:var(--text-primary);outline:none;width:100%}
+/* font-size stays at --text-base (16px floor) deliberately: iOS Safari zooms the
+   whole page when a focused field is smaller than 16px, which is a far worse
+   experience than a slightly taller form. Density comes out of padding instead. */
+.form input,.form select,.form textarea{padding:10px 16px;border-radius:var(--radius-md);border:1.5px solid var(--border-default);background:var(--surface-card);font-family:var(--font-body);font-size:var(--text-base);color:var(--text-primary);outline:none;width:100%}
 .form input:focus,.form select:focus,.form textarea:focus{border-color:var(--sky-500)}
 .form .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .form-note{font-size:12.5px;color:var(--text-muted);line-height:1.6}
 /* quiet but unmissable: a failed or simulated submit must never read as a success */
 .form-alert{font-size:var(--text-sm);line-height:1.6;color:var(--rust-600);background:rgba(157,62,34,.07);
   border:1px solid rgba(157,62,34,.22);border-radius:var(--radius-md);padding:12px 16px;margin:0}
-.check-grid{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}
-.check-chip{position:relative;display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:var(--radius-pill);
+.check-grid{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+/* 38px tall keeps the pointer target comfortable while reading tighter than a
+   full-size control; these are choices, not text entry, so the 16px input floor
+   does not apply. */
+.check-chip{position:relative;display:inline-flex;align-items:center;gap:8px;padding:7px 14px;min-height:38px;border-radius:var(--radius-pill);
   border:1.5px solid var(--border-default);background:var(--surface-card);font-size:var(--text-sm);
   color:var(--text-secondary);cursor:pointer;transition:all .18s var(--ease)}
 /* The span is targeted as well as the chip: these sit inside .form, where
@@ -466,11 +484,22 @@ footer{background:var(--brown-800);color:var(--cream-50)}
 .join-picker .picker-summary{font-size:var(--text-base);color:var(--text-primary);padding-right:24px;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
+/* The action row rides the bottom of the scrolling body, so "Send request" is on
+   screen whatever the form's height — one class chosen or five. The matching
+   surface colour and hairline stop content reading as if it runs underneath. */
+/* A hairline rather than a gradient fade: the fade sliced glyphs mid-height at
+   the boundary, which reads as a rendering fault, and it lingers once the form
+   is scrolled to the end with nothing left to hint at. A ruled footer bar is
+   legible at every scroll position. The negative inline margin lets the rule
+   span the body's full width while the buttons stay on the text column. */
+.form-actions{position:sticky;bottom:0;z-index:2;display:flex;gap:14px;align-items:center;flex-wrap:wrap;
+  padding:14px 34px 18px;margin:2px -34px 0;background:var(--surface-page);border-top:1px solid var(--border-default)}
+
 /* pay */
 .pay-pick{border:none;padding:0;margin:0;min-width:0}
 .pay-pick legend{font-size:var(--text-sm);color:var(--text-secondary);padding:0}
-.pay-pick .check-grid{margin-top:10px}
-.pay-pick .form-note{margin-top:10px}
+.pay-pick .check-grid{margin-top:8px}
+.pay-pick .form-note{margin-top:8px}
 
 .pay-panel{display:flex;flex-direction:column;align-items:center;text-align:center;gap:18px;
   border:1px solid var(--border-default);border-radius:var(--radius-lg);padding:28px 26px;background:var(--surface-card)}
@@ -493,6 +522,23 @@ footer{background:var(--brown-800);color:var(--cream-50)}
 .pay-after{font-size:var(--text-sm);color:var(--text-secondary);line-height:1.7;margin-top:20px}
 .linkish{background:none;border:none;padding:0;font:inherit;color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .linkish:hover{color:var(--accent-hover)}
+.linkish:disabled{color:var(--text-muted);cursor:default;text-decoration:none}
+
+/* receipt + verification */
+.receipt input[type=file]{font-size:var(--text-sm);color:var(--text-secondary);padding:11px 14px;
+  border:1.5px dashed var(--border-default);border-radius:var(--radius-md);background:var(--surface-card);cursor:pointer;width:100%}
+.receipt input[type=file]::file-selector-button{font-family:inherit;font-size:var(--text-xs);letter-spacing:.06em;
+  text-transform:uppercase;margin-right:12px;padding:8px 14px;border-radius:var(--radius-pill);
+  border:1px solid var(--border-strong);background:transparent;color:var(--brown-700);cursor:pointer}
+.receipt input[type=file]:hover{border-color:var(--border-strong)}
+/* Wide tracking and a display face make a six-digit code easy to check against
+   the one in the email; a plain input invites transposition errors. */
+.code-field input{font-family:var(--font-display);font-size:var(--text-3xl);letter-spacing:.34em;
+  text-align:center;padding:16px 12px 16px 24px}
+/* Off-screen rather than display:none: a bot reading the DOM still finds it,
+   which is the point, but nothing renders it and aria-hidden keeps it out of
+   the accessibility tree. */
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 .join-picker[open] summary{border-color:var(--sky-500)}
 
 @media(max-width:1000px){
@@ -560,14 +606,17 @@ footer{background:var(--brown-800);color:var(--cream-50)}
   .practice-grid,.prices,.gallery,.partners,.studio-strip,.spec-grid{grid-template-columns:1fr}
   .foot-grid{grid-template-columns:1fr}
   .form .two{grid-template-columns:1fr}
-  /* booking modal: fit one screen, no scroll */
-  .modal{padding:14px 12px;align-items:flex-start}
-  .modal-card{margin:0 auto}
-  .modal-x{padding:14px 22px 0}
-  .modal-body{padding:2px 22px 22px}
-  .modal-body h3{margin-bottom:16px}
-  .form{gap:13px}
-  .form input,.form select,.form textarea{padding:11px 16px}
+  /* booking modal: the card takes the screen and scrolls inside itself, so the
+     action row stays put instead of the page growing under the fold */
+  .modal{padding:10px 10px;align-items:flex-start}
+  .modal-card{margin:0 auto;max-height:calc(100dvh - 20px)}
+  .modal-x{padding:12px 20px 0}
+  .modal-body{padding:2px 20px 20px}
+  .modal-body h3{margin-bottom:14px}
+  .form{gap:12px}
+  .form input,.form select,.form textarea{padding:9px 14px}
+  .form-actions{padding:12px 20px 14px;margin:2px -20px 0}
+  .check-chip{padding:6px 13px;min-height:36px}
   .price{padding:26px 24px}
   .price .tap-cue{padding-top:16px}
   .pay-panel{padding:22px 18px;gap:14px}

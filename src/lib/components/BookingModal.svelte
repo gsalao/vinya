@@ -1,31 +1,40 @@
 <script>
 	import { booking, closeBooking } from '$lib/booking.js';
 	import { bookOptions, timetable, locationOf, prices, priceById, isOneToOne } from '$lib/data.js';
-	import { submitBooking, supabaseEnabled } from '$lib/supabase.js';
+	import { prepareReceipt, describeSize, ACCEPTED } from '$lib/receipt.js';
 	import PayPanel from './PayPanel.svelte';
 
-	let sent = $state(false);
-	let simulated = $state(false);
-	let failed = $state('');
+	// 'details' collects everything, 'verify' proves the address, 'done' confirms.
+	// Splitting verification onto its own screen keeps the code entry from landing
+	// far below the fold on a phone, where people miss it.
+	let step = $state('details');
 	let busy = $state(false);
+	let failed = $state('');
+
 	let selected = $state([]);
+	let dateByItem = $state({});
 	let name = $state('');
 	let email = $state('');
 	let notes = $state('');
-	let dateByItem = $state({});
+	let website = $state(''); // honeypot: hidden, so a human never fills it in
 
-	// HAVE_PASS is the one pay option with no Tikkie link behind it, so it is kept
-	// distinct from a price id rather than faked as one.
 	const HAVE_PASS = 'have-pass';
 	let payChoice = $state('drop-in');
 	let payTouched = $state(false);
-	let paid = $state(null);
+	let payMethod = $state('tikkie');
 
+	let receipt = $state(null);
+	let receiptNote = $state('');
+
+	let token = $state('');
+	let code = $state('');
+	let resendIn = $state(0);
+	let sentTo = $state('');
+
+	let chosenPass = $derived(payChoice === HAVE_PASS ? null : priceById(payChoice));
+	let showPay = $derived(Boolean(chosenPass) && payMethod === 'tikkie');
 	let oneToOne = $derived(selected.some(isOneToOne));
 
-	// Follow the selection until the visitor expresses a preference, then stop
-	// moving under them. Picking a 1:1 and watching your chosen 10-class pass
-	// silently flip to €60 is worse than the default being wrong once.
 	$effect(() => {
 		if (!payTouched) payChoice = oneToOne ? '1on1' : 'drop-in';
 	});
@@ -33,6 +42,35 @@
 	function choosePay(id) {
 		payChoice = id;
 		payTouched = true;
+		if (id === HAVE_PASS) clearReceipt();
+	}
+	function chooseMethod(m) {
+		payMethod = m;
+		if (m === 'cash') clearReceipt();
+	}
+	function clearReceipt() {
+		receipt = null;
+		receiptNote = '';
+	}
+
+	async function onReceipt(e) {
+		const file = e.target.files?.[0];
+		if (!file) return clearReceipt();
+		receiptNote = 'Checking…';
+		const res = await prepareReceipt(file);
+		if (!res.ok) {
+			receipt = null;
+			receiptNote =
+				res.reason === 'size'
+					? `That file is ${describeSize(res.size)} — please keep it under 4 MB.`
+					: 'Please attach a JPEG, PNG, WebP or PDF.';
+			e.target.value = '';
+			return;
+		}
+		receipt = res.file;
+		receiptNote = res.resized
+			? `Attached · shrunk from ${describeSize(res.from)} to ${describeSize(res.to)}`
+			: `Attached · ${describeSize(res.file.size)}`;
 	}
 
 	function addMinutes(time, mins) {
@@ -64,9 +102,7 @@
 		}
 		return dates;
 	}
-	function fmtDate(d) {
-		return `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
-	}
+	const fmtDate = (d) => `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
 
 	let itemsWithSlots = $derived(selected.map((n) => ({ name: n, slot: slotFor(n) })).filter((x) => x.slot));
 
@@ -88,55 +124,115 @@
 				: `${selected.slice(0, 2).join(', ')} +${selected.length - 2} more`
 	);
 
+	/** One human-readable line per session, used in the owner's email. */
+	function sessionLines() {
+		return selected.map((o) => {
+			const slot = slotFor(o);
+			if (!slot) return o;
+			const dateStr = fmtDate(new Date(dateByItem[o]));
+			return `${o} · ${slot.day} ${dateStr} · ${slot.time}–${slot.end}${slot.location ? ` · ${slot.location}` : ''}`;
+		});
+	}
+
 	$effect(() => {
 		if ($booking.open) {
-			sent = false;
+			step = 'details';
 			failed = '';
+			code = '';
+			token = '';
+			receipt = null;
+			receiptNote = '';
+			payTouched = false;
+			payMethod = 'tikkie';
 			selected = $booking.item && bookOptions.includes($booking.item) ? [$booking.item] : [];
 			dateByItem = {};
-			payTouched = false;
-			paid = null;
 		}
 	});
-	async function submit(e) {
-		e.preventDefault();
+
+	let timer;
+	function startResendCooldown(seconds = 45) {
+		resendIn = seconds;
+		clearInterval(timer);
+		timer = setInterval(() => {
+			resendIn -= 1;
+			if (resendIn <= 0) clearInterval(timer);
+		}, 1000);
+	}
+
+	async function requestCode(e) {
+		e?.preventDefault();
 		if (busy || !selected.length) return;
 		busy = true;
 		failed = '';
-		const session = selected
-			.map((o) => {
-				const slot = slotFor(o);
-				if (!slot) return o;
-				const dateStr = fmtDate(new Date(dateByItem[o]));
-				return `${o} · ${slot.day} ${dateStr} · ${slot.time}–${slot.end}${slot.location ? ` · ${slot.location}` : ''}`;
-			})
-			.join('; ');
-		// Folded into notes rather than given its own column: the booking_requests
-		// table is not ours to migrate from here, and an insert naming a column that
-		// does not exist fails the whole request.
-		const chosen = payChoice === HAVE_PASS ? null : priceById(payChoice);
-		const payLine = chosen ? `Intends to pay: ${chosen.lbl} (${chosen.amt})` : 'Says they already have a pass';
-		const body = notes.trim();
-		const res = await submitBooking({ session, name, email, notes: body ? `${body}\n— ${payLine}` : payLine });
-		busy = false;
-		// Never claim a place is held when nothing reached the backend: without that
-		// the form reads "Held, gently." whether the row was written, the insert was
-		// rejected, or there is no backend configured at all.
-		if (!res.ok) {
-			failed = 'That did not go through. Please try again in a moment.';
-			return;
+		try {
+			const res = await fetch('/api/otp', {
+				method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify({ email, website })
+			});
+			const data = await res.json();
+			if (!res.ok) {
+				failed = data.error ?? 'Could not send a code. Please try again.';
+				return;
+			}
+			token = data.token;
+			sentTo = email;
+			step = 'verify';
+			startResendCooldown();
+		} catch {
+			failed = 'Could not reach the site. Please check your connection and try again.';
+		} finally {
+			busy = false;
 		}
-		simulated = Boolean(res.simulated);
-		// Captured before the reset below, because the confirmation screen still
-		// needs to show the code for whatever they picked.
-		paid = chosen;
-		sent = true;
-		selected = [];
-		dateByItem = {};
-		name = '';
-		email = '';
-		notes = '';
 	}
+
+	async function resend() {
+		if (resendIn > 0 || busy) return;
+		code = '';
+		await requestCode();
+	}
+
+	async function confirm(e) {
+		e.preventDefault();
+		if (busy || code.length !== 6) return;
+		busy = true;
+		failed = '';
+
+		const fd = new FormData();
+		fd.set('token', token);
+		fd.set('code', code);
+		fd.set('name', name);
+		fd.set('email', email);
+		fd.set('notes', notes);
+		fd.set('joining', JSON.stringify(selected));
+		fd.set('sessions', JSON.stringify(sessionLines()));
+		fd.set('pass', chosenPass ? chosenPass.id : '');
+		fd.set('method', payMethod);
+		if (receipt) fd.set('receipt', receipt);
+
+		try {
+			const res = await fetch('/api/booking', { method: 'POST', body: fd });
+			const data = await res.json();
+			if (!res.ok) {
+				failed = data.error ?? 'That did not go through. Please try again.';
+				// An expired code cannot be retyped into working, so send them back
+				// rather than leaving them guessing at the same box.
+				if (data.reason === 'expired') resendIn = 0;
+				return;
+			}
+			step = 'done';
+		} catch {
+			failed = 'Could not reach the site. Please check your connection and try again.';
+		} finally {
+			busy = false;
+		}
+	}
+
+	function backToDetails() {
+		step = 'details';
+		failed = '';
+	}
+
 	function onKey(e) {
 		if (e.key === 'Escape' && $booking.open) closeBooking();
 	}
@@ -145,14 +241,17 @@
 <svelte:window onkeydown={onKey} />
 
 {#if $booking.open}
-	<div class="modal" role="dialog" aria-modal="true" onclick={(e) => e.target === e.currentTarget && closeBooking()}>
+	<!-- Clicking the scrim closes. Keyboard users close with Escape, handled above,
+	     so the interaction is not mouse-only. -->
+	<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+	<div class="modal" role="dialog" aria-modal="true" tabindex="-1" onclick={(e) => e.target === e.currentTarget && closeBooking()}>
 		<div class="modal-card">
 			<div class="modal-x"><button aria-label="Close" onclick={closeBooking}>×</button></div>
 			<div class="modal-body">
-				{#if !sent}
+				{#if step === 'details'}
 					<div class="eyebrow">Booking request</div>
 					<h3>Hold a place for me</h3>
-					<form class="form" onsubmit={submit}>
+					<form class="form" onsubmit={requestCode}>
 						<details class="join-picker">
 							<summary>
 								<span>What would you like to join?</span>
@@ -184,51 +283,105 @@
 							<span>Anything I should know?</span>
 							<textarea rows="2" bind:value={notes} placeholder="Injuries, first class, nerves. All welcome here."></textarea>
 						</label>
+
 						<fieldset class="pay-pick">
-							<legend>How would you like to pay?</legend>
+							<legend>Which pass?</legend>
 							<div class="check-grid">
 								{#each prices as p}
 									<label class="check-chip">
-										<input type="radio" name="pay" value={p.id} checked={payChoice === p.id} onchange={() => choosePay(p.id)} />
+										<input type="radio" name="pass" value={p.id} checked={payChoice === p.id} onchange={() => choosePay(p.id)} />
 										<span>{p.lbl} · {p.amt}</span>
 									</label>
 								{/each}
 								<label class="check-chip">
-									<input type="radio" name="pay" value={HAVE_PASS} checked={payChoice === HAVE_PASS} onchange={() => choosePay(HAVE_PASS)} />
+									<input type="radio" name="pass" value={HAVE_PASS} checked={payChoice === HAVE_PASS} onchange={() => choosePay(HAVE_PASS)} />
 									<span>I already have a pass</span>
 								</label>
 							</div>
-							<p class="form-note">
-								{#if payChoice === HAVE_PASS}
-									Nothing to pay now. We'll check your remaining classes when we confirm.
-								{:else}
-									You'll get a Tikkie code to pay with once you send this. Nothing is charged here.
-								{/if}
-							</p>
 						</fieldset>
-						<div style="display:flex;gap:14px;align-items:center;margin-top:4px;flex-wrap:wrap">
-							<button class="btn btn-primary lg" type="submit" disabled={busy || !selected.length}>{busy ? 'Sending…' : 'Send request'}</button>
-							<span class="form-note">You'll hear back by email within a day.</span>
-						</div>
-						{#if failed}<p class="form-alert" role="alert">{failed}</p>{/if}
-						{#if !supabaseEnabled}
-							<p class="form-alert" role="status">Prototype mode. No booking backend is connected yet, so this form will not reach anyone.</p>
+
+						{#if chosenPass}
+							<fieldset class="pay-pick">
+								<legend>How would you like to pay?</legend>
+								<div class="check-grid">
+									<label class="check-chip">
+										<input type="radio" name="method" value="tikkie" checked={payMethod === 'tikkie'} onchange={() => chooseMethod('tikkie')} />
+										<span>Tikkie now</span>
+									</label>
+									<label class="check-chip">
+										<input type="radio" name="method" value="cash" checked={payMethod === 'cash'} onchange={() => chooseMethod('cash')} />
+										<span>Cash on arrival</span>
+									</label>
+								</div>
+							</fieldset>
 						{/if}
+
+						{#if showPay}
+							<PayPanel price={chosenPass} compact />
+							<label class="receipt">
+								<span>Paid already? Attach the receipt (optional)</span>
+								<input type="file" accept={ACCEPTED} onchange={onReceipt} />
+							</label>
+							{#if receiptNote}<p class="form-note">{receiptNote}</p>{/if}
+						{:else if chosenPass}
+							<p class="form-note">{chosenPass.amt} on arrival. Cash or card at the studio.</p>
+						{/if}
+
+						<!-- Honeypot. Hidden from people and from screen readers; only a bot
+						     filling every field will put anything in it. -->
+						<div class="hp" aria-hidden="true">
+							<label>Website<input tabindex="-1" autocomplete="off" bind:value={website} /></label>
+						</div>
+
+						{#if failed}<p class="form-alert" role="alert">{failed}</p>{/if}
+						<div class="form-actions">
+							<button class="btn btn-primary lg" type="submit" disabled={busy || !selected.length}>{busy ? 'Sending…' : 'Send request'}</button>
+							<span class="form-note">We'll email you a code to confirm it's you.</span>
+						</div>
+					</form>
+				{:else if step === 'verify'}
+					<div class="eyebrow">One more step</div>
+					<h3>Check your email</h3>
+					<form class="form" onsubmit={confirm}>
+						<p style="font-size:var(--text-base);line-height:1.8;color:var(--text-secondary);overflow-wrap:anywhere">
+							We sent a six-digit code to <strong>{sentTo}</strong>. Enter it to send your request.
+						</p>
+						<label class="code-field">
+							<span>Confirmation code</span>
+							<input
+								bind:value={code}
+								inputmode="numeric"
+								autocomplete="one-time-code"
+								maxlength="6"
+								placeholder="000000"
+								oninput={(e) => (code = e.target.value.replace(/\D/g, '').slice(0, 6))}
+							/>
+						</label>
+						{#if failed}<p class="form-alert" role="alert">{failed}</p>{/if}
+						<div class="form-actions">
+							<button class="btn btn-primary lg" type="submit" disabled={busy || code.length !== 6}>{busy ? 'Sending…' : 'Confirm & send'}</button>
+							<button class="linkish" type="button" onclick={resend} disabled={resendIn > 0 || busy}>
+								{resendIn > 0 ? `Resend in ${resendIn}s` : 'Resend code'}
+							</button>
+						</div>
+						<p class="form-note">
+							Not the right address? <button class="linkish" type="button" onclick={backToDetails}>Go back and change it</button>.
+							The code lasts 10 minutes. Check your spam folder if it hasn't arrived.
+						</p>
 					</form>
 				{:else}
 					<div class="eyebrow">Request sent</div>
 					<h3>Held, gently.</h3>
 					<div style="display:flex;flex-direction:column;gap:18px">
-						{#if simulated}
-							<p class="form-alert" role="status">Prototype mode. Nothing was actually sent, because no booking backend is connected yet.</p>
-						{:else}
-							<p style="font-size:var(--text-base);line-height:1.8;color:var(--text-secondary)">Your request is in. You'll get a confirmation by email within a day.</p>
-						{/if}
-						{#if paid}
-							<PayPanel price={paid} compact />
-							<p class="form-note">Paying now saves a step, but you can also settle on arrival. Your place is held either way.</p>
-						{:else}
-							<p class="form-note">Nothing to pay now — we'll check your remaining classes when we confirm.</p>
+						<p style="font-size:var(--text-base);line-height:1.8;color:var(--text-secondary)">
+							Your request is in. You'll get a confirmation by email within a day.
+						</p>
+						{#if chosenPass && payMethod === 'cash'}
+							<p class="form-note">{chosenPass.amt} due on arrival.</p>
+						{:else if chosenPass && receipt}
+							<p class="form-note">Your receipt went along with the request. Nothing else to do.</p>
+						{:else if chosenPass}
+							<p class="form-note">If you haven't paid the {chosenPass.amt} yet, you can still do it from the passes section, or on arrival.</p>
 						{/if}
 						<div><button class="btn btn-secondary" onclick={closeBooking}>Close</button></div>
 					</div>

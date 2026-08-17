@@ -18,7 +18,10 @@
 <svelte:window onkeydown={onKey} />
 
 {#if $pay.open && price}
-	<div class="modal" role="dialog" aria-modal="true" aria-label="Pay for the {price.lbl}" onclick={(e) => e.target === e.currentTarget && closePay()}>
+	<!-- Clicking the scrim closes. Keyboard users close with Escape, handled above,
+	     so the interaction is not mouse-only. -->
+	<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+	<div class="modal" role="dialog" aria-modal="true" tabindex="-1" aria-label="Pay for the {price.lbl}" onclick={(e) => e.target === e.currentTarget && closePay()}>
 		<div class="modal-card">
 			<div class="modal-x"><button aria-label="Close" onclick={closePay}>×</button></div>
 			<div class="modal-body">

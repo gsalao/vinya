@@ -11,16 +11,6 @@ export const supabase = supabaseEnabled ? createClient(url, key) : null;
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
-export async function submitBooking(payload) {
-	if (!supabase) {
-		await wait(500);
-		return { ok: true, simulated: true };
-	}
-	const { error } = await supabase.from('booking_requests').insert(payload);
-	if (error) return { ok: false, error: error.message };
-	return { ok: true };
-}
-
 export async function subscribeEmail(email) {
 	if (!supabase) {
 		await wait(400);

@@ -18,10 +18,7 @@ export const KEYS = [
 	"about.find.divider",
 	"about.find.maps",
 	"about.find.title",
-	// "about.founder.body" is deliberately absent here. Task 3 wrote it into
-	// content.generated.json, but wiring it into +page.svelte fixes a live
-	// duplicated-paragraph bug and changes rendered output, so it changes the
-	// snapshot on purpose. That belongs to Task 5, not this one.
+	"about.founder.body",
 	"about.founder.eyebrow",
 	"about.founder.link",
 	"about.founder.name",
@@ -64,7 +61,6 @@ export const KEYS = [
 	"footer.subscribe.heading",
 	"footer.subscribe.placeholder",
 	"footer.tagline",
-	"home.about.body",
 	"home.about.eyebrow",
 	"home.about.link",
 	"home.about.title",

@@ -2,12 +2,18 @@
 	import { reveal } from '$lib/reveal.js';
 	import Photo from '$lib/components/Photo.svelte';
 	import { openBooking } from '$lib/booking.js';
-	import { classes, partners, events, eventLabel } from '$lib/data.js';
+	import { classes, partners, events, eventLabel, testimonials } from '$lib/data.js';
 	import { txt } from '$lib/copy.js';
 
 	// The band below shows the next gathering. Its copy is written out here, but the
 	// booking label is taken from the events data so it always matches the picker.
 	const nextGathering = eventLabel(events[0].items[0], events[0]);
+
+	// The band shows events[0].items[0]. Its date chip, title and body all come from
+	// that one object, so a sheet edit to the event cannot leave this section stale —
+	// which is exactly what happened while both were kept by hand.
+	const next = events[0].items[0];
+	const nextMonth = events[0].month.slice(0, 3);
 
 	let openTip = $state(null);
 	function toggleTip(i) {
@@ -131,7 +137,7 @@
 		<div class="reveal" use:reveal>
 			<div class="eyebrow">{txt('home.about.eyebrow')}</div>
 			<h2 style="margin-top:22px">{txt('home.about.title')}</h2>
-			<p class="lede" style="margin-top:26px">{txt('home.about.body')}</p>
+			<p class="lede" style="margin-top:26px">{txt('about.hero.lede')}</p>
 			<div style="margin-top:36px"><a class="tlink" href="/about">{txt('home.about.link')} <span>→</span></a></div>
 		</div>
 	</div>
@@ -173,11 +179,11 @@
 <!-- next gathering (the one espresso accent) -->
 <section class="sec espresso">
 	<div class="wrap event-band">
-		<div class="date-chip reveal" use:reveal><div class="d">08</div><div class="m">Aug</div></div>
+		<div class="date-chip reveal" use:reveal><div class="d">{next.d}</div><div class="m">{nextMonth}</div></div>
 		<div class="reveal" use:reveal>
 			<div class="eyebrow gold" style="color:var(--gold-500)">{txt('home.gathering.eyebrow')}</div>
-			<h2 style="margin-top:14px">Full Moon Flow &amp; Sound Bath</h2>
-			<p>Saturday 19:00 · 90 minutes · €28 · Location to be confirmed. Slow flow as the light goes, then sound to close.</p>
+			<h2 style="margin-top:14px">{next.name}</h2>
+			<p>{next.det}. {next.p}</p>
 		</div>
 		<div class="reveal" use:reveal style="display:flex;flex-direction:column;gap:14px">
 			<button class="btn btn-primary lg" onclick={() => openBooking(nextGathering)}>{txt('home.gathering.cta')}</button>
@@ -191,9 +197,9 @@
 	<div class="wrap">
 		<div class="sec-head reveal" use:reveal><div class="eyebrow">{txt('home.testimonials.eyebrow')}</div><h2 style="margin-top:18px">{txt('home.testimonials.title')}</h2></div>
 		<div class="quotes">
-			<div class="quote reveal" use:reveal><p>"I came in stiff and a little cynical. I left breathing differently. The room is so quiet you can actually hear yourself soften."</p><div class="who">Marieke · Slow Yoga Adjustment</div></div>
-			<div class="quote reveal" use:reveal><p>"First yoga in my life at 43. Nobody made me feel behind. I've been back every week since."</p><div class="who">Tomas · Beginners course</div></div>
-			<div class="quote reveal" use:reveal><p>"The 1:1 sessions with Nikita did more for my sleep than anything else this year. Gentle, and exactly what I needed."</p><div class="who">Sanne · 1:1 Holistic</div></div>
+			{#each testimonials as t, i (i)}
+				<div class="quote reveal" use:reveal><p>{t.quote}</p><div class="who">{t.who}</div></div>
+			{/each}
 		</div>
 		<div class="rating reveal" use:reveal><span class="stars">★★★★★</span><span>{txt('home.testimonials.rating')}</span></div>
 	</div>

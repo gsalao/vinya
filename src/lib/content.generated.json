@@ -9,7 +9,6 @@
     "home.practice.book": "Book a place",
     "home.about.eyebrow": "About Vinya",
     "home.about.title": "A space with room to breathe.",
-    "home.about.body": "Vinya is a yoga inspired initiative in the Netherlands. Most people who find us are somewhere in the middle of: a change, a tiredness, a hesitation they can't name or ready to step out of their comfort zone. Either you're ready to work on your physical and mental state.",
     "home.about.link": "More about Vinya",
     "home.pillars.1.title": "Breathe",
     "home.pillars.1.body": "Breathe is the bridge between who you are guarded and who you are open. We start there, every time.",
@@ -114,5 +113,10 @@
     "footer.subscribe.cta": "Join",
     "footer.subscribe.placeholder": "you@email.com",
     "footer.copyright": "© 2026 Vinya Yoga"
-  }
+  },
+  "testimonials": [
+    { "quote": "\"I came in stiff and a little cynical. I left breathing differently. The room is so quiet you can actually hear yourself soften.\"", "who": "Marieke · Slow Yoga Adjustment" },
+    { "quote": "\"First yoga in my life at 43. Nobody made me feel behind. I've been back every week since.\"", "who": "Tomas · Beginners course" },
+    { "quote": "\"The 1:1 sessions with Nikita did more for my sleep than anything else this year. Gentle, and exactly what I needed.\"", "who": "Sanne · 1:1 Holistic" }
+  ]
 }

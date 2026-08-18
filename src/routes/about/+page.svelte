@@ -79,11 +79,9 @@
 			<div class="eyebrow">{txt('about.founder.eyebrow')}</div>
 			<h2 style="margin-top:22px">{txt('about.founder.name')}</h2>
 			<div class="role">{txt('about.founder.role')}</div>
-			<p class="lede" style="margin-top:28px">Before starting Vinya, Nikita has been studying different forms of yoga in India, exploring the body, movement, breath and the connection between physical and mental wellbeing. After her studies, she travelled to Sri Lanka, where she taught yoga and continued to deepen her experience of working with the body.
-</p>
-			<p style="margin-top:22px">Before starting Vinya, Nikita has been studying different forms of yoga in India, exploring the body, movement, breath and the connection between physical and mental wellbeing. After her studies, she travelled to Sri Lanka, where she taught yoga and continued to deepen her experience of working with the body.
-</p>
-			<p style="margin-top:22px">Originally from Amsterdam, Nikita now lives and works there, bringing these different experiences together through Vinya. Through yoga, movement, breath and sound, she creates spaces where people can reconnect with their bodies and create more space for healing, awareness and connection.</p>
+			{#each paras(txt('about.founder.body')) as p, i (i)}
+				<p class={i === 0 ? 'lede' : null} style="margin-top:{i === 0 ? 28 : 22}px">{p}</p>
+			{/each}
 			<div style="margin-top:36px"><a class="tlink" href="/teachers">{txt('about.founder.link')} <span>→</span></a></div>
 		</div>
 	</div>

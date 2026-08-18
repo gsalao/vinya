@@ -1,3 +1,7 @@
+import content from './content.generated.json';
+
+export const testimonials = content.testimonials;
+
 export const providers = {
 	truColours: { name: 'Tru Colours', address: 'Geschutswerf 12-14, 1018 BX Amsterdam' }
 };
@@ -38,8 +42,6 @@ export const timetable = [
 	{ day: 'Tuesday', slots: [['10:30', 'Kundalini Yoga', '60 min']] },
 	{ day: 'Sunday', slots: [['12:45', 'Slow Yoga Adjustment', '60 min']] }
 ];
-
-export const venue = providers.truColours;
 
 export function locationOf(className) {
 	const c = classes.find((cl) => cl.name === className);
@@ -106,20 +108,27 @@ export const faqs = [
 	{ q: 'What if I need to cancel?', a: 'Cancel up to 12 hours before and the class goes back on your pass. Life happens later than that sometimes, so just tell us. (Policy to confirm.)' }
 ];
 
-export const events = [
+// `n` is derived rather than stored: it is items.length spelled out, and a
+// spreadsheet editor adding an event should not also have to update a counter.
+const eventGroups = [
 	{
-		month: 'August 2026', n: '2 gatherings', items: [
+		month: 'August 2026', items: [
 			{ d: '08', w: 'Sat', name: 'Full Moon Flow & Sound Bath', det: '19:00 · 90 min · €28 · Location to confirm', p: 'Slow flow as the light goes, then bowls and voice to close. Bring something warm to lie under.', rem: '6 places left' },
 			{ d: '23', w: 'Sun', name: 'Bloom Slowly: a workshop for beginners', det: '10:00 · 3 hours · €45 · Tea included', p: 'Three unhurried hours on breath, the six shapes worth knowing, and a home practice that survives a normal week.', rem: '10 places' }
 		]
 	},
 	{
-		month: 'September 2026', n: '2 gatherings', items: [
+		month: 'September 2026', items: [
 			{ d: '05', w: 'Sat', name: 'Sunrise Rooftop Flow', det: '07:30 · 60 min · €22 · Rooftop, to confirm', p: 'Outdoors, weather permitting. Coffee afterwards for anyone who wants to stay.', rem: 'Weather dependent' },
 			{ d: '26', w: 'Sat', name: 'Breath & Body: a day retreat', det: '09:30 to 16:00 · €95 · Lunch included', p: 'Two practices, a long lunch, and holistic bodywork in between. Eight people only.', rem: '8 places' }
 		]
 	}
 ];
+
+export const events = eventGroups.map((g) => ({
+	...g,
+	n: `${g.items.length} gathering${g.items.length === 1 ? '' : 's'}`
+}));
 
 // Add a new partner/facilitator by adding an entry here and dropping the file in
 // static/partner-logos/. href is optional — with it the logo links out, without it

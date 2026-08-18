@@ -5,6 +5,7 @@
 	import Photo from '$lib/components/Photo.svelte';
 	import { openBooking } from '$lib/booking.js';
 	import { teachers } from '$lib/data.js';
+	import { txt } from '$lib/copy.js';
 
 	let idx = $state(0);
 	let t = $derived(teachers[idx]);
@@ -16,8 +17,8 @@
 
 <section>
 	<div class="wrap phead" style="padding-top:clamp(32px,5vh,56px);text-align:center">
-		<div class="eyebrow">Who we are</div>
-		<h1 style="margin:14px auto 0">Meet our teachers.</h1>
+		<div class="eyebrow">{txt('teachers.hero.eyebrow')}</div>
+		<h1 style="margin:14px auto 0">{txt('teachers.hero.title')}</h1>
 	</div>
 </section>
 
@@ -43,7 +44,7 @@
 						</ul>
 						<div class="intro-cta">
 							<button class="btn btn-primary" onclick={() => openBooking(t.cta.option)}>{t.cta.label}</button>
-							<a class="btn btn-secondary" href="/classes">See the timetable</a>
+							<a class="btn btn-secondary" href="/classes">{txt('teachers.hero.timetable')}</a>
 						</div>
 					</div>
 				</div>
@@ -65,12 +66,12 @@
 <!-- FULL-WIDTH: how she works -->
 <section class="sec sunken">
 	<div class="wrap">
-		<div class="sec-head reveal" use:reveal style="text-align:center;margin-left:auto;margin-right:auto"><div class="eyebrow">How Vinya teachers work</div><h2 style="margin-top:18px">Care first, always.</h2></div>
+		<div class="sec-head reveal" use:reveal style="text-align:center;margin-left:auto;margin-right:auto"><div class="eyebrow">{txt('teachers.work.eyebrow')}</div><h2 style="margin-top:18px">{txt('teachers.work.title')}</h2></div>
 		<div class="spec-grid">
-			<div class="spec reveal" use:reveal><h4>How we teach</h4><p>Patient and attuned. We meet you where you are today, offering an invitation as clearly as an instruction.</p></div>
-			<div class="spec reveal" use:reveal><h4>Care background</h4><p>Years in Dutch mental-health care (GGZ) as a personal support worker, and training as an addiction counsellor.</p></div>
-			<div class="spec reveal" use:reveal><h4>Studied in India</h4><p>Yoga, sound healing and alternative medicine, where our view of health widened to body and mind as one.</p></div>
-			<div class="spec reveal" use:reveal><h4>Beyond class</h4><p>1:1 holistic sessions and community sound-healing gatherings, built around not standing alone.</p></div>
+			<div class="spec reveal" use:reveal><h4>{txt('teachers.work.1.title')}</h4><p>{txt('teachers.work.1.body')}</p></div>
+			<div class="spec reveal" use:reveal><h4>{txt('teachers.work.2.title')}</h4><p>{txt('teachers.work.2.body')}</p></div>
+			<div class="spec reveal" use:reveal><h4>{txt('teachers.work.3.title')}</h4><p>{txt('teachers.work.3.body')}</p></div>
+			<div class="spec reveal" use:reveal><h4>{txt('teachers.work.4.title')}</h4><p>{txt('teachers.work.4.body')}</p></div>
 		</div>
 		<div class="reveal" use:reveal style="margin-top:52px;display:flex;gap:14px;flex-wrap:wrap;justify-content:center">
 			<button class="btn btn-primary" onclick={() => openBooking('1:1 Holistic session')}>Book a 1:1 session</button>

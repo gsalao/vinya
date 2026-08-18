@@ -74,8 +74,8 @@
 			<div class="spec reveal" use:reveal><h4>{txt('teachers.work.4.title')}</h4><p>{txt('teachers.work.4.body')}</p></div>
 		</div>
 		<div class="reveal" use:reveal style="margin-top:52px;display:flex;gap:14px;flex-wrap:wrap;justify-content:center">
-			<button class="btn btn-primary" onclick={() => openBooking('1:1 Holistic session')}>Book a 1:1 session</button>
-			<a class="btn btn-secondary" href="/classes">See the timetable</a>
+			<button class="btn btn-primary" onclick={() => openBooking('1:1 Holistic session')}>{txt('teachers.work.cta.book')}</button>
+			<a class="btn btn-secondary" href="/classes">{txt('teachers.work.cta.timetable')}</a>
 		</div>
 	</div>
 </section>

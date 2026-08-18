@@ -234,41 +234,64 @@
 </section>
 
 <!-- partners & facilitators -->
+<!-- One card, written once, rendered by both layouts below. `clone` is true for the
+     marquee's duplicate half: those links repeat what the first half already said, so
+     they stay out of the tab order. -->
+{#snippet partnerCard(p, i, clone)}
+	{#if p.href}
+		<a
+			class="partner-logo"
+			href={p.href}
+			target="_blank"
+			rel="noopener noreferrer"
+			aria-label={p.name}
+			style:--logo-h={p.h ? `${p.h}px` : null}
+			tabindex={clone ? -1 : undefined}
+		>
+			<img src={p.logo} alt={p.name} loading="lazy" />
+			<span class="tip">{p.name}</span>
+		</a>
+	{:else}
+		<button
+			type="button"
+			class="partner-logo"
+			class:open={openTip === i}
+			aria-label={p.name}
+			style:--logo-h={p.h ? `${p.h}px` : null}
+			tabindex={clone ? -1 : undefined}
+			onclick={() => toggleTip(i)}
+		>
+			<img src={p.logo} alt={p.name} loading="lazy" />
+			<span class="tip">{p.name}</span>
+		</button>
+	{/if}
+{/snippet}
+
 <section class="sec" id="partners">
 	<div class="wrap">
 		<div class="divider reveal" use:reveal><div class="line"></div><span class="lbl">Partners &amp; Facilitators</span><div class="line"></div></div>
-		<!-- Driven by `partners` in data.js: adding an entry adds a card here. -->
-		<div class="partners" style="margin-top:56px">
-			{#each partners as p, i (p.name)}
-				{#if p.href}
-					<a
-						class="partner-logo reveal"
-						use:reveal
-						href={p.href}
-						target="_blank"
-						rel="noopener noreferrer"
-						aria-label={p.name}
-						style:--logo-h={p.h ? `${p.h}px` : null}
-					>
-						<img src={p.logo} alt={p.name} loading="lazy" />
-						<span class="tip">{p.name}</span>
-					</a>
-				{:else}
-					<button
-						type="button"
-						class="partner-logo reveal"
-						class:open={openTip === i}
-						use:reveal
-						aria-label={p.name}
-						style:--logo-h={p.h ? `${p.h}px` : null}
-						onclick={() => toggleTip(i)}
-					>
-						<img src={p.logo} alt={p.name} loading="lazy" />
-						<span class="tip">{p.name}</span>
-					</button>
-				{/if}
-			{/each}
-		</div>
+
+		<!-- Driven by `partners` in data.js, and nothing here needs touching when one is
+		     added: three fit the row as a grid, and past three the same cards become a
+		     marquee rather than wrapping onto a lonely second row. -->
+		{#if partners.length > 3}
+			<div class="partner-marquee reveal" use:reveal>
+				<div class="partner-track">
+					<div class="partner-seq">
+						{#each partners as p, i (p.name)}{@render partnerCard(p, i, false)}{/each}
+					</div>
+					<!-- the loop's second half: identical, and hidden from screen readers so
+					     every partner is announced exactly once. -->
+					<div class="partner-seq" aria-hidden="true">
+						{#each partners as p, i (p.name)}{@render partnerCard(p, i, true)}{/each}
+					</div>
+				</div>
+			</div>
+		{:else}
+			<div class="partners reveal" use:reveal>
+				{#each partners as p, i (p.name)}{@render partnerCard(p, i, false)}{/each}
+			</div>
+		{/if}
 	</div>
 </section>
 

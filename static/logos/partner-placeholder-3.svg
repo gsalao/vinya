@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 64" width="220" height="64">
-	<path d="M30 14 L46 46 L14 46 Z" fill="none" stroke="#eabe68" stroke-width="3" stroke-linejoin="round"/>
-	<circle cx="30" cy="36" r="4" fill="#eabe68"/>
-	<text x="60" y="29" font-family="Georgia, serif" font-size="17" fill="#2c1a10">Collective</text>
-	<text x="60" y="48" font-family="Georgia, serif" font-size="17" fill="#2c1a10">Three</text>
-</svg>

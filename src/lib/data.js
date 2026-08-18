@@ -121,13 +121,21 @@ export const events = [
 	}
 ];
 
-// Add a new partner/facilitator by adding an entry here. logo points at a file in
-// static/logos/. href is optional — with it the logo links out, without it the
-// logo just shows its tooltip.
+// Add a new partner/facilitator by adding an entry here and dropping the file in
+// static/partner-logos/. href is optional — with it the logo links out, without it
+// the logo just shows its tooltip instead.
+//
+// `h` is the drawn height in px, and it is per-logo on purpose: every one of these
+// is a stacked lockup (mark over wordmark) drawn at a different scale inside its own
+// artwork, so a single shared height makes one look twice the size of the next. Tune
+// `h` until the row looks even rather than measures even. It falls back to 72px.
+//
+// Logos with a white background get their background floodfilled to transparent
+// before they go in here, so a logo never sits on its own pale square on the card.
 export const partners = [
-	{ name: 'Partner One', logo: '/logos/partner-placeholder-1.svg', href: 'https://example.com' },
-	{ name: 'Studio Two', logo: '/logos/partner-placeholder-2.svg' },
-	{ name: 'Collective Three', logo: '/logos/partner-placeholder-3.svg', href: 'https://example.com' }
+	{ name: 'ClassPass', logo: '/partner-logos/classpass-logo.svg', href: 'https://classpass.com/', h: 68 },
+	{ name: 'Urban Sports Club', logo: '/partner-logos/urbansportsclub-logo.webp', href: 'https://urbansportsclub.com/en/', h: 72 },
+	{ name: 'Tru Colours', logo: '/partner-logos/trucolours.webp', h: 104 }
 ];
 
 // The one place an event's booking label is spelled out. Number() drops the

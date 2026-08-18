@@ -234,9 +234,10 @@
 </section>
 
 <!-- partners & facilitators -->
-<section class="sec">
+<section class="sec" id="partners">
 	<div class="wrap">
 		<div class="divider reveal" use:reveal><div class="line"></div><span class="lbl">Partners &amp; Facilitators</span><div class="line"></div></div>
+		<!-- Driven by `partners` in data.js: adding an entry adds a card here. -->
 		<div class="partners" style="margin-top:56px">
 			{#each partners as p, i (p.name)}
 				{#if p.href}
@@ -247,6 +248,7 @@
 						target="_blank"
 						rel="noopener noreferrer"
 						aria-label={p.name}
+						style:--logo-h={p.h ? `${p.h}px` : null}
 					>
 						<img src={p.logo} alt={p.name} loading="lazy" />
 						<span class="tip">{p.name}</span>
@@ -258,6 +260,7 @@
 						class:open={openTip === i}
 						use:reveal
 						aria-label={p.name}
+						style:--logo-h={p.h ? `${p.h}px` : null}
 						onclick={() => toggleTip(i)}
 					>
 						<img src={p.logo} alt={p.name} loading="lazy" />

@@ -1,7 +1,10 @@
 # Content from a spreadsheet
 
 **Date:** 2026-08-18
-**Status:** explored, not yet approved
+**Status:** superseded by `2026-08-19-sheets-cms-design.md`, which extends this to
+all site copy, a debounced auto-publish, editable mail settings, and bookings
+written back to the sheet. Its reasoning on rebuilds, payment links and
+validation is carried forward unchanged.
 
 ## Problem
 

@@ -3,6 +3,7 @@
 	import Photo from '$lib/components/Photo.svelte';
 	import { openBooking } from '$lib/booking.js';
 	import { classes, partners, events, eventLabel } from '$lib/data.js';
+	import { txt } from '$lib/copy.js';
 
 	// The band below shows the next gathering. Its copy is written out here, but the
 	// booking label is taken from the events data so it always matches the picker.
@@ -21,10 +22,10 @@
 	<div class="hero-copy">
 		<div class="hero-copy-inner">
 			<img class="hero-logo" src="/logos/vinya-logo-brown.png" alt="Vinya — Breathe, Connect, Bloom" />
-			<h1>Breathe through the hesitation. Bloom into who you already are.</h1>
+			<h1>{txt('home.hero.title')}</h1>
 			<div class="hero-cta">
-				<button class="btn btn-primary lg" onclick={() => openBooking('a class')}>Book a class</button>
-				<a class="btn btn-ghost lg" href="/events">See what's coming</a>
+				<button class="btn btn-primary lg" onclick={() => openBooking('a class')}>{txt('home.hero.cta.book')}</button>
+				<a class="btn btn-ghost lg" href="/events">{txt('home.hero.cta.events')}</a>
 			</div>
 		</div>
 	</div>
@@ -97,8 +98,8 @@
 <section class="sec">
 	<div class="wrap">
 		<div class="sec-head row reveal" use:reveal>
-			<div><div class="eyebrow">The practice</div><h2>Schedule for this week</h2></div>
-			<a class="tlink" href="/classes">See the full timetable <span>→</span></a>
+			<div><div class="eyebrow">{txt('home.practice.eyebrow')}</div><h2>{txt('home.practice.title')}</h2></div>
+			<a class="tlink" href="/classes">{txt('home.practice.link')} <span>→</span></a>
 		</div>
 		<div class="practice-grid">
 			{#each classes as c}
@@ -107,7 +108,7 @@
 					<h3>{c.name}</h3>
 					<div class="meta">{c.meta}</div>
 					<p>{c.blurb}</p>
-					<button class="tlink" onclick={() => openBooking(c.name)}>Book a place <span>→</span></button>
+					<button class="tlink" onclick={() => openBooking(c.name)}>{txt('home.practice.book')} <span>→</span></button>
 				</div>
 			{/each}
 		</div>
@@ -128,10 +129,10 @@
 			/>
 		</div>
 		<div class="reveal" use:reveal>
-			<div class="eyebrow">About Vinya</div>
-			<h2 style="margin-top:22px">A space with room to breathe.</h2>
-			<p class="lede" style="margin-top:26px">Vinya is a yoga inspired initiative in the Netherlands. Most people who find us are somewhere in the middle of: a change, a tiredness, a hesitation they can't name or ready to step out of their comfort zone. Either you're ready to work on your physical and mental state.</p>
-			<div style="margin-top:36px"><a class="tlink" href="/about">More about Vinya <span>→</span></a></div>
+			<div class="eyebrow">{txt('home.about.eyebrow')}</div>
+			<h2 style="margin-top:22px">{txt('home.about.title')}</h2>
+			<p class="lede" style="margin-top:26px">{txt('home.about.body')}</p>
+			<div style="margin-top:36px"><a class="tlink" href="/about">{txt('home.about.link')} <span>→</span></a></div>
 		</div>
 	</div>
 </section>
@@ -140,10 +141,9 @@
 <!-- philosophy -->
 <section class="sec">
 	<div class="wrap triptych">
-		<div class="t reveal" use:reveal><div class="h">Breathe</div><p>Breathe is the bridge between who you are guarded and who you are open. We start there, every time.</p></div>
-		<div class="t reveal" use:reveal><div class="h">Connect</div><p>Moving together creates connection together. Come for the practice, stay for the connection.
-</p></div>
-		<div class="t reveal" use:reveal><div class="h">Bloom</div><p>Come as you are today, not as the version you think is ready.</p></div>
+		<div class="t reveal" use:reveal><div class="h">{txt('home.pillars.1.title')}</div><p>{txt('home.pillars.1.body')}</p></div>
+		<div class="t reveal" use:reveal><div class="h">{txt('home.pillars.2.title')}</div><p>{txt('home.pillars.2.body')}</p></div>
+		<div class="t reveal" use:reveal><div class="h">{txt('home.pillars.3.title')}</div><p>{txt('home.pillars.3.body')}</p></div>
 	</div>
 </section>
 
@@ -152,11 +152,11 @@
 <section class="sec sunken">
 	<div class="wrap split">
 		<div class="reveal" use:reveal style="order:1">
-			<div class="eyebrow">Your teachers</div>
-			<h2 style="margin-top:22px">Held by people who came to yoga the long way around.</h2>
+			<div class="eyebrow">{txt('home.teachers.eyebrow')}</div>
+			<h2 style="margin-top:22px">{txt('home.teachers.title')}</h2>
 			<div style="margin-top:36px;display:flex;gap:14px;flex-wrap:wrap">
-				<a class="btn btn-primary" href="/teachers">Meet the teachers</a>
-				<a class="btn btn-secondary" href="/classes">Explore our offerings</a>
+				<a class="btn btn-primary" href="/teachers">{txt('home.teachers.cta.meet')}</a>
+				<a class="btn btn-secondary" href="/classes">{txt('home.teachers.cta.offerings')}</a>
 			</div>
 		</div>
 		<div class="media arch reveal" use:reveal style="order:2">
@@ -175,13 +175,13 @@
 	<div class="wrap event-band">
 		<div class="date-chip reveal" use:reveal><div class="d">08</div><div class="m">Aug</div></div>
 		<div class="reveal" use:reveal>
-			<div class="eyebrow gold" style="color:var(--gold-500)">Next gathering</div>
+			<div class="eyebrow gold" style="color:var(--gold-500)">{txt('home.gathering.eyebrow')}</div>
 			<h2 style="margin-top:14px">Full Moon Flow &amp; Sound Bath</h2>
 			<p>Saturday 19:00 · 90 minutes · €28 · Location to be confirmed. Slow flow as the light goes, then sound to close.</p>
 		</div>
 		<div class="reveal" use:reveal style="display:flex;flex-direction:column;gap:14px">
-			<button class="btn btn-primary lg" onclick={() => openBooking(nextGathering)}>Reserve your place</button>
-			<a style="font-size:var(--text-sm);color:var(--tan-300);text-align:center;letter-spacing:.06em" href="/events">All events</a>
+			<button class="btn btn-primary lg" onclick={() => openBooking(nextGathering)}>{txt('home.gathering.cta')}</button>
+			<a style="font-size:var(--text-sm);color:var(--tan-300);text-align:center;letter-spacing:.06em" href="/events">{txt('home.gathering.link')}</a>
 		</div>
 	</div>
 </section>
@@ -189,21 +189,21 @@
 <!-- testimonials -->
 <section class="sec">
 	<div class="wrap">
-		<div class="sec-head reveal" use:reveal><div class="eyebrow">In their words</div><h2 style="margin-top:18px">Quietly, people keep coming back.</h2></div>
+		<div class="sec-head reveal" use:reveal><div class="eyebrow">{txt('home.testimonials.eyebrow')}</div><h2 style="margin-top:18px">{txt('home.testimonials.title')}</h2></div>
 		<div class="quotes">
 			<div class="quote reveal" use:reveal><p>"I came in stiff and a little cynical. I left breathing differently. The room is so quiet you can actually hear yourself soften."</p><div class="who">Marieke · Slow Yoga Adjustment</div></div>
 			<div class="quote reveal" use:reveal><p>"First yoga in my life at 43. Nobody made me feel behind. I've been back every week since."</p><div class="who">Tomas · Beginners course</div></div>
 			<div class="quote reveal" use:reveal><p>"The 1:1 sessions with Nikita did more for my sleep than anything else this year. Gentle, and exactly what I needed."</p><div class="who">Sanne · 1:1 Holistic</div></div>
 		</div>
-		<div class="rating reveal" use:reveal><span class="stars">★★★★★</span><span>Loved by a small, growing circle · real reviews to be gathered here</span></div>
+		<div class="rating reveal" use:reveal><span class="stars">★★★★★</span><span>{txt('home.testimonials.rating')}</span></div>
 	</div>
 </section>
 
 <!-- gallery -->
 <section class="sec sunken">
 	<div class="wrap">
-		<div class="divider reveal" use:reveal><div class="line"></div><span class="lbl">In this together</span><div class="line"></div></div>
-		<blockquote class="blockquote-lg reveal" use:reveal style="margin-top:56px">Leave a little more room to bloom.</blockquote>
+		<div class="divider reveal" use:reveal><div class="line"></div><span class="lbl">{txt('home.gallery.divider')}</span><div class="line"></div></div>
+		<blockquote class="blockquote-lg reveal" use:reveal style="margin-top:56px">{txt('home.gallery.quote')}</blockquote>
 		<div class="gallery" style="margin-top:64px">
 			<div class="g reveal" use:reveal>
 				<Photo
@@ -269,7 +269,7 @@
 
 <section class="sec" id="partners">
 	<div class="wrap">
-		<div class="divider reveal" use:reveal><div class="line"></div><span class="lbl">Partners &amp; Facilitators</span><div class="line"></div></div>
+		<div class="divider reveal" use:reveal><div class="line"></div><span class="lbl">{txt('home.partners.divider')}</span><div class="line"></div></div>
 
 		<!-- Driven by `partners` in data.js, and nothing here needs touching when one is
 		     added: three fit the row as a grid, and past three the same cards become a
@@ -298,12 +298,12 @@
 <!-- jump -->
 <section class="sec sunken">
 	<div class="wrap">
-		<div class="eyebrow reveal" use:reveal style="margin-bottom:12px">Where to next</div>
+		<div class="eyebrow reveal" use:reveal style="margin-bottom:12px">{txt('home.jump.eyebrow')}</div>
 		<div class="jump reveal" use:reveal>
-			<a href="/classes"><span>Find a class for you</span><span class="arrow">→</span></a>
-			<a href="/events"><span>Workshops &amp; gatherings</span><span class="arrow">→</span></a>
-			<a href="/classes#prices"><span>Passes &amp; prices</span><span class="arrow">→</span></a>
-			<a href="/teachers"><span>Meet your teachers</span><span class="arrow">→</span></a>
+			<a href="/classes"><span>{txt('home.jump.classes')}</span><span class="arrow">→</span></a>
+			<a href="/events"><span>{txt('home.jump.events')}</span><span class="arrow">→</span></a>
+			<a href="/classes#prices"><span>{txt('home.jump.prices')}</span><span class="arrow">→</span></a>
+			<a href="/teachers"><span>{txt('home.jump.teachers')}</span><span class="arrow">→</span></a>
 		</div>
 	</div>
 </section>

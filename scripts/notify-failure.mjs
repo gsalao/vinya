@@ -9,7 +9,7 @@
 // src/lib/server/mail.js: that module reads `$env/dynamic/private`, a virtual
 // module only SvelteKit's Vite plugin can resolve. A plain `node
 // scripts/notify-failure.mjs` run outside that build has no way to load it.
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import nodemailer from 'nodemailer';
 
@@ -97,6 +97,20 @@ export function planMail(mode, log) {
 	return { reason: 'connection', problems: [] };
 }
 
+/** sync.log is written by the "Sync content from the spreadsheet" workflow
+ *  step. A failure at or before "Install dependencies" — a missing repository
+ *  secret, a broken lockfile install — means that step never ran and the file
+ *  was never created. Falling back to '' rather than letting readFileSync()
+ *  throw ENOENT is what keeps this reporter from dying on the same class of
+ *  failure it exists to report; an empty string is exactly what planMail()
+ *  already treats as the 'connection' case, which reads correctly here too —
+ *  her change was never actually checked, so nothing claims it "was
+ *  accepted". Exported and pure aside from the read itself, so the guard is
+ *  proved directly rather than only by inspection. */
+export function readSyncLog() {
+	return existsSync('sync.log') ? readFileSync('sync.log', 'utf8') : '';
+}
+
 async function main() {
 	// Two modes: the default reads sync.log and reports whatever the sync run
 	// left there. "--generic" is used when the sync itself succeeded but a
@@ -109,7 +123,7 @@ async function main() {
 	// there is always something real to tell her about. planMail() picks which
 	// of the three wordings fits; it is never "stay silent" any more.
 	const mode = process.argv[2];
-	const log = mode === '--generic' ? '' : readFileSync('sync.log', 'utf8');
+	const log = mode === '--generic' ? '' : readSyncLog();
 	const { reason, problems } = planMail(mode, log);
 
 	const { MAIL_HOST, MAIL_PORT, MAIL_USER, MAIL_PASS, MAIL_FROM, MAIL_TO } = process.env;

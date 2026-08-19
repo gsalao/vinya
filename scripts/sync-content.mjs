@@ -19,20 +19,32 @@ const STATIC = new URL('../static', import.meta.url);
  *  cannot check this — it is pure and has no filesystem — but a broken image is
  *  exactly the kind of silent failure this pipeline exists to prevent.
  *
+ *  Returns `{ path, tab }` pairs rather than bare paths so a missing file can
+ *  be reported against the real tab it came from — 'teachers' or 'partners' —
+ *  instead of a hand-typed "teachers or partners" that names a tab the
+ *  spreadsheet does not have. Where a path could come from either collection,
+ *  the first one seen wins, which only ever happens if the exact same path is
+ *  reused across both — the report still points at a real tab either way.
+ *
  *  Exported so it can be unit-tested directly against the real static/
  *  directory and the real committed content, rather than re-proved with a
  *  second, hand-copied implementation in a shell one-liner. See
  *  sync-content.test.js. */
 export function missingFiles(content) {
-	const paths = new Set();
+	const tabOf = new Map();
+	const add = (path, tab) => {
+		if (!tabOf.has(path)) tabOf.set(path, tab);
+	};
 	for (const t of content.teachers) {
-		paths.add(t.photo.src);
+		add(t.photo.src, 'teachers');
 		for (const set of [t.photo.srcset, t.photo.srcsetWebp]) {
-			for (const entry of set.split(',')) paths.add(entry.trim().split(' ')[0]);
+			for (const entry of set.split(',')) add(entry.trim().split(' ')[0], 'teachers');
 		}
 	}
-	for (const p of content.partners) paths.add(p.logo);
-	return [...paths].filter((p) => !existsSync(new URL(`.${p}`, STATIC + '/')));
+	for (const p of content.partners) add(p.logo, 'partners');
+	return [...tabOf]
+		.filter(([path]) => !existsSync(new URL(`.${path}`, STATIC + '/')))
+		.map(([path, tab]) => ({ path, tab }));
 }
 
 function report(errors) {
@@ -81,10 +93,10 @@ async function main() {
 
 	const missing = missingFiles(content);
 	if (missing.length > 0) {
-		report(missing.map((p) => ({
-			tab: 'teachers or partners',
+		report(missing.map(({ path, tab }) => ({
+			tab,
 			row: null,
-			message: `the image "${p}" is referenced but does not exist on the site. Check the spelling, or ask the developer to add the file.`
+			message: `the image "${path}" is referenced but does not exist on the site. Check the spelling, or ask the developer to add the file.`
 		})));
 		process.exit(1);
 	}

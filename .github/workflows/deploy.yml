@@ -65,8 +65,30 @@ jobs:
       url: ${{ steps.deploy.outputs.url }}
 
     steps:
-      # First, and before any setup, so a missing secret costs seconds and names
-      # itself instead of surfacing as a credentials error deeper in the job.
+      - uses: actions/checkout@v4
+
+      # No version pin: action-setup reads packageManager from package.json,
+      # so the runner uses the same pnpm the lockfile was written with.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # After checkout and install, not before: a missing secret still costs
+      # ~40s of setup on a genuinely misconfigured run, but a content-run
+      # failure here now leaves both failure reporters below able to run.
+      # report-status.mjs and notify-failure.mjs import scripts/lib modules
+      # that need the checkout, and google-auth-library / nodemailer, which
+      # need the install — fail before either exists and both reporters die
+      # on "module not found" instead of writing anything, leaving Status!B2
+      # stuck on the Apps Script's "Publishing…" forever with no mail sent.
+      # This is the same reasoning, applied earlier in the job, as the
+      # "Report an unexpected failure to the sheet" step further down.
       - name: Check required secrets are present
         env:
           GOOGLE_SA_KEY: ${{ secrets.GOOGLE_SA_KEY }}
@@ -89,20 +111,6 @@ jobs:
             exit 1
           fi
           echo "All required secrets are present."
-
-      - uses: actions/checkout@v4
-
-      # No version pin: action-setup reads packageManager from package.json,
-      # so the runner uses the same pnpm the lockfile was written with.
-      - uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: package.json
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
 
       - name: Sync content from the spreadsheet
         id: sync

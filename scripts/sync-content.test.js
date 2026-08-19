@@ -19,7 +19,7 @@ describe('missingFiles', () => {
 		expect(missingFiles(content)).toEqual([]);
 	});
 
-	it('reports a teacher photo path that does not exist on disk', () => {
+	it('reports a teacher photo path that does not exist on disk, tagged with the real tab it came from', () => {
 		const fake = {
 			...content,
 			teachers: [{
@@ -31,17 +31,19 @@ describe('missingFiles', () => {
 			}],
 			partners: []
 		};
-		expect(missingFiles(fake).sort()).toEqual([
-			'/images/does-not-exist-1400.jpg',
-			'/images/does-not-exist-1400.webp',
-			'/images/does-not-exist-2200.jpg',
-			'/images/does-not-exist-2200.webp'
+		expect(missingFiles(fake).sort((a, b) => a.path.localeCompare(b.path))).toEqual([
+			{ path: '/images/does-not-exist-1400.jpg', tab: 'teachers' },
+			{ path: '/images/does-not-exist-1400.webp', tab: 'teachers' },
+			{ path: '/images/does-not-exist-2200.jpg', tab: 'teachers' },
+			{ path: '/images/does-not-exist-2200.webp', tab: 'teachers' }
 		]);
 	});
 
-	it('reports a partner logo path that does not exist on disk', () => {
+	// The tab actually named matters: sync-content.mjs used to hand-write
+	// 'teachers or partners' here, naming a tab the spreadsheet does not have.
+	it('reports a partner logo path that does not exist on disk, tagged with the real tab it came from', () => {
 		const fake = { ...content, teachers: [], partners: [{ name: 'Ghost', logo: '/partner-logos/does-not-exist.svg' }] };
-		expect(missingFiles(fake)).toEqual(['/partner-logos/does-not-exist.svg']);
+		expect(missingFiles(fake)).toEqual([{ path: '/partner-logos/does-not-exist.svg', tab: 'partners' }]);
 	});
 
 	it('reports only the missing path, not the real ones sitting alongside it', () => {
@@ -50,6 +52,6 @@ describe('missingFiles', () => {
 			teachers: [content.teachers[0]],
 			partners: [...content.partners, { name: 'Ghost', logo: '/partner-logos/does-not-exist.svg' }]
 		};
-		expect(missingFiles(fake)).toEqual(['/partner-logos/does-not-exist.svg']);
+		expect(missingFiles(fake)).toEqual([{ path: '/partner-logos/does-not-exist.svg', tab: 'partners' }]);
 	});
 });

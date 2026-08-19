@@ -28,9 +28,16 @@ What each tab is for
   copy          Every heading and paragraph on the site. The 'where' column
                 tells you which page each one is on. Do not edit the 'key'
                 column — that is how the site finds the text.
-  classes       The classes you offer, and which studio each one is at.
+  classes       The classes you offer, and which studio each one is at. The
+                'tone' column sets the small colour mark next to each class
+                name. It must be exactly one of these four words: gold, sky,
+                tan, rust — anything else shows no colour at all.
   timetable     Which class runs on which day, at what time. The 'class'
                 column must be spelled exactly as it is on the classes tab.
+                Write the time like '10:30' (24-hour, with a colon). If a
+                cell turns itself into a time instead of keeping what you
+                typed, click it, choose Format, Number, Plain text, then
+                retype it.
   events        One upcoming gathering per row. Write the month like
                 'September 2026' and the day as two digits like '08'. If a
                 cell turns itself into a calendar date instead of keeping
@@ -53,9 +60,15 @@ What each tab is for
   providers     The studios you teach at, with their addresses.
   prices        What each pass is called, and its price and description. You
                 can freely change the wording and price of any pass already
-                here. The payment links themselves are set in the site's
-                code and cannot be changed from this sheet, and neither can
-                adding a genuinely new kind of pass — both need a developer.
+                here. Write the price like '€15' — if a cell later shows
+                '€15.00' instead of what you typed, that's the sheet
+                treating it as a currency value rather than text. Harmless
+                either way, but if you'd rather it stayed exactly as typed,
+                click the cell, choose Format, Number, Plain text, then
+                retype it. The payment links themselves are set in the
+                site's code and cannot be changed from this sheet, and
+                neither can adding a genuinely new kind of pass — both need
+                a developer.
   testimonials  The quotes on the home page.
   Status        Written by the website, to tell you what is happening. You
                 cannot type in it, and you do not need to.

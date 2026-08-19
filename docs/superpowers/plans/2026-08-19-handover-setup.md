@@ -51,13 +51,16 @@ and the Apps Script debounce.
 
 3. Add one more tab named `Status`, with `Last publish` in cell `A2`. Leave
    `B2` empty.
-4. Share the spreadsheet with the service-account email from step 1, as
+4. Add one more tab named `Read me first`. Paste the whole contents of
+   `apps-script/read-me-first.md` into cell `A1`, as plain text — that file
+   is the only copy of this text; nothing pastes it into the sheet for you.
+5. Share the spreadsheet with the service-account email from step 1, as
    **Editor**.
-5. Copy the spreadsheet id out of its URL — the segment between `/d/` and
+6. Copy the spreadsheet id out of its URL — the segment between `/d/` and
    `/edit`.
 
-**Worked when:** thirteen tabs exist — the twelve content tabs plus `Status` —
-and the service account appears in Share.
+**Worked when:** fourteen tabs exist — the twelve content tabs, `Status` and
+`Read me first` — and the service account appears in Share.
 
 ---
 

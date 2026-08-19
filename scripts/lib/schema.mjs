@@ -1,16 +1,19 @@
 import { KEYS } from '../../src/lib/copy-manifest.js';
 
 // Every price id the code has a Tikkie target for. A spreadsheet row for a pass
-// with no way to pay for it must fail here rather than render.
-const PRICE_IDS = ['drop-in', '5-class', '10-class', '1on1'];
+// with no way to pay for it must fail here rather than render. Exported so
+// schema.test.js can pin this list against data.js's exported payIds, the
+// same way it pins STANDALONE_BOOK_OPTIONS below against
+// standaloneBookOptions — see that export's comment for why this file cannot
+// import data.js directly instead.
+export const PRICE_IDS = ['drop-in', '5-class', '10-class', '1on1'];
 
 // Booking-form entries that are neither a class, an offering nor an event —
 // mirrors standaloneBookOptions in src/lib/data.js. This file cannot import
 // that module: data.js reads content.generated.json, the very file this
 // validation runs ahead of regenerating, so importing it here would be
-// circular. schema.test.js pins this list against data.js's exported copy so
-// the two cannot drift apart unnoticed, the same way PRICE_IDS above is kept
-// in sync with data.js's PAY by convention.
+// circular. schema.test.js pins this list against data.js's exported copy,
+// the same way it pins PRICE_IDS above against data.js's exported payIds.
 export const STANDALONE_BOOK_OPTIONS = ['1:1 Holistic session', 'Beginners course (4 evenings)'];
 
 const MONTH = /^(January|February|March|April|May|June|July|August|September|October|November|December) \d{4}$/;
@@ -21,6 +24,16 @@ const KEBAB = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 // pastEvents.date is the most date-shaped column in the whole schema and has
 // no dedicated cell-format instruction the owner can be reminded of otherwise.
 const MACHINE_DATE = /\d{1,4}[-/]\d{1,2}[-/]\d{1,4}/;
+// Catches a time Sheets has silently reformatted into a machine form, e.g.
+// typing "10:30" and having the cell turn into "10:30:00" — the same failure
+// mode as MACHINE_DATE above, just for timetable.time, which readTabs()
+// reads back as FORMATTED_VALUE the same way it does every other column.
+const CLOCK = /^([01]?\d|2[0-3]):[0-5]\d$/;
+// The only class-row "tone" values app.css actually styles (.practice .tone.*
+// and .class-row .tone.*, both in src/app.css) — anything else renders as a
+// colourless dot with no error anywhere. Read off the CSS itself rather than
+// hand-guessed, so this can't drift from what the site can actually draw.
+const TONE = new Set(['gold', 'sky', 'tan', 'rust']);
 
 // rowsToObjects() already trims every cell with String.prototype.trim(), so by
 // the time a row reaches this file, ordinary leading/trailing spaces are gone.
@@ -98,19 +111,25 @@ export function validate(tabs) {
 	}
 	if (errors.length > 0) return errors; // later rules assume the shape is sound
 
-	// --- providers resolve ---
+	// --- providers resolve, tone is one app.css can actually draw ---
 	const providerKeys = new Set(tabs.providers.map((p) => p.key));
 	for (const c of tabs.classes) {
 		if (!providerKeys.has(c.provider)) {
 			fail('classes', c.__row, `provider "${c.provider}" is not a key on the providers tab, so this class would show no venue at all.`);
 		}
+		if (!TONE.has(c.tone)) {
+			fail('classes', c.__row, `tone "${c.tone}" is not one of gold, sky, tan or rust, so this class would show as a colourless mark with no error anywhere. Use one of those four words exactly.`);
+		}
 	}
 
-	// --- timetable references a real class ---
+	// --- timetable references a real class, and its time is plain text ---
 	const classNames = new Set(tabs.classes.map((c) => c.name));
 	for (const t of tabs.timetable) {
 		if (!classNames.has(t.class)) {
 			fail('timetable', t.__row, `class "${t.class}" is not on the classes tab, so this session would show no venue.`);
+		}
+		if (!CLOCK.test(t.time)) {
+			fail('timetable', t.__row, `time reads "${t.time}" but must read like "10:30". A time-formatted cell will not work — set the cell format to plain text.`);
 		}
 	}
 
@@ -157,6 +176,20 @@ export function validate(tabs) {
 		}
 	}
 
+	// --- partners ---
+	// height is optional (not in REQUIRED) — a blank cell is fine, shape.mjs
+	// omits `h` entirely for it. A non-numeric, non-blank cell is the hazard:
+	// shape.mjs's `Number(p.height)` turns it into NaN, which serialises to
+	// `null` and reaches the page as `style="--logo-h: nullpx"` with no error
+	// anywhere.
+	for (const p of tabs.partners) {
+		// `undefined` (no "height" header on this tab at all) is treated the same
+		// as a blank cell — both are the documented "no custom height" case.
+		if (p.height !== undefined && p.height !== '' && !Number.isFinite(Number(p.height))) {
+			fail('partners', p.__row, `height "${p.height}" must be a number, like "68" — the logo's height in pixels. Leave the cell blank to use the default height instead.`);
+		}
+	}
+
 	// --- teachers ---
 	const slugs = new Set();
 	for (const t of tabs.teachers) {
@@ -195,9 +228,20 @@ export function validate(tabs) {
 			fail('copy', null, `there is no row for "${key}", and the site renders it. Add a row with that key.`);
 		}
 	}
+	// shape.mjs resolves each key with .find(), which keeps only the first
+	// matching row and silently ignores every row after it — the same
+	// first-wins hazard the teachers.slug duplicate rule above guards against.
+	// Editing the second row of a duplicated key changes nothing on the site,
+	// with no error anywhere else to explain why.
+	const copyRowsByKey = new Map();
 	for (const row of tabs.copy) {
 		if (!KEYS.includes(row.key)) {
 			fail('copy', row.__row, `"${row.key}" is not used anywhere on the site. Editing it will change nothing — delete the row, or check the spelling.`);
+		}
+		if (copyRowsByKey.has(row.key)) {
+			fail('copy', row.__row, `"${row.key}" is already used on row ${copyRowsByKey.get(row.key)} of this tab. Only the first row with a given key is used, so editing this one changes nothing. Delete this row, or give it a different key.`);
+		} else {
+			copyRowsByKey.set(row.key, row.__row);
 		}
 	}
 

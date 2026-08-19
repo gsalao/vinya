@@ -16,6 +16,8 @@
 var REPO = 'gsalao/vinya';
 var DEBOUNCE_MS = 30 * 1000;
 var MACHINE_TABS = ['Status', 'Inquiries'];
+var TIME_ZONE = 'Europe/Amsterdam';
+var MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 function onOpen() {
   SpreadsheetApp.getUi()
@@ -77,7 +79,27 @@ function firePublish() {
   }
 }
 
+/** Matches report-status.mjs's formatStatusLine() on the Node side: a day,
+ *  abbreviated month and 24-hour Amsterdam-local time, then an em dash and
+ *  the message — e.g. "19 Aug, 14:05 — Live". Without this, "Publishing…"
+ *  written by firePublish() carries no timestamp, and read-me-first.md's
+ *  advice to act once it "has said so for more than five minutes" gives her
+ *  no way to tell how long it's actually been.
+ *
+ *  Built by hand from Utilities.formatDate()'s numeric fields rather than its
+ *  'MMM' pattern, which renders the month name in the spreadsheet's own
+ *  locale — this would silently drift from the Node side's fixed English
+ *  formatting the moment the sheet's locale isn't English. 'dd', 'M' and
+ *  'HH:mm' are digits only, so they're locale-independent. */
+function formatStatusLine(text) {
+  var now = new Date();
+  var day = Utilities.formatDate(now, TIME_ZONE, 'dd');
+  var month = MONTH_ABBR[Number(Utilities.formatDate(now, TIME_ZONE, 'M')) - 1];
+  var time = Utilities.formatDate(now, TIME_ZONE, 'HH:mm');
+  return day + ' ' + month + ', ' + time + ' — ' + text;
+}
+
 function setStatus(text) {
   var sheet = SpreadsheetApp.getActive().getSheetByName('Status');
-  if (sheet) sheet.getRange('B2').setValue(text);
+  if (sheet) sheet.getRange('B2').setValue(formatStatusLine(text));
 }

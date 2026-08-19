@@ -40,6 +40,15 @@ const PAY = {
 	'1on1': { url: 'https://tikkie.me/pay/79ocuktsdsb8uaetuvek', qr: '/qr/tikkie-1on1.png' }
 };
 
+// Exported so scripts/lib/schema.mjs's PRICE_IDS can be pinned against this
+// list in a test, the same way its STANDALONE_BOOK_OPTIONS is already pinned
+// against standaloneBookOptions below. PAY itself stays private: an id
+// dropped from it while still listed in PRICE_IDS would let validate() accept
+// a sheet row that then throws below at module load, failing the build on
+// main — exporting just the keys is enough to catch that without also
+// exposing the payment URLs any wider than they already are.
+export const payIds = Object.keys(PAY);
+
 export const prices = content.prices.map((p) => {
 	const pay = PAY[p.id];
 	if (!pay) throw new Error(`prices: no payment target for id "${p.id}". Add it to PAY in data.js.`);

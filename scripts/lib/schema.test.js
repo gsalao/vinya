@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { validate, STANDALONE_BOOK_OPTIONS } from './schema.mjs';
+import { validate, STANDALONE_BOOK_OPTIONS, PRICE_IDS } from './schema.mjs';
 import { rowsToObjects } from './sheets.mjs';
-import { standaloneBookOptions } from '../../src/lib/data.js';
+import { standaloneBookOptions, payIds } from '../../src/lib/data.js';
 
 /** A minimal set of tabs that passes every rule. Each test below breaks exactly
  *  one thing, so a failure names the rule that caught it. */
@@ -85,6 +85,46 @@ describe('validate', () => {
 		expect(messages(validate(tabs))).toContain('Kundalini Yogo');
 	});
 
+	// Seeding writes "10:30" as literal text (RAW), so a freshly seeded sheet is
+	// safe — but nothing stops the cell format from staying Automatic, and the
+	// first time the owner retypes a time (moving a class from 10:30 to 11:00,
+	// an entirely ordinary edit) Sheets silently turns it into a time value.
+	// readTabs() reads FORMATTED_VALUE, so "11:00:00" comes back and would
+	// otherwise pass every other rule clean.
+	it('rejects a timetable time that Sheets would silently reformat as a time', async () => {
+		const tabs = await withCopy(ok());
+		tabs.timetable[0].time = '11:00:00';
+		const errors = validate(tabs);
+		expect(errors[0].tab).toBe('timetable');
+		expect(errors[0].message).toContain('10:30');
+		expect(errors[0].message).toContain('plain text');
+	});
+
+	it('accepts a single-digit-hour timetable time', async () => {
+		const tabs = await withCopy(ok());
+		tabs.timetable[0].time = '9:00';
+		expect(validate(tabs)).toEqual([]);
+	});
+
+	// Only gold, sky, tan and rust have CSS (.practice .tone.* and .class-row
+	// .tone.* in src/app.css) — anything else renders as a colourless mark with
+	// no error anywhere else in the pipeline.
+	it('rejects a class tone with no matching CSS', async () => {
+		const tabs = await withCopy(ok());
+		tabs.classes[0].tone = 'blue';
+		const errors = validate(tabs);
+		expect(errors[0].tab).toBe('classes');
+		expect(errors[0].message).toContain('gold, sky, tan or rust');
+	});
+
+	it('accepts every tone value app.css actually styles', async () => {
+		for (const tone of ['gold', 'sky', 'tan', 'rust']) {
+			const tabs = await withCopy(ok());
+			tabs.classes[0].tone = tone;
+			expect(validate(tabs), tone).toEqual([]);
+		}
+	});
+
 	// A duplicate label makes the booking picker's preselect ambiguous.
 	it('rejects a booking label used twice across tabs', async () => {
 		const tabs = await withCopy(ok());
@@ -120,6 +160,32 @@ describe('validate', () => {
 		expect(messages(validate(tabs))).toContain('drop-inn');
 	});
 
+	// shape.mjs's `Number(p.height)` turns a non-numeric cell into NaN, which
+	// serialises to `null` and reaches the page with a broken inline style —
+	// no error anywhere in the pipeline today.
+	it('rejects a non-numeric partner height', async () => {
+		const tabs = await withCopy(ok());
+		tabs.partners[0].height = 'tall';
+		const errors = validate(tabs);
+		expect(errors[0].tab).toBe('partners');
+		expect(errors[0].message).toContain('must be a number');
+	});
+
+	it('accepts a blank partner height', async () => {
+		const tabs = await withCopy(ok());
+		tabs.partners[0].height = '';
+		expect(validate(tabs)).toEqual([]);
+	});
+
+	// height is optional, not in REQUIRED — a partners tab with no "height"
+	// header at all (row.height reads undefined, not '') must be treated the
+	// same as a blank cell, not flagged as invalid content.
+	it('accepts a partners row with no height column at all', async () => {
+		const tabs = await withCopy(ok());
+		delete tabs.partners[0].height;
+		expect(validate(tabs)).toEqual([]);
+	});
+
 	// A deleted row must not blank a headline on a live page.
 	it('rejects a missing copy key', async () => {
 		const tabs = await withCopy(ok());
@@ -151,6 +217,23 @@ describe('validate', () => {
 		const tabs = await withCopy(ok());
 		tabs.copy.push({ key: 'nowhere.at.all', text: 'x', where: '', __row: tabs.copy.length + 2 });
 		expect(messages(validate(tabs))).toContain('nowhere.at.all');
+	});
+
+	// shape.mjs resolves a key with .find() — first wins. Editing the second of
+	// two duplicate rows changes nothing on the site, and nothing else in the
+	// pipeline says so: the exact "I edited it and nothing happened" failure
+	// this project exists to eliminate. Same rule as the duplicate teachers.slug
+	// check below, applied to the 110-row copy tab where copy-paste duplication
+	// is a realistic edit.
+	it('rejects a duplicate key on the copy tab', async () => {
+		const tabs = await withCopy(ok());
+		const dupeRow = tabs.copy.length + 2;
+		tabs.copy.push({ ...tabs.copy[0], __row: dupeRow });
+		const errors = validate(tabs);
+		const dup = errors.find((e) => e.row === dupeRow);
+		expect(dup, messages(errors)).toBeTruthy();
+		expect(dup.message).toContain(tabs.copy[0].key);
+		expect(dup.message).toContain('changes nothing');
 	});
 
 	it('rejects a duplicate teacher slug', async () => {
@@ -191,12 +274,17 @@ describe('validate', () => {
 		expect(validate(tabs)).toEqual([]);
 	});
 
-	// PRICE_IDS above has no such pin, and that gap is exactly the kind this
-	// rule exists to close: schema.mjs keeps its own copy of this list because
-	// it cannot import data.js, so nothing but a test stops the two from
-	// drifting the moment someone edits one and not the other.
 	it('keeps its standalone booking options in sync with data.js', () => {
 		expect(STANDALONE_BOOK_OPTIONS).toEqual(standaloneBookOptions);
+	});
+
+	// An id dropped from PAY but left in PRICE_IDS would let validate() accept
+	// a sheet row that then throws when data.js loads — after sync-content.mjs
+	// has already committed and pushed content.generated.json to main, leaving
+	// main unable to build. Pinned the same way STANDALONE_BOOK_OPTIONS is
+	// pinned above, now that data.js exports payIds for exactly this purpose.
+	it('keeps its price ids in sync with data.js', () => {
+		expect(PRICE_IDS).toEqual(payIds);
 	});
 
 	it('rejects a required cell left blank', async () => {

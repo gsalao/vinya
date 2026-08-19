@@ -5,7 +5,7 @@ import { describe, it, expect } from 'vitest';
 // on import rather than only when the file is invoked directly, loading this test
 // file would throw before a single "it" ran. That every test below executes at all
 // is the proof.
-import { extractProblems, buildMailBody, buildGenericFailureBody, planMail } from './notify-failure.mjs';
+import { extractProblems, buildMailBody, buildGenericFailureBody, planMail, readSyncLog } from './notify-failure.mjs';
 
 describe('extractProblems', () => {
 	// This is the exact shape report() in sync-content.mjs writes: a header line,
@@ -136,6 +136,18 @@ describe('buildGenericFailureBody("connection")', () => {
 
 	it('routes her to the developer instead of a cell to edit', () => {
 		expect(buildGenericFailureBody('connection')).toContain('contact your developer');
+	});
+});
+
+describe('readSyncLog', () => {
+	// A failure at or before "Install dependencies" in deploy.yml means the
+	// "Sync content from the spreadsheet" step that writes sync.log never ran,
+	// so the file does not exist. Before this fix, main() called readFileSync()
+	// directly and threw ENOENT here, taking this reporter down with the same
+	// failure it exists to report. This suite runs with no sync.log on disk
+	// (see the file-level comment above), so this proves the fallback directly.
+	it('returns an empty string rather than throwing when sync.log does not exist', () => {
+		expect(readSyncLog()).toBe('');
 	});
 });
 

@@ -5,8 +5,6 @@
 	import { classes, partners, events, eventLabel, testimonials } from '$lib/data.js';
 	import { txt } from '$lib/copy.js';
 
-	// The band below shows the next gathering. Its copy is written out here, but the
-	// booking label is taken from the events data so it always matches the picker.
 	const nextGathering = eventLabel(events[0].items[0], events[0]);
 
 	// The band shows events[0].items[0]. Its date chip, title and body all come from

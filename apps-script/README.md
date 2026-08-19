@@ -12,6 +12,14 @@ the last good content stays live.
 
 Design: `docs/superpowers/specs/2026-08-19-sheets-cms-design.md`
 
+The spreadsheet's own `Read me first` tab is the owner-facing walkthrough of
+how all this looks from her side — what to expect after an edit, what's
+locked, and what to do if nothing seems to be happening. Its source is
+`apps-script/read-me-first.md`; paste that file's contents into the tab by
+hand (see the handover checklist's "The spreadsheet" step) whenever it
+changes — nothing keeps the sheet's copy and the committed file in sync
+automatically.
+
 The full tab and column list is not repeated here — it would drift the
 moment someone edited one copy and not the other. It lives in
 `scripts/lib/schema.mjs`'s `REQUIRED` export (the tabs and their required
@@ -128,6 +136,29 @@ sections for the reasoning. `scripts/lib/schema.mjs` rejects any `prices` cell
 that looks like a URL; that rule is load-bearing, not tidiness. As a standing
 check: `grep -r "tikkie" src/lib/content.generated.json` should always return
 nothing. If it doesn't, the boundary has a gap somewhere.
+
+## Changing a copy key
+
+Adding a heading or paragraph to the site means adding its key to `KEYS` in
+`src/lib/copy-manifest.js` and to `src/lib/content.generated.json` — ordinary
+code work, and nothing stops you doing it that way. Removing one is the same
+in reverse.
+
+The catch: `scripts/lib/schema.mjs`'s "copy covers the manifest" rule, which
+checks that every key in `KEYS` has a row on the `copy` tab and vice versa, is
+only ever checked against the *live spreadsheet*, and only when the owner's
+next edit fires a sync — `deploy.yml` runs `sync-content.mjs` on
+`repository_dispatch`, never on a plain code push. So a key added or removed
+in code, with no matching row added or removed on the `copy` tab, passes CI
+and deploys cleanly. Nothing looks wrong yet.
+
+**Add or remove the row on the `copy` tab in the same change.** If you
+forget, the gap sits invisible until the owner's *next* edit — to any tab, not
+necessarily the one you touched — which then fails validation with something
+like `there is no row for "home.hero.subtitle"` (you added a key, forgot the
+row) or `"old.key" is not used anywhere on the site` (you removed a key, left
+the row behind). She did nothing to cause it, has no way to diagnose it, and
+her own unrelated edit is blocked until someone fixes the sheet.
 
 ## Seeding a spreadsheet from scratch
 

@@ -32,7 +32,10 @@ const config = {
 				// separate job from shipping payments, so this stays permissive and
 				// honest rather than silently broken.
 				'style-src': ['self', 'unsafe-inline'],
-				'img-src': ['self', 'data:'],
+				// Photos the owner uploads are served from the project's Supabase
+				// storage bucket, so that one host has to be named. blob: is for the
+				// preview she sees while cropping, before anything is uploaded.
+				'img-src': ['self', 'data:', 'blob:', 'https://hggzymrkzzcnxpemxija.supabase.co'],
 				'font-src': ['self'],
 				// The About page embeds the venue map (google.com/maps?output=embed).
 				// Without this, frame-src falls back to default-src 'self' and the

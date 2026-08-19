@@ -14,17 +14,27 @@ function groupBy(rows, column) {
  *  <name>-2200.jpg implies <name>-1400.jpg and the .webp of each. Phase 4's Drive
  *  pipeline emits exactly those four files, so this stays true once images are
  *  automated. sync-content.mjs checks all four exist on disk before writing. */
-function photoOf(row) {
-	const wide = row.photo;
+function photoOf(row, field = 'photo') {
+	const wide = row[field];
+	// Only a file that follows the -2200 convention has the other three
+	// variants. An older single-file image does not, and claiming a srcset for
+	// it would send the browser after .webp files that were never generated —
+	// which is a broken image, not a slower one.
+	const hasVariants = wide.includes('-2200.');
 	const narrow = wide.replace('-2200.', '-1400.');
 	const webp = (p) => p.replace(/\.(jpe?g|png)$/i, '.webp');
 	return {
 		src: wide,
-		srcset: `${narrow} 1400w, ${wide} 2200w`,
-		srcsetWebp: `${webp(narrow)} 1400w, ${webp(wide)} 2200w`,
+		...(hasVariants
+			? {
+					srcset: `${narrow} 1400w, ${wide} 2200w`,
+					srcsetWebp: `${webp(narrow)} 1400w, ${webp(wide)} 2200w`
+				}
+			: {}),
 		alt: row.alt,
 		fx: Number(row.fx),
-		fy: Number(row.fy)
+		fy: Number(row.fy),
+		...(row.fyMobile ? { fyMobile: Number(row.fyMobile) } : {})
 	};
 }
 
@@ -59,8 +69,13 @@ export function shape(tabs) {
 		items: rows.map((r) => ({ name: r.name, note: r.note }))
 	}));
 
+	const images = {};
+	for (const row of tabs.images ?? []) images[row.key] = photoOf(row, 'src');
+
 	return {
 		copy,
+		images,
+		gallery: (tabs.gallery ?? []).map((row) => photoOf(row, 'src')),
 		providers,
 		classes: tabs.classes.map((c) => ({ name: c.name, tone: c.tone, meta: c.meta, blurb: c.blurb, provider: c.provider })),
 		timetable,

@@ -238,7 +238,9 @@ body.menu-open .mobile-menu{opacity:1;visibility:visible;transform:none}
 .rating{display:flex;align-items:center;gap:12px;justify-content:center;margin-top:56px;color:var(--text-muted);font-size:var(--text-sm);flex-wrap:wrap;text-align:center}
 .stars{color:var(--gold-500);letter-spacing:3px;font-size:18px}
 
-.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+/* auto-fit: the gallery is a list she can add to and remove from, so a fourth
+   picture must not orphan itself and a second must not leave a gap. */
+.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:20px}
 .gallery .g{position:relative;aspect-ratio:4/5;border-radius:var(--radius-md);overflow:hidden}
 .gallery .g .ph{width:100%;height:100%}
 .blockquote-lg{font-family:var(--font-display);font-size:var(--text-3xl);line-height:1.32;color:var(--brown-700);margin:0 auto;max-width:18ch;text-align:center}

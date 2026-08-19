@@ -7,6 +7,11 @@ export const timetable = content.timetable;
 export const offerings = content.offerings;
 export const faqs = content.faqs;
 export const testimonials = content.testimonials;
+
+// Pictures the owner can replace. `images` is keyed by slot; `gallery` is a list
+// she can add to and remove from.
+export const images = content.images ?? {};
+export const gallery = content.gallery ?? [];
 export const pastEvents = content.pastEvents;
 
 export const partners = content.partners;

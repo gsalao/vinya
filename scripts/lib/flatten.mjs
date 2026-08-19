@@ -23,6 +23,20 @@ export function flatten(content) {
 		key, text, __row: nextRow()
 	}));
 
+	const images = Object.entries(content.images ?? {}).map(([key, p]) => ({
+		key,
+		src: p.src,
+		alt: p.alt,
+		fx: String(p.fx),
+		fy: String(p.fy),
+		fyMobile: p.fyMobile === undefined ? '' : String(p.fyMobile),
+		__row: nextRow()
+	}));
+
+	const gallery = (content.gallery ?? []).map((p) => ({
+		src: p.src, alt: p.alt, fx: String(p.fx), fy: String(p.fy), __row: nextRow()
+	}));
+
 	const providers = Object.entries(content.providers).map(([key, p]) => ({
 		key, name: p.name, address: p.address, __row: nextRow()
 	}));
@@ -99,5 +113,5 @@ export function flatten(content) {
 
 	const testimonials = content.testimonials.map((t) => ({ quote: t.quote, who: t.who, __row: nextRow() }));
 
-	return { copy, providers, classes, timetable, events, pastEvents, offerings, faqs, teachers, partners, prices, testimonials };
+	return { copy, images, gallery, providers, classes, timetable, events, pastEvents, offerings, faqs, teachers, partners, prices, testimonials };
 }

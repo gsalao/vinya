@@ -17,6 +17,8 @@ const ok = () => ({
 	partners: [{ name: 'ClassPass', logo: '/partner-logos/classpass-logo.svg', href: 'https://classpass.com/', height: '68', __row: 2 }],
 	prices: [{ id: 'drop-in', label: 'Drop-in', amount: '€15', note: 'One class.', feature: '', __row: 2 }],
 	testimonials: [{ quote: 'Good.', who: 'Marieke', __row: 2 }],
+	images: [{ key: 'home.hero', src: '/images/x-2200.jpg', alt: 'Nikita in the studio', fx: '50', fy: '70', fyMobile: '', __row: 2 }],
+	gallery: [{ src: '/images/plain.jpeg', alt: 'The hall at dusk', fx: '50', fy: '40', __row: 2 }],
 	copy: [] // filled per-test from the manifest
 });
 

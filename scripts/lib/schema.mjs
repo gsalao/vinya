@@ -60,7 +60,9 @@ export const REQUIRED = {
 	partners: ['name', 'logo'],
 	prices: ['id', 'label', 'amount', 'note'],
 	testimonials: ['quote', 'who'],
-	copy: ['key', 'text']
+	copy: ['key', 'text'],
+	images: ['key', 'src', 'alt', 'fx', 'fy'],
+	gallery: ['src', 'alt', 'fx', 'fy']
 };
 
 // Every other tab fails the build when it has no rows: a site with no classes,
@@ -80,10 +82,11 @@ export const REQUIRED = {
 export const OPTIONAL_EXTRAS = {
 	events: ['remaining'],
 	partners: ['href', 'height'],
-	prices: ['feature']
+	prices: ['feature'],
+	images: ['fyMobile']
 };
 
-export const OPTIONAL_WHEN_EMPTY = new Set(['pastEvents']);
+export const OPTIONAL_WHEN_EMPTY = new Set(['pastEvents', 'gallery']);
 
 export function validate(tabs) {
 	const errors = [];

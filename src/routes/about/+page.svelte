@@ -2,7 +2,7 @@
 	import { reveal } from '$lib/reveal.js';
 	import Photo from '$lib/components/Photo.svelte';
 	import { openBooking } from '$lib/booking.js';
-	import { providers } from '$lib/data.js';
+	import { providers, images } from '$lib/data.js';
 	import { txt, paras } from '$lib/copy.js';
 
 	const venues = Object.values(providers);
@@ -30,13 +30,7 @@
 			{/each}
 		</div>
 		<div class="media reveal" use:reveal>
-			<Photo
-				src="/images/vinya-studio-b.jpeg"
-				alt="An evening kirtan in the hall, musicians on the low stage under warm lights"
-				fx={50}
-				fy={52}
-				fyMobile={60}
-			/>
+			<Photo {...images['about.hero']} />
 		</div>
 	</div>
 </section>
@@ -65,15 +59,7 @@
 <section class="sec">
 	<div class="wrap split founder" style="align-items:start">
 		<div class="media reveal" use:reveal>
-			<Photo
-				src="/images/nikita-standing-2200.jpg"
-				srcset="/images/nikita-standing-1400.jpg 1400w, /images/nikita-standing-2200.jpg 2200w"
-				srcsetWebp="/images/nikita-standing-1400.webp 1400w, /images/nikita-standing-2200.webp 2200w"
-				sizes="(max-width:820px) 100vw, 46vw"
-				alt="Nikita Coppens standing in natural light"
-				fx={50}
-				fy={20}
-			/>
+			<Photo {...images['about.founder']} sizes="(max-width:820px) 100vw, 46vw" />
 		</div>
 		<div class="reveal" use:reveal>
 			<div class="eyebrow">{txt('about.founder.eyebrow')}</div>

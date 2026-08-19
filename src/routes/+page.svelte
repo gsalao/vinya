@@ -2,7 +2,7 @@
 	import { reveal } from '$lib/reveal.js';
 	import Photo from '$lib/components/Photo.svelte';
 	import { openBooking } from '$lib/booking.js';
-	import { classes, partners, events, eventLabel, testimonials } from '$lib/data.js';
+	import { classes, partners, events, eventLabel, testimonials, images, gallery } from '$lib/data.js';
 	import { txt } from '$lib/copy.js';
 
 	const nextGathering = eventLabel(events[0].items[0], events[0]);
@@ -54,14 +54,8 @@
 		     to move it (ALT + scroll to zoom); the new values are copied to your
 		     clipboard, ready to paste back in here. -->
 		<Photo
-			src="/images/nikita-form-2200.jpg"
-			srcset="/images/nikita-form-1400.jpg 1400w, /images/nikita-form-2200.jpg 2200w"
-			srcsetWebp="/images/nikita-form-1400.webp 1400w, /images/nikita-form-2200.webp 2200w"
+			{...images['home.hero']}
 			sizes="(max-width:820px) 100vw, 50vw"
-			alt="Nikita in a seated backbend on a wooden deck, surrounded by palms"
-			fx={50}
-			fy={78}
-			fyMobile={76}
 			loading="eager"
 			fetchpriority="high"
 		/>
@@ -125,12 +119,7 @@
 <section class="sec sunken">
 	<div class="wrap split wide">
 		<div class="media reveal" use:reveal>
-			<Photo
-				src="/images/vinya-studio-a.jpeg"
-				alt="A kirtan circle seated on cushions in a garden, harmonium at the centre"
-				fx={50}
-				fy={50}
-			/>
+			<Photo {...images['home.about']} />
 		</div>
 		<div class="reveal" use:reveal>
 			<div class="eyebrow">{txt('home.about.eyebrow')}</div>
@@ -164,12 +153,7 @@
 			</div>
 		</div>
 		<div class="media arch reveal" use:reveal style="order:2">
-			<Photo
-				src="/images/nikita-practice.JPG"
-				alt="Nikita sounding a singing bowl over someone resting in savasana"
-				fx={50}
-				fy={45}
-			/>
+			<Photo {...images['home.teachers']} />
 		</div>
 	</div>
 </section>
@@ -209,30 +193,11 @@
 		<div class="divider reveal" use:reveal><div class="line"></div><span class="lbl">{txt('home.gallery.divider')}</span><div class="line"></div></div>
 		<blockquote class="blockquote-lg reveal" use:reveal style="margin-top:56px">{txt('home.gallery.quote')}</blockquote>
 		<div class="gallery" style="margin-top:64px">
-			<div class="g reveal" use:reveal>
-				<Photo
-					src="/images/vinya-studio-a.jpeg"
-					alt="A kirtan circle seated on cushions in a garden, harmonium at the centre"
-					fx={50}
-					fy={50}
-				/>
-			</div>
-			<div class="g arch reveal" use:reveal>
-				<Photo
-					src="/images/nikita-practice.JPG"
-					alt="Nikita sounding a singing bowl over someone resting in savasana"
-					fx={50}
-					fy={45}
-				/>
-			</div>
-			<div class="g reveal" use:reveal>
-				<Photo
-					src="/images/vinya-studio-b.jpeg"
-					alt="An evening kirtan in the hall, musicians on the low stage under warm lights"
-					fx={50}
-					fy={52}
-				/>
-			</div>
+			{#each gallery as picture, i (i)}
+				<div class="g reveal" class:arch={i % 2 === 1} use:reveal>
+					<Photo {...picture} />
+				</div>
+			{/each}
 		</div>
 	</div>
 </section>

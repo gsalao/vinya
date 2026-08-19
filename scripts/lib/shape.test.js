@@ -39,7 +39,9 @@ const tabs = {
 		{ id: 'drop-in', label: 'Drop-in', amount: '€15', note: 'One class.', feature: '', __row: 2 },
 		{ id: '10-class', label: '10-class pass', amount: '€90', note: 'Most land here.', feature: 'yes', __row: 3 }
 	],
-	testimonials: [{ quote: 'Good.', who: 'Marieke', __row: 2 }]
+	testimonials: [{ quote: 'Good.', who: 'Marieke', __row: 2 }],
+	images: [{ key: 'home.hero', src: '/images/x-2200.jpg', alt: 'X', fx: '50', fy: '70', fyMobile: '', __row: 2 }],
+	gallery: [{ src: '/images/plain.jpeg', alt: 'Plain', fx: '50', fy: '40', __row: 2 }]
 };
 
 describe('shape', () => {
@@ -125,6 +127,22 @@ describe('shape', () => {
 	it('omits a blank partner height rather than emitting zero', () => {
 		const blank = { ...tabs, partners: [{ name: 'X', logo: '/x.svg', href: '', height: '', __row: 2 }] };
 		expect(shape(blank).partners[0]).toEqual({ name: 'X', logo: '/x.svg' });
+	});
+
+	// A file following the -2200 convention has the other three variants; an older
+	// single-file image does not, and claiming a srcset for it would point the
+	// browser at .webp files that were never generated.
+	it('derives a srcset only for images that have variants', () => {
+		const out = shape(tabs);
+		expect(out.images['home.hero'].srcset).toBe('/images/x-1400.jpg 1400w, /images/x-2200.jpg 2200w');
+		expect(out.images['home.hero'].srcsetWebp).toBe('/images/x-1400.webp 1400w, /images/x-2200.webp 2200w');
+		expect(out.gallery[0].srcset).toBeUndefined();
+		expect(out.gallery[0].srcsetWebp).toBeUndefined();
+		expect(out.gallery[0].src).toBe('/images/plain.jpeg');
+	});
+
+	it('omits a blank mobile focal point rather than emitting an empty one', () => {
+		expect(shape(tabs).images['home.hero'].fyMobile).toBeUndefined();
 	});
 
 	it('sorts copy keys so an unrelated edit produces no diff noise', () => {

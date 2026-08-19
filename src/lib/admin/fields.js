@@ -14,6 +14,8 @@
  *  it appears on. `tab` matches a key of REQUIRED in schema.mjs. */
 export const SECTIONS = {
 	home: [
+		{ tab: 'images', title: 'Pictures on this page', blurb: 'Drag each picture to choose what stays in view when it is cropped.', only: 'home.', fixed: true },
+		{ tab: 'gallery', title: 'Photo gallery', blurb: 'The row of pictures near the bottom. Add or remove as many as you like.' },
 		{ tab: 'testimonials', title: 'What people say', blurb: 'The quotes on the home page.' },
 		{ tab: 'partners', title: 'Partner logos', blurb: 'Shown near the bottom of the home page. Past three, they scroll gently instead of wrapping.' }
 	],
@@ -30,6 +32,7 @@ export const SECTIONS = {
 		{ tab: 'pastEvents', title: 'Past gatherings', blurb: 'Can be left empty — the section disappears from the site if it is.' }
 	],
 	about: [
+		{ tab: 'images', title: 'Pictures on this page', blurb: 'Drag each picture to choose what stays in view when it is cropped.', only: 'about.', fixed: true },
 		{ tab: 'providers', title: 'Where you teach', blurb: 'The key is used by the classes above to say where each one meets.' }
 	]
 };
@@ -112,16 +115,16 @@ export const FIELDS = {
 		role: { label: 'Role', kind: 'line' },
 		intro: { label: 'Introduction', kind: 'para' },
 		highlights: { label: 'Highlights', kind: 'lines', help: 'One per line.' },
-		photo: { label: 'Photo file', kind: 'line', help: 'Ask your developer to add new photos.' },
+		photo: { label: 'Photo', kind: 'image', help: 'A photo straight from your phone is fine — it is shrunk automatically.' },
 		alt: { label: 'Photo description', kind: 'line', help: 'For people who cannot see the image.' },
-		fx: { label: 'Photo focus across', kind: 'line', help: '0-100. Higher moves the crop right.' },
-		fy: { label: 'Photo focus down', kind: 'line', help: '0-100. Higher shows more of the lower half.' },
+		fx: { label: 'Photo focus across', kind: 'hidden' },
+		fy: { label: 'Photo focus down', kind: 'hidden' },
 		ctaLabel: { label: 'Button text', kind: 'line' },
 		ctaOption: { label: 'Button books', kind: 'line', help: 'Must match a class, offering or event exactly.' }
 	},
 	partners: {
 		name: { label: 'Name', kind: 'line' },
-		logo: { label: 'Logo file', kind: 'line', help: 'Ask your developer to add new logos.' },
+		logo: { label: 'Logo', kind: 'logo', help: 'SVG or PNG with a transparent background works best.' },
 		href: { label: 'Website', kind: 'line', help: 'Optional. With it the logo links out.' },
 		height: { label: 'Logo height', kind: 'line', help: 'Optional. Tune until the row looks even rather than measures even — every logo is drawn at a different scale. Blank means 72.' }
 	},
@@ -135,6 +138,20 @@ export const FIELDS = {
 	testimonials: {
 		quote: { label: 'Quote', kind: 'para' },
 		who: { label: 'Who said it', kind: 'line' }
+	},
+	images: {
+		key: { label: 'Where it appears', kind: 'locked', help: 'Fixed — this names the slot on the page.' },
+		src: { label: 'Photo', kind: 'image', help: 'A photo straight from your phone is fine — it is shrunk automatically.' },
+		alt: { label: 'Description for screen readers', kind: 'line', help: 'What is in the picture, for people who cannot see it.' },
+		fx: { label: 'Focus across', kind: 'hidden' },
+		fy: { label: 'Focus down', kind: 'hidden' },
+		fyMobile: { label: 'Focus down on phones', kind: 'hidden' }
+	},
+	gallery: {
+		src: { label: 'Photo', kind: 'image' },
+		alt: { label: 'Description for screen readers', kind: 'line', help: 'What is in the picture, for people who cannot see it.' },
+		fx: { label: 'Focus across', kind: 'hidden' },
+		fy: { label: 'Focus down', kind: 'hidden' }
 	},
 	providers: {
 		key: { label: 'Reference', kind: 'line', help: 'Short, no spaces. Your classes use this to say where they meet.' },

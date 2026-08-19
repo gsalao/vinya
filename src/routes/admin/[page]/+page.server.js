@@ -10,7 +10,9 @@ export async function load({ params }) {
 	const sections = (SECTIONS[pageKey] ?? []).map((s) => ({
 		...s,
 		columns: columnsFor(s.tab),
-		rows: all[s.tab]
+		// `only` narrows a shared table to the page being edited — the images
+		// table holds every page's fixed slots, and she should see hers.
+		rows: s.only ? all[s.tab].filter((r) => String(r.key ?? '').startsWith(s.only)) : all[s.tab]
 	}));
 
 	// Prose for this page only, so the words land under the page the owner is
@@ -26,6 +28,10 @@ export const actions = {
 		const form = await request.formData();
 		const tab = String(form.get('__tab') ?? '');
 		const count = Number(form.get('__count') ?? 0);
+		// A section may show only part of a table — the images table holds every
+		// page's fixed slots, and the About page submits only its own. Writing the
+		// submitted rows alone would delete the other pages' pictures.
+		const only = String(form.get('__only') ?? '');
 		if (!tab) return fail(400, { error: 'Nothing to save.' });
 
 		const columns = columnsFor(tab);
@@ -38,7 +44,10 @@ export const actions = {
 		}
 
 		const all = await readAll();
-		const problems = checkChange(all, tab, rows);
+		const merged = only
+			? [...all[tab].filter((r) => !String(r.key ?? '').startsWith(only)), ...rows]
+			: rows;
+		const problems = checkChange(all, tab, merged);
 		if (problems.length > 0) {
 			return fail(400, {
 				tab,
@@ -46,7 +55,7 @@ export const actions = {
 			});
 		}
 
-		await writeTab(tab, rows);
+		await writeTab(tab, merged);
 		await armPublish();
 		return { saved: tab, count: rows.length };
 	},

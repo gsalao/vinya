@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-// Emails the owner whenever the job that publishes her sheet has failed —
+// Emails the owner whenever the job that publishes her changes has failed —
 // whether that is her content being rejected, the sync never managing to read
-// the sheet at all, or something later in the pipeline breaking. Success is
-// visible in the sheet and does not need mail: a success message she learns to
+// the editor at all, or something later in the pipeline breaking. Success is
+// visible in the editor and does not need mail: a success message she learns to
 // ignore is how a failure message gets ignored too.
 //
 // Builds its own transport from process.env rather than importing
@@ -36,12 +36,12 @@ export function buildMailBody(problems) {
 		'The website has not changed. It is still showing the last version that worked.',
 		'Fix the cells above and it will publish itself about thirty seconds later.',
 		'',
-		'The Status tab of the sheet shows the same message.'
+		'The Status tab of the editor shows the same message.'
 	].join('\n');
 }
 
 /** The mail body for a failure that has nothing to do with what's in the
- *  sheet: she did nothing wrong and there is nothing in the sheet for her to
+ *  sheet: she did nothing wrong and there is nothing in the editor for her to
  *  fix. Shared by two different failure classes that read the same way to
  *  her — "the site is fine and unchanged, this isn't your doing" — and differ
  *  only in the one opening sentence `reason` picks:
@@ -49,7 +49,7 @@ export function buildMailBody(problems) {
  *  - 'deploy' (the default): the sync itself succeeded — her change was read
  *    and accepted — but something later (the commit, the build, the deploy)
  *    failed. Unlike buildMailBody(), there is no cell to point at.
- *  - 'connection': the sync never got far enough to read the sheet at all —
+ *  - 'connection': the sync never got far enough to read the editor at all —
  *    a bad or expired GOOGLE_SA_KEY, a wrong VINYA_SHEET_ID, lost sheet
  *    access, or a Google API outage inside readTabs(). Her change was never
  *    actually checked, so this wording does not claim it "was accepted".
@@ -61,11 +61,11 @@ export function buildGenericFailureBody(reason = 'deploy') {
 		reason === 'connection'
 			? [
 					'Your latest change to the Vinya content sheet could not be checked.',
-					'The website lost its connection to the sheet — a technical problem, not anything you typed. There is nothing for you to fix.'
+					'The website lost its connection to the editor — a technical problem, not anything you typed. There is nothing for you to fix.'
 				]
 			: [
 					'Your latest change to the Vinya content sheet was accepted.',
-					'The website could not be updated because of a technical problem — not anything in the sheet. There is nothing for you to fix.'
+					'The website could not be updated because of a technical problem — not anything in the editor. There is nothing for you to fix.'
 				];
 
 	return [
@@ -77,7 +77,7 @@ export function buildGenericFailureBody(reason = 'deploy') {
 		'',
 		'Please contact your developer.',
 		'',
-		'The Status tab of the sheet shows the same message.'
+		'The Status tab of the editor shows the same message.'
 	].join('\n');
 }
 
@@ -116,7 +116,7 @@ async function main() {
 	// left there. "--generic" is used when the sync itself succeeded but a
 	// later step in the job failed — there is no sync.log bullet to report,
 	// only the fact that something went wrong on the publishing side. See the
-	// "Report an unexpected failure to the sheet" workflow step.
+	// "Report an unexpected failure to the editor" workflow step.
 	//
 	// Either way this only ever runs after the job has already failed — both
 	// "Email the owner..." steps in deploy.yml are gated on failure() — so

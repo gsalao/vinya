@@ -88,7 +88,7 @@ jobs:
       # on "module not found" instead of writing anything, leaving Status!B2
       # stuck on the Apps Script's "Publishing…" forever with no mail sent.
       # This is the same reasoning, applied earlier in the job, as the
-      # "Report an unexpected failure to the sheet" step further down.
+      # "Report an unexpected failure to the editor" step further down.
       - name: Check required secrets are present
         env:
           PUBLIC_SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL }}
@@ -126,7 +126,7 @@ jobs:
           set -o pipefail
           node scripts/sync-content.mjs 2>&1 | tee sync.log
 
-      - name: Report a failed sync to the sheet
+      - name: Report a failed sync to the editor
         if: github.event_name == 'repository_dispatch' && failure()
         env:
           PUBLIC_SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL }}
@@ -221,19 +221,19 @@ jobs:
             echo "- This build: $deployment_url"
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Report success to the sheet
+      - name: Report success to the editor
         if: github.event_name == 'repository_dispatch' && success() && steps.commit.outputs.changed == 'true'
         env:
           PUBLIC_SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/report-status.mjs "Live — ${{ steps.deploy.outputs.url }}"
 
-      - name: Report a no-op to the sheet
+      - name: Report a no-op to the editor
         if: github.event_name == 'repository_dispatch' && success() && steps.commit.outputs.changed != 'true'
         env:
           PUBLIC_SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: node scripts/report-status.mjs "Nothing to publish — the site already matches the sheet."
+        run: node scripts/report-status.mjs "Nothing to publish — the site already matches your latest changes."
 
       # Catch-all for everything the two reporters above cannot see. Both of them
       # sit right after "Sync content from the editor" and their `failure()`
@@ -249,14 +249,14 @@ jobs:
       # infrastructure instead of content.
       #
       # `steps.sync.outcome == 'success'` is what makes this mutually exclusive
-      # with "Report a failed sync to the sheet" rather than a duplicate of it:
+      # with "Report a failed sync to the editor" rather than a duplicate of it:
       # that step's `if: ... && failure()` already fires whenever the job is
       # already failed by the time it runs — i.e. the sync itself failed, or
       # something even earlier (checkout, install) did, leaving `sync` skipped.
       # Neither of those leaves `steps.sync.outcome` as 'success'. Only "sync
       # completed cleanly, something after it did not" does, which is exactly
       # the gap this step covers.
-      - name: Report an unexpected failure to the sheet
+      - name: Report an unexpected failure to the editor
         if: github.event_name == 'repository_dispatch' && failure() && steps.sync.outcome == 'success'
         env:
           PUBLIC_SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL }}

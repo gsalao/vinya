@@ -118,6 +118,17 @@ jobs:
           set -o pipefail
           node scripts/sync-content.mjs 2>&1 | tee sync.log
 
+      - name: Report a failed sync to the sheet
+        if: github.event_name == 'repository_dispatch' && failure()
+        env:
+          GOOGLE_SA_KEY: ${{ secrets.GOOGLE_SA_KEY }}
+          VINYA_SHEET_ID: ${{ vars.VINYA_SHEET_ID }}
+        run: |
+          # The first bullet from the sync's own report. It already names the tab,
+          # the row and what to type instead, so it needs no reformatting.
+          problem=$(grep -m1 '^  • ' sync.log | sed 's/^  • //')
+          node scripts/report-status.mjs "Not published — ${problem:-the content could not be read. Ask the developer.}"
+
       - name: Commit the updated content
         id: commit
         if: github.event_name == 'repository_dispatch' && success()
@@ -189,6 +200,20 @@ jobs:
             echo "- Live: $url"
             echo "- This build: $deployment_url"
           } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Report success to the sheet
+        if: github.event_name == 'repository_dispatch' && success() && steps.commit.outputs.changed == 'true'
+        env:
+          GOOGLE_SA_KEY: ${{ secrets.GOOGLE_SA_KEY }}
+          VINYA_SHEET_ID: ${{ vars.VINYA_SHEET_ID }}
+        run: node scripts/report-status.mjs "Live — ${{ steps.deploy.outputs.url }}"
+
+      - name: Report a no-op to the sheet
+        if: github.event_name == 'repository_dispatch' && success() && steps.commit.outputs.changed != 'true'
+        env:
+          GOOGLE_SA_KEY: ${{ secrets.GOOGLE_SA_KEY }}
+          VINYA_SHEET_ID: ${{ vars.VINYA_SHEET_ID }}
+        run: node scripts/report-status.mjs "Nothing to publish — the site already matches the sheet."
 
       - name: Comment the preview URL on the PR
         if: github.event_name == 'pull_request'

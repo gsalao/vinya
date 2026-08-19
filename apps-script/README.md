@@ -64,20 +64,21 @@ describes as "which would trigger another status write, and so on." Fix the
 tab name in the array (or in the sheet) so they match exactly, spelling and
 case both.
 
-**A credentials or connectivity failure reading the sheet sends no email, and
-the owner never reports it.** This is easy to miss because it looks like the
-system is working: `Status!B2` does get a generic line ("Not published — the
-content could not be read. Ask the developer."), written by the "Report a
-failed sync to the sheet" step in `deploy.yml`. But
-`scripts/notify-failure.mjs` only emails when `sync.log` contains at least
-one `  • ` bulleted line, and this class of failure — a bad or expired
-`GOOGLE_SA_KEY`, a wrong `VINYA_SHEET_ID`, the service account losing access
-to the sheet, a Google API outage — throws before `scripts/lib/schema.mjs`'s
-`validate()` ever runs, so it never produces one. (A genuinely malformed cell
-*does* produce a bullet and does get emailed — this gap is specific to
-failures in reading the sheet at all, not in what's in it.) If the site looks
-stale and the owner says she got no email, check the Action run's log
-directly rather than her inbox.
+**A credentials or connectivity failure reading the sheet sends no email.**
+This is easy to miss because it looks like the system is half-working:
+`Status!B2` does get a generic line ("Not published — the content could not
+be read. Ask the developer."), written by the "Report a failed sync to the
+sheet" step in `deploy.yml` — but nothing prompts the owner to go look at it,
+so it can sit there unnoticed until someone checks the sheet or notices the
+site is stale. That's because `scripts/notify-failure.mjs` only emails when
+`sync.log` contains at least one `  • ` bulleted line, and this class of
+failure — a bad or expired `GOOGLE_SA_KEY`, a wrong `VINYA_SHEET_ID`, the
+service account losing access to the sheet, a Google API outage — throws
+before `scripts/lib/schema.mjs`'s `validate()` ever runs, so it never
+produces one. (A genuinely malformed cell *does* produce a bullet and does
+get emailed — this gap is specific to failures in reading the sheet at all,
+not in what's in it.) If the site looks stale and there has been no email
+about it, check the Action run's log directly rather than waiting on one.
 
 **A publish failed and the reported message is unclear, or you want to see a
 validation failure without waiting on a real edit.** Re-run the sync by hand:

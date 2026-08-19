@@ -1,0 +1,47 @@
+import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
+
+const css = readFileSync(new URL('./app.css', import.meta.url), 'utf8');
+
+/** Innermost rules only. The inner `[^{}]*` cannot span a nested block, so rules
+ *  inside a media query match individually and the media block itself does not. */
+function rules(source) {
+	const withoutComments = source.replace(/\/\*[\s\S]*?\*\//g, '');
+	return [...withoutComments.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map(([, selector, body]) => ({
+		selector: selector.trim().replace(/\s+/g, ' '),
+		body
+	}));
+}
+
+const declares = (body, property) => new RegExp(`(^|;|\\s)${property}\\s*:`).test(body);
+
+describe('app.css layout invariants', () => {
+	// `aspect-ratio` governs BOTH axes. When `max-height` clamps the height of an
+	// element whose width is auto, the browser recomputes the width from the ratio
+	// rather than filling the column — so the element pulls away from its container
+	// and leaves a gap beside it. That is what put a cream stripe down the right of
+	// the hero photo on phones. Declaring an explicit width pins the inline axis and
+	// lets object-fit:cover crop instead.
+	it('never combines aspect-ratio with max-height without pinning the width', () => {
+		const offenders = rules(css)
+			.filter((r) => declares(r.body, 'aspect-ratio') && declares(r.body, 'max-height'))
+			.filter((r) => !declares(r.body, 'width'))
+			.map((r) => r.selector);
+
+		expect(offenders, 'these will narrow away from their container when max-height bites').toEqual(
+			[]
+		);
+	});
+
+	// The same recomputation happens from the other direction: a fixed height plus a
+	// ratio derives the width, so a stretch container is not honoured.
+	it('never combines aspect-ratio with a fixed height without pinning the width', () => {
+		const offenders = rules(css)
+			.filter((r) => declares(r.body, 'aspect-ratio'))
+			.filter((r) => /(^|;|\s)height\s*:\s*(?!auto)[^;]/.test(r.body))
+			.filter((r) => !declares(r.body, 'width'))
+			.map((r) => r.selector);
+
+		expect(offenders).toEqual([]);
+	});
+});

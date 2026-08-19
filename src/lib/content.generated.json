@@ -202,8 +202,8 @@
     { "q": "What if I need to cancel?", "a": "Cancel up to 12 hours before and the class goes back on your pass. Life happens later than that sometimes, so just tell us. (Policy to confirm.)" }
   ],
   "partners": [
-    { "name": "ClassPass", "logo": "/partner-logos/classpass-logo.svg", "href": "classpass.com/", "h": 68 },
-    { "name": "Urban Sports Club", "logo": "/partner-logos/urbansportsclub-logo.webp", "href": "urbansportsclub.com/en/", "h": 72 },
+    { "name": "ClassPass", "logo": "/partner-logos/classpass-logo.svg", "href": "https://classpass.com/", "h": 68 },
+    { "name": "Urban Sports Club", "logo": "/partner-logos/urbansportsclub-logo.webp", "href": "https://urbansportsclub.com/en/", "h": 72 },
     { "name": "Tru Colours", "logo": "/partner-logos/trucolours.webp", "h": 104 }
   ],
   "prices": [

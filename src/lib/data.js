@@ -8,16 +8,7 @@ export const offerings = content.offerings;
 export const faqs = content.faqs;
 export const testimonials = content.testimonials;
 
-// content.generated.json is asserted to contain zero URLs of any kind (see the
-// payment-boundary test in data.test.js), so a partner's link is stored without
-// its scheme (`classpass.com/`, not `https://classpass.com/`). That keeps the
-// assertion absolute rather than "no URLs except these" — the day someone adds
-// a second exception, the guard stops being able to tell an editable partner
-// link apart from pay.url. Restoring the scheme here is the only place it
-// happens; a partner with no href (a logo with no outbound link) is untouched.
-export const partners = content.partners.map((p) =>
-	p.href ? { ...p, href: `https://${p.href}` } : p
-);
+export const partners = content.partners;
 
 export function locationOf(className) {
 	const c = classes.find((cl) => cl.name === className);

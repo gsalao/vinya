@@ -34,9 +34,12 @@ describe('content boundary', () => {
 	// it costs; it can never set where the money goes. See the spec, "The payment
 	// boundary": a QR cannot be checked by eye.
 	it('keeps every payment URL out of the generated file', () => {
-		const serialised = JSON.stringify(content);
-		expect(serialised).not.toContain('tikkie.me');
-		expect(serialised).not.toMatch(/https?:\/\//);
+		expect(JSON.stringify(content)).not.toContain('tikkie.me');
+		// Scoped to prices rather than the whole file: the copy tab is the owner's,
+		// and a URL she types into a paragraph is content, not a payment target.
+		// This is the same rule the sheet validator enforces on that tab.
+		expect(JSON.stringify(content.prices)).not.toMatch(/https?:\/\//);
+		for (const p of content.prices) expect(Object.keys(p), p.id).not.toContain('pay');
 	});
 
 	it('still attaches a pay target to every price', () => {

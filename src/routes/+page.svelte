@@ -242,7 +242,15 @@
 <!-- partners & facilitators -->
 <!-- One card, written once, rendered by both layouts below. `clone` is true for the
      marquee's duplicate half: those links repeat what the first half already said, so
-     they stay out of the tab order. -->
+     they stay out of the tab order.
+
+     `p.h` is the drawn height in px, and it is per-logo on purpose: every one of these
+     is a stacked lockup (mark over wordmark) drawn at a different scale inside its own
+     artwork, so a single shared height makes one look twice the size of the next. Tune
+     `h` until the row looks even rather than measures even. It falls back to 72px.
+
+     Logos with a white background get their background floodfilled to transparent
+     before they're added, so a logo never sits on its own pale square here. -->
 {#snippet partnerCard(p, i, clone)}
 	{#if p.href}
 		<a

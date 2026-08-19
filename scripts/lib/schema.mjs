@@ -8,6 +8,16 @@ const MONTH = /^(January|February|March|April|May|June|July|August|September|Oct
 const URL_LIKE = /https?:\/\//i;
 const KEBAB = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
+// rowsToObjects() already trims every cell with String.prototype.trim(), so by
+// the time a row reaches this file, ordinary leading/trailing spaces are gone.
+// Two kinds of invisible character survive that anyway: a Unicode space (like
+// a non-breaking space) sitting in the *middle* of a value, which trim() never
+// touches because it only strips the ends; and a zero-width character (a
+// zero-width space, joiner, or word joiner), which trim() does not strip at
+// all, anywhere. Either one is invisible on screen but breaks the booking
+// picker's exact string match, so it is checked for anywhere in the value.
+const INVISIBLE = /[\u00A0\u1680\u2000-\u200D\u202F\u205F\u3000\u2060\uFEFF]/;
+
 const REQUIRED = {
 	providers: ['key', 'name', 'address'],
 	classes: ['name', 'tone', 'meta', 'blurb', 'provider'],
@@ -43,11 +53,13 @@ export function validate(tabs) {
 				if (value === undefined) {
 					fail(tab, row.__row, `there is no "${column}" column. Check the header row spelling.`);
 				} else if (value === '') {
-					fail(tab, row.__row, `"${column}" is empty, and it is required.`);
-				} else if (value !== value.trim()) {
-					// rowsToObjects already trims, so reaching here means a non-breaking
-					// space or similar. Booking preselect matches exactly, so it matters.
-					fail(tab, row.__row, `"${column}" has leading or trailing whitespace that will break exact matching.`);
+					// On the copy tab, naming the row's key (when it has one) tells the
+					// owner which piece of site text is blank without her needing to
+					// open the sheet and count down to the row number.
+					const named = tab === 'copy' && column !== 'key' && row.key ? ` for "${row.key}"` : '';
+					fail(tab, row.__row, `"${column}" is empty${named}, and it is required.`);
+				} else if (INVISIBLE.test(value)) {
+					fail(tab, row.__row, `"${column}" has an invisible character in it (often left behind by pasting from another app) that will break exact matching. Delete the cell's contents and retype it.`);
 				}
 			}
 		}
@@ -98,7 +110,7 @@ export function validate(tabs) {
 	for (const p of tabs.prices) {
 		for (const [column, value] of Object.entries(p)) {
 			if (column !== '__row' && URL_LIKE.test(String(value))) {
-				fail('prices', p.__row, `"${column}" contains a link — payment links are set in the site's code, not here (see the design doc). Remove it.`);
+				fail('prices', p.__row, `"${column}" contains a link — payment links are set in the site's code, not here (ask your developer). Remove it.`);
 			}
 		}
 		if (!PRICE_IDS.includes(p.id)) {
@@ -125,13 +137,13 @@ export function validate(tabs) {
 	}
 
 	// --- copy covers the manifest ---
-	const copyByKey = new Map(tabs.copy.map((r) => [r.key, r]));
+	// A blank "text" cell is already caught above — "text" is required, so the
+	// structural pass returns before this ever runs on a row that has one.
+	// This only has to check for a key missing its row entirely.
+	const copyKeys = new Set(tabs.copy.map((r) => r.key));
 	for (const key of KEYS) {
-		const row = copyByKey.get(key);
-		if (!row) {
+		if (!copyKeys.has(key)) {
 			fail('copy', null, `there is no row for "${key}", and the site renders it. Add a row with that key.`);
-		} else if (row.text === '') {
-			fail('copy', row.__row, `"${key}" has no text, and the site renders it.`);
 		}
 	}
 	for (const row of tabs.copy) {

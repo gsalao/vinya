@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { validate } from './schema.mjs';
+import { rowsToObjects } from './sheets.mjs';
 
 /** A minimal set of tabs that passes every rule. Each test below breaks exactly
  *  one thing, so a failure names the rule that caught it. */
@@ -31,12 +32,19 @@ describe('validate', () => {
 		expect(validate(await withCopy(ok()))).toEqual([]);
 	});
 
-	// openBooking() preselects on an exact string match, so a trailing space opens
-	// an empty picker with submit disabled. Spreadsheet cells accumulate them.
-	it('rejects a class name that is not already trimmed', async () => {
+	// openBooking() preselects on an exact string match. rowsToObjects() already
+	// trims ordinary leading/trailing spaces, so an *ordinary* trailing space
+	// never reaches this file — the real hazard is a character trim() cannot
+	// remove: a non-breaking space in the middle of a value (trim only strips
+	// the ends) or a zero-width space anywhere (trim never strips it at all).
+	// The fixture is pushed through the real rowsToObjects() rather than
+	// hand-built, so this only passes if the rule fires on what the actual
+	// pipeline can deliver.
+	it('rejects a class name with an invisible character that survives trimming', async () => {
 		const tabs = await withCopy(ok());
-		tabs.classes[0].name = 'Kundalini Yoga ';
-		expect(messages(validate(tabs))).toContain('whitespace');
+		const [row] = rowsToObjects([['name'], ['Kundalini Yoga']]);
+		tabs.classes[0].name = row.name;
+		expect(messages(validate(tabs))).toContain('invisible');
 	});
 
 	// eventLabel() does group.month.slice(0, 3). A date-formatted cell serialises
@@ -48,6 +56,17 @@ describe('validate', () => {
 		expect(errors[0].tab).toBe('events');
 		expect(errors[0].row).toBe(2);
 		expect(errors[0].message).toContain('September 2026');
+	});
+
+	// eventLabel() does Number(item.d), same as this file's Number(e.day). A
+	// date-formatted day cell serialises to something Number() cannot parse
+	// sensibly, and the booking label drifts from what the picker offers.
+	it('rejects an events day that is not two digits', async () => {
+		const tabs = await withCopy(ok());
+		tabs.events[0].day = '2026-09-05';
+		const errors = validate(tabs);
+		expect(errors[0].tab).toBe('events');
+		expect(errors[0].message).toContain('08');
 	});
 
 	// locationOf() returns '' for an unknown provider — the venue silently
@@ -69,6 +88,19 @@ describe('validate', () => {
 		const tabs = await withCopy(ok());
 		tabs.offerings.push({ category: 'Private', name: 'Kundalini Yoga', note: 'x', __row: 3 });
 		expect(messages(validate(tabs))).toContain('more than once');
+	});
+
+	// This file reconstructs an event's booking label itself (it never imports
+	// eventLabel() — src/ is off limits from here), so nothing stops the two
+	// formulas from drifting apart. Asserting the exact literal string pins
+	// this file's formula to eventLabel()'s: `${item.name} · ${Number(item.d)}
+	// ${group.month.slice(0, 3)}` for a day of "08" and a month of "August 2026"
+	// is `Full Moon · 8 Aug`. If either formula changes, this breaks loudly
+	// instead of the two silently disagreeing.
+	it('reconstructs an event booking label identically to eventLabel() in data.js', async () => {
+		const tabs = await withCopy(ok());
+		tabs.events.push({ ...tabs.events[0], __row: 3 });
+		expect(messages(validate(tabs))).toContain('"Full Moon · 8 Aug" is already used');
 	});
 
 	// The payment boundary. Enforced, not left to convention.
@@ -93,17 +125,30 @@ describe('validate', () => {
 		expect(messages(validate(tabs))).toContain(dropped.key);
 	});
 
-	// `text` is a required column for the copy tab, so an empty cell is caught by
-	// the structural pass (generic "is empty" message) before the copy-specific
-	// branch that echoes the key is ever reached. The row number alone still
-	// localises the cell — Task 10's report is built from tab+row+message
-	// together — so this checks tab/row rather than message wording.
 	it('rejects an empty copy cell as firmly as a missing row', async () => {
 		const tabs = await withCopy(ok());
 		tabs.copy[0].text = '';
+		expect(messages(validate(tabs))).toContain(tabs.copy[0].key);
+	});
+
+	// A required column that is entirely absent from the row (e.g. a renamed or
+	// misspelled header) is a different failure than a blank cell: `row[column]`
+	// reads `undefined`, not `''`.
+	it('rejects a row missing a required column entirely, not just a blank cell', async () => {
+		const tabs = await withCopy(ok());
+		delete tabs.classes[0].blurb;
 		const errors = validate(tabs);
-		expect(errors[0].tab).toBe('copy');
-		expect(errors[0].row).toBe(tabs.copy[0].__row);
+		expect(errors[0].tab).toBe('classes');
+		expect(errors[0].message).toContain('no "blurb" column');
+	});
+
+	// A row on the copy tab whose key was mistyped, or whose key the markup no
+	// longer references, edits nothing on the live site and raises no error
+	// anywhere else — this is the one rule that catches it.
+	it('rejects a copy row whose key is not used anywhere on the site', async () => {
+		const tabs = await withCopy(ok());
+		tabs.copy.push({ key: 'nowhere.at.all', text: 'x', where: '', __row: tabs.copy.length + 2 });
+		expect(messages(validate(tabs))).toContain('nowhere.at.all');
 	});
 
 	it('rejects a duplicate teacher slug', async () => {

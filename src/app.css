@@ -212,8 +212,11 @@ body.menu-open .mobile-menu{opacity:1;visibility:visible;transform:none}
 .split p{font-size:var(--text-base);line-height:1.85;color:var(--text-secondary);max-width:54ch}
 .split .lede{font-size:var(--text-lg);line-height:1.7}
 
-.practice-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:44px}
-.practice{border-top:1.5px solid var(--border-default);padding-top:24px;display:flex;flex-direction:column;gap:12px}
+/* auto-fit, not a fixed count: this section is owner-editable, so it has to
+   look composed at one class or five. Tracks collapse when empty, so two
+   classes fill the row rather than sitting in the left half of a 3-up grid. */
+.practice-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr));gap:44px}
+.practice{max-width:560px;border-top:1.5px solid var(--border-default);padding-top:24px;display:flex;flex-direction:column;gap:12px}
 .practice .tone{width:34px;height:4px;border-radius:3px;background:var(--tan-400)}
 .practice .tone.gold{background:var(--gold-400)}.practice .tone.sky{background:var(--sky-400)}.practice .tone.tan{background:var(--tan-400)}.practice .tone.rust{background:var(--rust-400)}
 .practice h3{font-size:var(--text-xl);color:var(--brown-700)}
@@ -227,8 +230,9 @@ body.menu-open .mobile-menu{opacity:1;visibility:visible;transform:none}
 .event-band h2{font-size:var(--text-3xl);line-height:1.12;color:var(--cream-50);margin:14px 0 0}
 .event-band p{font-size:var(--text-base);line-height:1.75;color:var(--tan-300);margin:16px 0 0;max-width:52ch}
 
-.quotes{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(40px,5vw,64px)}
-.quote{border-top:1.5px solid var(--border-default);padding-top:28px}
+/* same reasoning as .practice-grid — she can add and remove testimonials. */
+.quotes{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:clamp(40px,5vw,64px)}
+.quote{max-width:520px;border-top:1.5px solid var(--border-default);padding-top:28px}
 .quote p{font-family:var(--font-display);font-size:var(--text-xl);line-height:1.4;color:var(--brown-700);margin-bottom:22px}
 .quote .who{font-size:var(--text-sm);color:var(--text-muted);letter-spacing:.04em}
 .rating{display:flex;align-items:center;gap:12px;justify-content:center;margin-top:56px;color:var(--text-muted);font-size:var(--text-sm);flex-wrap:wrap;text-align:center}
@@ -570,7 +574,7 @@ footer{background:var(--brown-800);color:var(--cream-50)}
 .join-picker[open] summary{border-color:var(--sky-500)}
 
 @media(max-width:1000px){
-  .practice-grid{grid-template-columns:repeat(2,1fr);gap:40px}
+  .practice-grid{gap:40px}
   .prices{grid-template-columns:repeat(2,1fr)}
   .triptych{grid-template-columns:1fr;gap:0}
   .triptych .t{border-top:1px solid var(--border-default);padding:28px 0}

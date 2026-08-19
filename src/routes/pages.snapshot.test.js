@@ -11,6 +11,19 @@ import Footer from '$lib/components/Footer.svelte';
 // markup as a string with no DOM involved, so the `use:reveal` action never runs
 // and no jsdom is needed. Any word that changes during extraction shows up here as
 // a diff instead of reaching the site.
+/** Text is data now — the owner edits it and the Action commits the result, so a
+ *  snapshot containing her words goes stale every time she publishes. What this
+ *  test is actually for is catching an unintended change to the markup, which is
+ *  exactly what survives when the text is stripped out.
+ *
+ *  Replaces every text node with a placeholder, keeping tags, attributes and
+ *  order. A reworded heading no longer fails; a heading that changes tag,
+ *  loses a class, or moves still does. */
+const skeleton = (html) =>
+	html
+		.replace(/>[^<]+</g, (m) => (m.trim() === '><' ? m : '>·<'))
+		.replace(/(value|placeholder|alt|title|aria-label)="[^"]*"/g, '$1="·"');
+
 const pages = [
 	['home', Home],
 	['about', About],
@@ -24,7 +37,7 @@ describe('rendered pages', () => {
 	for (const [name, Component] of pages) {
 		it(`${name} renders unchanged`, () => {
 			const { body } = render(Component);
-			expect(body).toMatchSnapshot();
+			expect(skeleton(body)).toMatchSnapshot();
 		});
 	}
 });

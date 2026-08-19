@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Writes one line into the spreadsheet's Status tab. Called from the workflow on
+// Writes the publish banner the owner sees in the editor. Called from the workflow on
 // both success and failure, so the owner sees the outcome where she is already
 // looking rather than in an inbox or a GitHub log she has never opened.
 import { pathToFileURL } from 'node:url';
@@ -33,7 +33,14 @@ export async function main() {
 	// Never fail the workflow over a status write. A deploy that succeeded but
 	// could not report itself is still a deploy that succeeded.
 	try {
-		await setPublishState({ status: process.argv[3] ?? 'idle', message: line });
+		// argv[3] is the stage the banner shows — 'live', 'failed', or 'idle' when
+		// there was nothing to publish. argv[4] is the deployed URL, so "See it on
+		// the site" has somewhere to point.
+		await setPublishState({
+			status: process.argv[3] ?? 'idle',
+			message: line,
+			url: process.argv[4] ?? ''
+		});
 		console.log(`Status: ${line}`);
 	} catch (error) {
 		console.error(`::warning::Could not write the publish banner: ${error.message}`);

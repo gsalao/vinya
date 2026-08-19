@@ -45,8 +45,14 @@
 
 <style>
 	.admin { min-height: 100svh; background: var(--surface-sunken); display: flex; flex-direction: column; }
-	.bar { display: flex; align-items: center; gap: 28px; padding: 0 clamp(16px, 3vw, 32px); height: 64px;
-		background: var(--surface-card); border-bottom: 1px solid var(--border-subtle); flex-wrap: wrap; }
+	/* app.css styles every <header> for the public site: sticky, translucent, with
+	   a backdrop blur. Inherited here that made page content scroll straight
+	   through the admin bar. Opaque and explicitly layered instead — still
+	   sticky, because a nav you have to scroll up to reach is worse. */
+	.bar { position: sticky; top: 0; z-index: 40;
+		display: flex; align-items: center; gap: 28px; padding: 0 clamp(16px, 3vw, 32px); height: 64px;
+		background: var(--surface-card); backdrop-filter: none; -webkit-backdrop-filter: none;
+		border-bottom: 1px solid var(--border-subtle); flex-wrap: wrap; box-shadow: var(--shadow-soft); }
 	.brand { font-family: var(--font-display); font-size: 24px; color: var(--brown-800); }
 	nav { display: flex; gap: 4px; flex: 1; flex-wrap: wrap; }
 	nav a { padding: 8px 14px; border-radius: var(--radius-pill); color: var(--text-secondary);

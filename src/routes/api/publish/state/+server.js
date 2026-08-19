@@ -10,6 +10,8 @@ export async function GET({ locals }) {
 	return json({
 		status: state?.status ?? 'idle',
 		message: state?.message ?? '',
-		url: state?.url ?? ''
+		url: state?.url ?? '',
+		publishAfter: state?.publish_after ?? null,
+		updatedAt: state?.updated_at ?? null
 	});
 }

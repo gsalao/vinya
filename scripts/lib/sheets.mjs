@@ -66,6 +66,20 @@ export async function readTabs(tabs) {
 	return out;
 }
 
+/** Replaces a tab's contents entirely. USER_ENTERED so that a header row lands
+ *  as text and the owner's own later edits behave the way typing does — the
+ *  opposite tradeoff from writeCell()'s RAW below, made deliberately: this is
+ *  the one write that hands a human a sheet to keep typing into afterwards,
+ *  not a machine-only status line. */
+export async function writeTab(tab, rows) {
+	const client = auth();
+	await client.request({
+		url: `${API}/${sheetId()}/values/${encodeURIComponent(tab)}?valueInputOption=USER_ENTERED`,
+		method: 'PUT',
+		data: { values: rows }
+	});
+}
+
 /** Used for the Status cell. RAW so a status line starting with '=' or '+' is
  *  stored as text rather than interpreted as a formula. */
 export async function writeCell(range, value) {

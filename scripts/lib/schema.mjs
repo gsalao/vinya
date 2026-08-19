@@ -27,7 +27,10 @@ const KEBAB = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 // picker's exact string match, so it is checked for anywhere in the value.
 const INVISIBLE = /[\u00A0\u1680\u2000-\u200D\u202F\u205F\u3000\u2060\uFEFF]/;
 
-const REQUIRED = {
+// Exported so flatten.mjs (the inverse of shape.mjs) and its tests can build
+// rows against the same authoritative column names rather than keeping a
+// second, hand-typed copy that could drift from this one.
+export const REQUIRED = {
 	providers: ['key', 'name', 'address'],
 	classes: ['name', 'tone', 'meta', 'blurb', 'provider'],
 	timetable: ['day', 'time', 'class', 'duration'],

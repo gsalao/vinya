@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { shape } from './shape.mjs';
+import { flatten } from './flatten.mjs';
 
 const tabs = {
 	copy: [{ key: 'home.hero.title', text: 'Bloom.', where: 'Home', __row: 2 }],
@@ -125,88 +126,18 @@ describe('shape', () => {
 // The fixtures above are small and hand-picked. This test goes the other
 // direction: start from the real, committed content.generated.json — the
 // file the whole site actually reads — take it apart into the flat rows a
-// spreadsheet tab would hold, and confirm shape() puts it back together into
-// exactly the same bytes. This is the same round trip Task 11 performs when
-// it seeds a real spreadsheet from this file and then runs a sync expecting
-// "unchanged": here it runs with no network and no credentials, on every
-// commit, so the two staying in agreement is proven rather than assumed.
-describe('shape (round trip against the real content file)', () => {
+// spreadsheet tab would hold (flatten(), the inverse of shape()), and confirm
+// shape() puts it back together into exactly the same bytes. This is the same
+// round trip Task 11 performs when it seeds a real spreadsheet from this file
+// and then runs a sync expecting "unchanged": here it runs with no network and
+// no credentials, on every commit, so shape(), flatten() and schema.mjs's
+// column names staying in agreement is proven rather than assumed.
+describe('shape (round trip against the real content file, via flatten())', () => {
 	const CONTENT_PATH = fileURLToPath(new URL('../../src/lib/content.generated.json', import.meta.url));
 	const raw = readFileSync(CONTENT_PATH, 'utf8');
 	const content = JSON.parse(raw);
 
-	it('reproduces src/lib/content.generated.json byte-for-byte from its own flat rows', () => {
-		let row = 2; // sheet rows start after a header row
-		const nextRow = () => row++;
-
-		const copy = Object.entries(content.copy).map(([key, text]) => ({ key, text, __row: nextRow() }));
-
-		const providers = Object.entries(content.providers).map(([key, p]) => ({
-			key, name: p.name, address: p.address, __row: nextRow()
-		}));
-
-		const classes = content.classes.map((c) => ({
-			name: c.name, tone: c.tone, meta: c.meta, blurb: c.blurb, provider: c.provider, __row: nextRow()
-		}));
-
-		// timetable: shape() groups flat rows by day and collects each day's
-		// [time, class, duration] triples in sheet order. Reversing means one
-		// row per slot, carrying its group's day.
-		const timetable = content.timetable.flatMap((group) =>
-			group.slots.map(([time, cls, duration]) => ({ day: group.day, time, class: cls, duration, __row: nextRow() }))
-		);
-
-		// events: shape() groups by month and drops the hand-kept count. Reversing
-		// means one row per item, carrying its group's month, with the short keys
-		// (d/w/det/p/rem) expanded back to the sheet's column names.
-		const events = content.events.flatMap((group) =>
-			group.items.map((item) => ({
-				month: group.month, day: item.d, weekday: item.w, name: item.name,
-				detail: item.det, blurb: item.p, remaining: item.rem, __row: nextRow()
-			}))
-		);
-
-		// offerings: shape() groups by category. Reversing means one row per
-		// item, carrying its group's category.
-		const offerings = content.offerings.flatMap((group) =>
-			group.items.map((item) => ({ category: group.cat, name: item.name, note: item.note, __row: nextRow() }))
-		);
-
-		const faqs = content.faqs.map((f) => ({ question: f.q, answer: f.a, __row: nextRow() }));
-
-		// teachers: shape() splits a newline-joined highlights cell and derives
-		// the photo's narrow/webp variants from the wide file name by convention.
-		// Reversing joins highlights back on '\n' and hands back only the wide
-		// src, alt, fx and fy — the rest is re-derived by shape() itself, which
-		// is exactly what proves the naming convention still holds for the real
-		// files, not just the fixture's.
-		const teachers = content.teachers.map((t) => ({
-			slug: t.slug, name: t.name, role: t.role, intro: t.intro,
-			highlights: t.highlights.join('\n'),
-			photo: t.photo.src, alt: t.photo.alt, fx: String(t.photo.fx), fy: String(t.photo.fy),
-			ctaLabel: t.cta.label, ctaOption: t.cta.option, __row: nextRow()
-		}));
-
-		// partners: `h` and `href` are omitted on disk when blank rather than
-		// stored as '' or 0, so the reverse must restore the empty string shape()
-		// expects from an unfilled sheet cell.
-		const partners = content.partners.map((p) => ({
-			name: p.name, logo: p.logo,
-			href: p.href ?? '', height: p.h !== undefined ? String(p.h) : '',
-			__row: nextRow()
-		}));
-
-		// prices: `feature: true` on disk came from a sheet cell reading "yes";
-		// its absence came from a blank cell.
-		const prices = content.prices.map((p) => ({
-			id: p.id, label: p.lbl, amount: p.amt, note: p.note,
-			feature: p.feature ? 'yes' : '', __row: nextRow()
-		}));
-
-		const testimonials = content.testimonials.map((t) => ({ quote: t.quote, who: t.who, __row: nextRow() }));
-
-		const tabs = { copy, providers, classes, timetable, events, offerings, faqs, teachers, partners, prices, testimonials };
-
-		expect(JSON.stringify(shape(tabs), null, 2) + '\n').toBe(raw);
+	it('reproduces src/lib/content.generated.json byte-for-byte: shape(flatten(content)) === content', () => {
+		expect(JSON.stringify(shape(flatten(content)), null, 2) + '\n').toBe(raw);
 	});
 });

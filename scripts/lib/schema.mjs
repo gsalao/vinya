@@ -180,8 +180,9 @@ export function validate(tabs) {
 	// height is optional (not in REQUIRED) — a blank cell is fine, shape.mjs
 	// omits `h` entirely for it. A non-numeric, non-blank cell is the hazard:
 	// shape.mjs's `Number(p.height)` turns it into NaN, which serialises to
-	// `null` and reaches the page as `style="--logo-h: nullpx"` with no error
-	// anywhere.
+	// `null` — and +page.svelte's `style:` directive drops a null property
+	// rather than stringifying it, so the logo silently falls back to the
+	// default height with no error anywhere.
 	for (const p of tabs.partners) {
 		// `undefined` (no "height" header on this tab at all) is treated the same
 		// as a blank cell — both are the documented "no custom height" case.

@@ -15,7 +15,7 @@
 
 var REPO = 'gsalao/vinya';
 var DEBOUNCE_MS = 30 * 1000;
-var MACHINE_TABS = ['Status', 'Inquiries'];
+var MACHINE_TABS = ['Status', 'Inquiries', 'Read me first'];
 var TIME_ZONE = 'Europe/Amsterdam';
 var MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 

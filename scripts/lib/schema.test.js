@@ -161,8 +161,9 @@ describe('validate', () => {
 	});
 
 	// shape.mjs's `Number(p.height)` turns a non-numeric cell into NaN, which
-	// serialises to `null` and reaches the page with a broken inline style —
-	// no error anywhere in the pipeline today.
+	// serialises to `null`, which the page's `style:` directive silently
+	// drops — falling back to the default height with no error anywhere in
+	// the pipeline today.
 	it('rejects a non-numeric partner height', async () => {
 		const tabs = await withCopy(ok());
 		tabs.partners[0].height = 'tall';

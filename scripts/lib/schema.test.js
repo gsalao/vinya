@@ -231,6 +231,24 @@ describe('validate', () => {
 		expect(messages(validate(tabs))).toContain('status');
 	});
 
+	// pastEvents is the most date-shaped column in the schema (real values:
+	// "26 Jul", "12 Jul", "14 Jun") but has no format rule, unlike events.month.
+	// Typing a real date into the cell lets Sheets silently reformat it into a
+	// machine date, which then renders on the live site with no error anywhere.
+	it('rejects a pastEvents date that Sheets would silently reformat as a date', async () => {
+		const tabs = await withCopy(ok());
+		tabs.pastEvents[0].date = '2026-07-26';
+		const errors = validate(tabs);
+		expect(errors[0].tab).toBe('pastEvents');
+		expect(errors[0].message).toContain('plain text');
+	});
+
+	it('rejects a pastEvents date in the other common machine order too', async () => {
+		const tabs = await withCopy(ok());
+		tabs.pastEvents[0].date = '7/26/2026';
+		expect(messages(validate(tabs))).toContain('plain text');
+	});
+
 	// Every failure at once, so the owner fixes them in one pass rather than
 	// discovering them one deploy at a time. Split in two because the passes
 	// have different rules about combining: once a required column is missing

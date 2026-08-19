@@ -16,6 +16,11 @@ export const STANDALONE_BOOK_OPTIONS = ['1:1 Holistic session', 'Beginners cours
 const MONTH = /^(January|February|March|April|May|June|July|August|September|October|November|December) \d{4}$/;
 const URL_LIKE = /https?:\/\//i;
 const KEBAB = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+// Catches a date Sheets has silently reformatted into a machine form, e.g.
+// typing "26 Jul" and having the cell turn into "7/26/2026" or "2026-07-26" —
+// pastEvents.date is the most date-shaped column in the whole schema and has
+// no dedicated cell-format instruction the owner can be reminded of otherwise.
+const MACHINE_DATE = /\d{1,4}[-/]\d{1,2}[-/]\d{1,4}/;
 
 // rowsToObjects() already trims every cell with String.prototype.trim(), so by
 // the time a row reaches this file, ordinary leading/trailing spaces are gone.
@@ -51,7 +56,12 @@ export const REQUIRED = {
 // tab allowed to be empty. The events page hides the whole "Past gatherings"
 // toggle when there is nothing to show it for, rather than rendering an empty
 // accordion — see src/routes/events/+page.svelte.
-const OPTIONAL_WHEN_EMPTY = new Set(['pastEvents']);
+//
+// Exported so anything else that has to decide whether a tab may legitimately
+// have zero rows — flatten.test.js's fixture check, seed-sheet.mjs's column
+// derivation for a tab with no data row to read a shape from — asks this set
+// rather than keeping its own second opinion that could drift from it.
+export const OPTIONAL_WHEN_EMPTY = new Set(['pastEvents']);
 
 export function validate(tabs) {
 	const errors = [];
@@ -111,6 +121,13 @@ export function validate(tabs) {
 		}
 		if (!/^\d{2}$/.test(e.day)) {
 			fail('events', e.__row, `day reads "${e.day}" but must be two digits, like "08".`);
+		}
+	}
+
+	// --- pastEvents date format ---
+	for (const p of tabs.pastEvents) {
+		if (MACHINE_DATE.test(p.date)) {
+			fail('pastEvents', p.__row, `date reads "${p.date}" but must read like "26 Jul". A date-formatted cell will not work — set the cell format to plain text.`);
 		}
 	}
 

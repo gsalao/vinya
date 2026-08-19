@@ -66,18 +66,47 @@ export async function readTabs(tabs) {
 	return out;
 }
 
-/** Replaces a tab's contents entirely. USER_ENTERED so that a header row lands
- *  as text and the owner's own later edits behave the way typing does — the
- *  opposite tradeoff from writeCell()'s RAW below, made deliberately: this is
- *  the one write that hands a human a sheet to keep typing into afterwards,
- *  not a machine-only status line. */
+/** Writes rows into a tab starting at its first cell. This writes into the
+ *  range the payload covers and leaves anything beyond it untouched — it does
+ *  not clear the tab first. Fine for seeding a tab that starts completely
+ *  empty, which is the only thing this is used for; misleading for a
+ *  "replace this tab" utility, which this is not.
+ *
+ *  RAW, not USER_ENTERED. RAW stores every cell as exactly the text it is
+ *  given: never coerced, never evaluated. USER_ENTERED parses each cell as if
+ *  a person had typed it into the sheet UI, and the content this seeds is
+ *  full of values that would be silently coerced into something else on the
+ *  way in: a timetable time like "10:30" becomes a time value and reads back
+ *  "10:30:00"; an event day like "08" becomes the number 8; a past-event
+ *  date like "26 Jul" and an event month like "August 2026" both become an
+ *  actual date, reformatted on read-back; a price like "€15" becomes a
+ *  locale-dependent currency value. readTabs() reads FORMATTED_VALUE, not the
+ *  underlying value, so every one of those comes back as the coerced display
+ *  string, not the original text — silently wrong for the columns schema.mjs
+ *  has no format rule for, or a failing first sync for the two it does
+ *  (events.month, events.day). RAW avoids all of it: it never creates a
+ *  formula either, the one thing it does differently from USER_ENTERED — the
+ *  whole of content.generated.json has been checked for a value starting
+ *  with '=', '+', '-' or '@', and none do. */
 export async function writeTab(tab, rows) {
 	const client = auth();
 	await client.request({
-		url: `${API}/${sheetId()}/values/${encodeURIComponent(tab)}?valueInputOption=USER_ENTERED`,
+		url: `${API}/${sheetId()}/values/${encodeURIComponent(tab)}?valueInputOption=RAW`,
 		method: 'PUT',
 		data: { values: rows }
 	});
+}
+
+/** Names of every tab (sheet) the spreadsheet actually has, read straight from
+ *  the Sheets API. Google-only, like the rest of this file — it has no idea
+ *  what tabs Vinya's content needs, only how to ask what exists. Used by
+ *  seed-sheet.mjs to check its own assumptions before writing anything. */
+export async function tabNames() {
+	const client = auth();
+	const { data } = await client.request({
+		url: `${API}/${sheetId()}?fields=sheets.properties.title`
+	});
+	return (data.sheets ?? []).map((s) => s.properties.title);
 }
 
 /** Used for the Status cell. RAW so a status line starting with '=' or '+' is

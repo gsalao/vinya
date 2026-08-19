@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { flatten } from './flatten.mjs';
-import { validate, REQUIRED } from './schema.mjs';
+import { validate, REQUIRED, OPTIONAL_WHEN_EMPTY } from './schema.mjs';
 
 // The real, committed content — the same file the whole site reads, and the
 // same file seed-sheet.mjs will read. Using it rather than a hand-picked
@@ -20,11 +20,17 @@ const content = JSON.parse(readFileSync(CONTENT_PATH, 'utf8'));
 const OPTIONAL_EXTRAS = { events: ['remaining'], partners: ['href', 'height'], prices: ['feature'] };
 
 describe('flatten', () => {
-	it('produces a non-empty array for every tab REQUIRED names', () => {
+	// pastEvents is the one tab schema.mjs allows to be empty (OPTIONAL_WHEN_EMPTY)
+	// — a studio with no past events yet is a normal state, not a broken build.
+	// Asserting length > 0 for it here would fail the day the owner deletes her
+	// last past event and syncs, on a rule schema.mjs explicitly says isn't one.
+	it('produces a non-empty array for every tab REQUIRED names, except the ones schema.mjs allows to be empty', () => {
 		const tabs = flatten(content);
 		for (const tab of Object.keys(REQUIRED)) {
 			expect(Array.isArray(tabs[tab])).toBe(true);
-			expect(tabs[tab].length).toBeGreaterThan(0);
+			if (!OPTIONAL_WHEN_EMPTY.has(tab)) {
+				expect(tabs[tab].length).toBeGreaterThan(0);
+			}
 		}
 	});
 

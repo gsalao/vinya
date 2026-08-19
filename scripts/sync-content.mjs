@@ -2,13 +2,15 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { readTabs } from './lib/sheets.mjs';
-import { validate } from './lib/schema.mjs';
+import { validate, REQUIRED } from './lib/schema.mjs';
 import { shape } from './lib/shape.mjs';
 
-const TABS = [
-	'copy', 'providers', 'classes', 'timetable', 'events', 'pastEvents',
-	'offerings', 'faqs', 'teachers', 'partners', 'prices', 'testimonials'
-];
+// REQUIRED is schema.mjs's own authority on which tabs the spreadsheet has —
+// reading the tab list off it, rather than hand-typing a second copy here,
+// means the next new tab only has to be added in one place. It was added
+// correctly here for pastEvents by hand once already; this removes the next
+// chance to forget.
+const TABS = Object.keys(REQUIRED);
 
 const OUT = new URL('../src/lib/content.generated.json', import.meta.url);
 const STATIC = new URL('../static', import.meta.url);

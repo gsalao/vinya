@@ -25,10 +25,10 @@ in `scripts/lib/shape.test.js`.
 
 | What | Where | Rotate |
 | ---- | ----- | ------ |
-| `GH_TOKEN` — fine-grained PAT, this repo only, Contents: read and write | Apps Script project → Project Settings → Script Properties | Before it expires. Expiry is silent from the owner's side: she edits, and nothing happens |
+| `GH_TOKEN` — fine-grained PAT, this repo only, Contents: read and write | Apps Script project → Project Settings → Script Properties | Before it expires. Nothing prompts the owner to look — but it is not silent: the next edit's `firePublish()` gets a non-204 response and `Status!B2` updates to "could not be reached (error `<code>`) … contact your developer", same as the troubleshooting entry below |
 | `GOOGLE_SA_KEY` — service account JSON key | GitHub → Settings → Secrets and variables → Actions → **Secrets** | On staff change, or if it may have leaked |
 | `VINYA_SHEET_ID` | GitHub → Settings → Secrets and variables → Actions → **Variables** (`scripts/lib/sheets.mjs` is explicit that this is a variable, not a secret) | Only if the spreadsheet itself is ever recreated |
-| `MAIL_HOST` / `MAIL_PORT` / `MAIL_USER` / `MAIL_PASS` / `MAIL_FROM` / `MAIL_TO` | Two places: GitHub Actions **Secrets** (used by `scripts/notify-failure.mjs` to email a sync failure) and Vercel project environment variables (used by `src/lib/server/mail.js` for the booking flow) — keep both in sync by hand | With the mailbox. See the root `README.md`'s "Set up the booking email" for how `MAIL_PASS` is generated |
+| `MAIL_HOST` / `MAIL_PORT` / `MAIL_USER` / `MAIL_PASS` / `MAIL_FROM` / `MAIL_TO` / `MAIL_CC` | Two places: GitHub Actions **Secrets** (used by `scripts/notify-failure.mjs` to email a sync failure — `MAIL_CC` is not among these; only `src/lib/server/mail.js` reads it) and Vercel project environment variables (used by `src/lib/server/mail.js` for the booking flow) — keep both in sync by hand | With the mailbox. See the root `README.md`'s "Set up the booking email" for how `MAIL_PASS` is generated |
 
 One more credential this table can't show a "where" for: the service
 account's own address (the `client_email` field inside the `GOOGLE_SA_KEY`
@@ -53,32 +53,38 @@ every sync fails on a permission error.
   rejected it — usually 401 because the fine-grained PAT expired. Reissue it
   and update Script Properties.
 
-**Every publish keeps spawning another one, roughly every debounce cycle,
-without ever settling.** The `MACHINE_TABS` guard in `apps-script/Code.gs`
-(`['Status', 'Inquiries']`) is not matching the `Status` tab's actual name —
-maybe it was renamed in the sheet, or the array wasn't updated to match. When
-that guard doesn't catch a tab, `report-status.mjs`'s own write to `Status!B2`
-gets treated as a fresh edit, which re-arms the debounce, which publishes
-again, which writes `Status!B2` again — the loop Code.gs's own comment
-describes as "which would trigger another status write, and so on." Fix the
-tab name in the array (or in the sheet) so they match exactly, spelling and
-case both.
+**Every publish keeps spawning another one, roughly every debounce-plus-run
+cycle, without ever settling.** The `MACHINE_TABS` guard in
+`apps-script/Code.gs` (`['Status', 'Inquiries']`) is not matching the
+`Status` tab's actual name — maybe it was renamed in the sheet, or the array
+wasn't updated to match. When that guard doesn't catch a tab,
+`report-status.mjs`'s own write to `Status!B2` gets treated as a fresh edit,
+which re-arms the debounce, which publishes again, which writes `Status!B2`
+again — the loop Code.gs's own comment describes as "which would trigger
+another status write, and so on." That write happens near the *end* of a
+full Action run, not right after the 30-second debounce fires, so the real
+period between republishes is the debounce plus however long the run itself
+takes — minutes, not seconds. Fix the tab name in the array (or in the
+sheet) so they match exactly, spelling and case both.
 
-**A credentials or connectivity failure reading the sheet sends no email.**
-This is easy to miss because it looks like the system is half-working:
-`Status!B2` does get a generic line ("Not published — the content could not
-be read. Ask the developer."), written by the "Report a failed sync to the
-sheet" step in `deploy.yml` — but nothing prompts the owner to go look at it,
-so it can sit there unnoticed until someone checks the sheet or notices the
-site is stale. That's because `scripts/notify-failure.mjs` only emails when
-`sync.log` contains at least one `  • ` bulleted line, and this class of
+**A credentials or connectivity failure reading the sheet gets a generic
+email, not an itemised one.** `Status!B2` gets a generic line ("Not
+published — the content could not be read. Ask the developer."), written by
+the "Report a failed sync to the sheet" step in `deploy.yml`. `scripts/
+notify-failure.mjs` normally emails the itemised `  • ` bullets
+`sync-content.mjs` prints for a content-validation failure, but this class of
 failure — a bad or expired `GOOGLE_SA_KEY`, a wrong `VINYA_SHEET_ID`, the
 service account losing access to the sheet, a Google API outage — throws
-before `scripts/lib/schema.mjs`'s `validate()` ever runs, so it never
-produces one. (A genuinely malformed cell *does* produce a bullet and does
-get emailed — this gap is specific to failures in reading the sheet at all,
-not in what's in it.) If the site looks stale and there has been no email
-about it, check the Action run's log directly rather than waiting on one.
+before `scripts/lib/schema.mjs`'s `validate()` ever runs, so `sync.log` never
+gets one. `planMail()` in `notify-failure.mjs` treats a default-mode run with
+zero bullets as this failure class rather than as nothing to report, and
+sends the same generic-shaped mail that a post-sync infrastructure failure
+gets (the commit, build or deploy breaking *after* a successful sync — see
+`buildGenericFailureBody()`'s `'deploy'` case), worded for this case instead
+("could not be checked", not "was accepted", since her edit was never
+actually read). (A genuinely malformed cell *does* produce a bullet and gets
+the itemised mail — this path is specific to failures in reading the sheet
+at all, not in what's in it.)
 
 **A publish failed and the reported message is unclear, or you want to see a
 validation failure without waiting on a real edit.** Re-run the sync by hand:

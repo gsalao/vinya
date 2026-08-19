@@ -5,7 +5,7 @@ import { describe, it, expect } from 'vitest';
 // on import rather than only when the file is invoked directly, loading this test
 // file would throw before a single "it" ran. That every test below executes at all
 // is the proof.
-import { extractProblems, buildMailBody, buildGenericFailureBody } from './notify-failure.mjs';
+import { extractProblems, buildMailBody, buildGenericFailureBody, planMail } from './notify-failure.mjs';
 
 describe('extractProblems', () => {
 	// This is the exact shape report() in sync-content.mjs writes: a header line,
@@ -105,5 +105,70 @@ describe('buildGenericFailureBody', () => {
 
 	it('routes her to the developer instead of a cell to edit', () => {
 		expect(buildGenericFailureBody()).toContain('contact your developer');
+	});
+});
+
+describe('buildGenericFailureBody("connection")', () => {
+	// Used when sync-content.mjs's readTabs() throws before validate() ever runs
+	// (bad/expired GOOGLE_SA_KEY, wrong VINYA_SHEET_ID, lost sheet access, a
+	// Google API outage) — the class of failure that used to get no email at
+	// all, because it produces no "  • " bullet for buildMailBody(). This is
+	// the fix: planMail() routes it here instead of into silence.
+	it('never mentions GitHub, a build or a workflow', () => {
+		expect(buildGenericFailureBody('connection')).not.toMatch(/GitHub|workflow|build/i);
+	});
+
+	it('does not claim her change "was accepted" — it was never actually read', () => {
+		expect(buildGenericFailureBody('connection')).not.toContain('was accepted');
+	});
+
+	it('says the problem is not anything she typed, and there is nothing for her to fix', () => {
+		const body = buildGenericFailureBody('connection');
+		expect(body).toContain('not anything you typed');
+		expect(body).toContain('nothing for you to fix');
+	});
+
+	it('says the site is unchanged and names the same message the Status tab shows, like the other bodies', () => {
+		const body = buildGenericFailureBody('connection');
+		expect(body).toContain('The website has not changed');
+		expect(body).toContain('The Status tab of the sheet shows the same message.');
+	});
+
+	it('routes her to the developer instead of a cell to edit', () => {
+		expect(buildGenericFailureBody('connection')).toContain('contact your developer');
+	});
+});
+
+describe('planMail', () => {
+	const logWithBullets = [
+		'',
+		'Content was not published. 1 problem to fix:',
+		'',
+		'  • events tab, row 2: month reads "2026-09-05" but must read like "September 2026"',
+		'::error title=events tab, row 2::month reads "2026-09-05" but must read like "September 2026"',
+		''
+	].join('\n');
+
+	// What sync-content.mjs prints when readTabs() itself throws: one plain
+	// message, no "  • " bullet — see extractProblems's own "setup failure"
+	// test above for the same fixture shape.
+	const logWithNoBullets = '\nGOOGLE_SA_KEY is not set. Add it under Settings -> Secrets and variables -> Actions.\n::error::GOOGLE_SA_KEY is not set. Add it under Settings -> Secrets and variables -> Actions.\n';
+
+	it('"--generic" always plans a deploy-reason mail with no problems, regardless of the log', () => {
+		expect(planMail('--generic', logWithBullets)).toEqual({ reason: 'deploy', problems: [] });
+		expect(planMail('--generic', '')).toEqual({ reason: 'deploy', problems: [] });
+	});
+
+	it('default mode with itemised bullets plans a "problems" mail carrying them', () => {
+		expect(planMail(undefined, logWithBullets)).toEqual({
+			reason: 'problems',
+			problems: ['events tab, row 2: month reads "2026-09-05" but must read like "September 2026"']
+		});
+	});
+
+	it('default mode with zero bullets plans a "connection" mail instead of silence', () => {
+		// This is the bug this fix closes: previously nothing was planned or sent
+		// for this case at all.
+		expect(planMail(undefined, logWithNoBullets)).toEqual({ reason: 'connection', problems: [] });
 	});
 });

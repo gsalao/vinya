@@ -1,5 +1,7 @@
 #!/usr/bin/env node
-// Emails the owner when the spreadsheet's content was rejected. Success is
+// Emails the owner whenever the job that publishes her sheet has failed —
+// whether that is her content being rejected, the sync never managing to read
+// the sheet at all, or something later in the pipeline breaking. Success is
 // visible in the sheet and does not need mail: a success message she learns to
 // ignore is how a failure message gets ignored too.
 //
@@ -38,17 +40,38 @@ export function buildMailBody(problems) {
 	].join('\n');
 }
 
-/** The mail body for a failure that has nothing to do with her sheet edit —
- *  the sync itself succeeded, but something later (the commit, the build, the
- *  deploy) failed. Unlike buildMailBody(), there is no cell to point at: she
- *  did nothing wrong and there is nothing in the sheet for her to fix. Never
- *  GitHub, a build or a workflow. Pure and exported for the same reason as
- *  buildMailBody(). */
-export function buildGenericFailureBody() {
+/** The mail body for a failure that has nothing to do with what's in the
+ *  sheet: she did nothing wrong and there is nothing in the sheet for her to
+ *  fix. Shared by two different failure classes that read the same way to
+ *  her — "the site is fine and unchanged, this isn't your doing" — and differ
+ *  only in the one opening sentence `reason` picks:
+ *
+ *  - 'deploy' (the default): the sync itself succeeded — her change was read
+ *    and accepted — but something later (the commit, the build, the deploy)
+ *    failed. Unlike buildMailBody(), there is no cell to point at.
+ *  - 'connection': the sync never got far enough to read the sheet at all —
+ *    a bad or expired GOOGLE_SA_KEY, a wrong VINYA_SHEET_ID, lost sheet
+ *    access, or a Google API outage inside readTabs(). Her change was never
+ *    actually checked, so this wording does not claim it "was accepted".
+ *
+ *  Never GitHub, a build or a workflow. Pure and exported for the same
+ *  reason as buildMailBody(). */
+export function buildGenericFailureBody(reason = 'deploy') {
+	const [opening, explain] =
+		reason === 'connection'
+			? [
+					'Your latest change to the Vinya content sheet could not be checked.',
+					'The website lost its connection to the sheet — a technical problem, not anything you typed. There is nothing for you to fix.'
+				]
+			: [
+					'Your latest change to the Vinya content sheet was accepted.',
+					'The website could not be updated because of a technical problem — not anything in the sheet. There is nothing for you to fix.'
+				];
+
 	return [
-		'Your latest change to the Vinya content sheet was accepted.',
+		opening,
 		'',
-		'The website could not be updated because of a technical problem — not anything in the sheet. There is nothing for you to fix.',
+		explain,
 		'',
 		'The website has not changed. It is still showing the last version that worked.',
 		'',
@@ -58,24 +81,36 @@ export function buildGenericFailureBody() {
 	].join('\n');
 }
 
+/** Decides which mail to send and, for the default (non "--generic") mode,
+ *  what to put in it — including the branch this fix adds: a default-mode run
+ *  whose log has zero itemised bullets is not "nothing to report", it is
+ *  `sync-content.mjs`'s `readTabs()` throwing before `validate()` ever runs
+ *  (see buildGenericFailureBody's 'connection' case above). Pure and exported
+ *  so that branch is proved without touching the filesystem or the network —
+ *  main() is the only thing that reads sync.log or sends mail. */
+export function planMail(mode, log) {
+	if (mode === '--generic') return { reason: 'deploy', problems: [] };
+
+	const problems = extractProblems(log);
+	if (problems.length > 0) return { reason: 'problems', problems };
+
+	return { reason: 'connection', problems: [] };
+}
+
 async function main() {
-	// Two modes: the default reads sync.log and reports the sheet's own itemised
-	// problems (a content-validation failure). "--generic" is used when the sync
-	// itself succeeded but a later step in the job failed — there is no sync.log
-	// bullet to report, only the fact that something went wrong on the publishing
-	// side. See the "Report an unexpected failure to the sheet" workflow step.
-	const generic = process.argv[2] === '--generic';
-
-	let problems = [];
-	if (!generic) {
-		const log = readFileSync('sync.log', 'utf8');
-		problems = extractProblems(log);
-
-		if (problems.length === 0) {
-			console.log('No itemised problems in sync.log. Not sending mail.');
-			return;
-		}
-	}
+	// Two modes: the default reads sync.log and reports whatever the sync run
+	// left there. "--generic" is used when the sync itself succeeded but a
+	// later step in the job failed — there is no sync.log bullet to report,
+	// only the fact that something went wrong on the publishing side. See the
+	// "Report an unexpected failure to the sheet" workflow step.
+	//
+	// Either way this only ever runs after the job has already failed — both
+	// "Email the owner..." steps in deploy.yml are gated on failure() — so
+	// there is always something real to tell her about. planMail() picks which
+	// of the three wordings fits; it is never "stay silent" any more.
+	const mode = process.argv[2];
+	const log = mode === '--generic' ? '' : readFileSync('sync.log', 'utf8');
+	const { reason, problems } = planMail(mode, log);
 
 	const { MAIL_HOST, MAIL_PORT, MAIL_USER, MAIL_PASS, MAIL_FROM, MAIL_TO } = process.env;
 	if (!MAIL_HOST || !MAIL_USER || !MAIL_PASS || !MAIL_TO) {
@@ -99,16 +134,16 @@ async function main() {
 	await transport.sendMail({
 		from: MAIL_FROM || MAIL_USER,
 		to: MAIL_TO,
-		subject: generic
-			? 'Vinya website: a technical problem stopped your change from publishing'
-			: 'Vinya website: your change was not published',
-		text: generic ? buildGenericFailureBody() : buildMailBody(problems)
+		subject: reason === 'problems'
+			? 'Vinya website: your change was not published'
+			: 'Vinya website: a technical problem stopped your change from publishing',
+		text: reason === 'problems' ? buildMailBody(problems) : buildGenericFailureBody(reason)
 	});
 
 	console.log(
-		generic
-			? 'Emailed the owner about a non-sync failure.'
-			: `Emailed ${problems.length} problem(s) to the owner.`
+		reason === 'problems'
+			? `Emailed ${problems.length} problem(s) to the owner.`
+			: `Emailed the owner about a non-sync failure (${reason}).`
 	);
 }
 

@@ -13,13 +13,15 @@ fix, and you also get an email about it. Nothing you can type in this sheet
 can break the website — the worst that happens is that your latest change
 waits until the cell is fixed.
 
-Two things in this sheet are locked, on purpose
+Two things in this sheet should stay locked, on purpose
 
-You cannot edit the Status tab, and you cannot edit the "key" column on the
-copy tab (the first column, next to the text). If Google Sheets stops you
-from typing in either one, that is not a mistake and nothing is wrong — it is
-locked because typing there could quietly break the site rather than change
-it. Status writes itself; on the copy tab, edit the "text" column, not "key".
+The Status tab, and the "key" column on the copy tab (the first column, next
+to the text), are meant to be locked so nobody can type in them by accident.
+If Google Sheets already stops you from typing in either one, that is not a
+mistake and nothing is wrong — it is locked because typing there could
+quietly break the site rather than change it. If it does not stop you yet,
+please leave both alone anyway: Status writes itself, and on the copy tab you
+should only ever edit the "text" column, not "key".
 
 What each tab is for
 

@@ -118,5 +118,98 @@
     { "quote": "\"I came in stiff and a little cynical. I left breathing differently. The room is so quiet you can actually hear yourself soften.\"", "who": "Marieke · Slow Yoga Adjustment" },
     { "quote": "\"First yoga in my life at 43. Nobody made me feel behind. I've been back every week since.\"", "who": "Tomas · Beginners course" },
     { "quote": "\"The 1:1 sessions with Nikita did more for my sleep than anything else this year. Gentle, and exactly what I needed.\"", "who": "Sanne · 1:1 Holistic" }
+  ],
+  "providers": {
+    "truColours": { "name": "Tru Colours", "address": "Geschutswerf 12-14, 1018 BX Amsterdam" }
+  },
+  "teachers": [
+    {
+      "slug": "nikita-coppens",
+      "name": "Nikita Coppens",
+      "role": "Yoga teacher · Holistic therapeut",
+      "intro": "Nikita came to yoga the long way around, through years of care work, and it shows in how she holds a room. Patient, attuned, and unhurried.",
+      "highlights": [
+        "Originally from the Netherlands",
+        "Teaches yoga, breathwork, and Kirtan",
+        "Also offers 1:1 holistic sessions",
+        "Background in Dutch mental-health care (GGZ)",
+        "Studied yoga, sound healing and alternative medicine in India"
+      ],
+      "photo": {
+        "src": "/images/nikita-standing-2200.jpg",
+        "srcset": "/images/nikita-standing-1400.jpg 1400w, /images/nikita-standing-2200.jpg 2200w",
+        "srcsetWebp": "/images/nikita-standing-1400.webp 1400w, /images/nikita-standing-2200.webp 2200w",
+        "alt": "Nikita Coppens standing in natural light",
+        "fx": 50,
+        "fy": 20
+      },
+      "cta": { "label": "Book a 1:1 with Nikita", "option": "1:1 Holistic session" }
+    }
+  ],
+  "classes": [
+    { "name": "Kundalini Yoga", "tone": "tan", "meta": "60 min · All levels · Mat provided", "blurb": "Breath, mantra and movement built in kriyas that rise slowly, then let go.", "provider": "truColours" },
+    { "name": "Slow Yoga Adjustment", "tone": "sky", "meta": "60 min · All levels · Hands-on adjustment", "blurb": "Slow shapes, held long, with hands-on adjustment so you feel exactly where you hold on.", "provider": "truColours" }
+  ],
+  "timetable": [
+    { "day": "Tuesday", "slots": [["10:30", "Kundalini Yoga", "60 min"]] },
+    { "day": "Sunday", "slots": [["12:45", "Slow Yoga Adjustment", "60 min"]] }
+  ],
+  "events": [
+    {
+      "month": "August 2026", "items": [
+        { "d": "08", "w": "Sat", "name": "Full Moon Flow & Sound Bath", "det": "19:00 · 90 min · €28 · Location to confirm", "p": "Slow flow as the light goes, then bowls and voice to close. Bring something warm to lie under.", "rem": "6 places left" },
+        { "d": "23", "w": "Sun", "name": "Bloom Slowly: a workshop for beginners", "det": "10:00 · 3 hours · €45 · Tea included", "p": "Three unhurried hours on breath, the six shapes worth knowing, and a home practice that survives a normal week.", "rem": "10 places" }
+      ]
+    },
+    {
+      "month": "September 2026", "items": [
+        { "d": "05", "w": "Sat", "name": "Sunrise Rooftop Flow", "det": "07:30 · 60 min · €22 · Rooftop, to confirm", "p": "Outdoors, weather permitting. Coffee afterwards for anyone who wants to stay.", "rem": "Weather dependent" },
+        { "d": "26", "w": "Sat", "name": "Breath & Body: a day retreat", "det": "09:30 to 16:00 · €95 · Lunch included", "p": "Two practices, a long lunch, and holistic bodywork in between. Eight people only.", "rem": "8 places" }
+      ]
+    }
+  ],
+  "offerings": [
+    {
+      "cat": "Weekly", "items": [
+        { "name": "Multi-Style Yoga Classes", "note": "A rotating mix of styles across the week, beyond the set timetable." },
+        { "name": "Pre & Post Natal Yoga", "note": "Gentle, safe practice through pregnancy and after." }
+      ]
+    },
+    {
+      "cat": "Monthly", "items": [
+        { "name": "Community Yoga & Brunch", "note": "Practice together, then stay for food." },
+        { "name": "Social Events", "note": "Gatherings beyond the mat." }
+      ]
+    },
+    {
+      "cat": "Private", "items": [
+        { "name": "Birthday Celebration", "note": "Yoga as part of the celebration, wherever you are hosting." },
+        { "name": "Friend Gathering", "note": "A private class with your own group." },
+        { "name": "1:1 Sessions", "note": "One on one, yoga or holistic." }
+      ]
+    },
+    {
+      "cat": "Corporate Teambuilding", "items": [
+        { "name": "Yoga, Soundhealing & Brunch", "note": "A team morning off-site, on the mat and around the table." }
+      ]
+    }
+  ],
+  "faqs": [
+    { "q": "I've never done yoga. Is that really okay?", "a": "Yes, and you won't be the only one. Kundalini Yoga and Slow Yoga Adjustment are both built for a first class. Tell us when you arrive and your teacher will keep an eye on you without making it obvious." },
+    { "q": "What should I bring?", "a": "Comfortable clothes, water, and socks if you get cold. Mats, bolsters and blankets are here. Bring your own mat if you would rather." },
+    { "q": "How early should I arrive?", "a": "Ten minutes is plenty. Doors close at the start time so the room stays quiet. If you are running late, message us and we will let you in between sections." },
+    { "q": "Do I need to book in advance?", "a": "Please do, groups are small and classes fill. Book through the form on this site and you will get a confirmation by email." },
+    { "q": "What if I need to cancel?", "a": "Cancel up to 12 hours before and the class goes back on your pass. Life happens later than that sometimes, so just tell us. (Policy to confirm.)" }
+  ],
+  "partners": [
+    { "name": "ClassPass", "logo": "/partner-logos/classpass-logo.svg", "href": "classpass.com/", "h": 68 },
+    { "name": "Urban Sports Club", "logo": "/partner-logos/urbansportsclub-logo.webp", "href": "urbansportsclub.com/en/", "h": 72 },
+    { "name": "Tru Colours", "logo": "/partner-logos/trucolours.webp", "h": 104 }
+  ],
+  "prices": [
+    { "id": "drop-in", "lbl": "Drop-in", "amt": "€15", "note": "One class, whenever it suits." },
+    { "id": "5-class", "lbl": "5-class pass", "amt": "€50", "note": "Valid three months. No rush." },
+    { "id": "10-class", "lbl": "10-class pass", "amt": "€90", "note": "Valid six months. Most people land here.", "feature": true },
+    { "id": "1on1", "lbl": "1:1 session", "amt": "€60", "note": "75 min, yoga or holistic." }
   ]
 }

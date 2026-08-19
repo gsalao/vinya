@@ -16,8 +16,15 @@ export const actions = {
 
 		// Checked before authenticating, so an account that exists in Supabase but
 		// is not an allow-listed editor never gets a session at all.
-		if (!(await isAllowed(email))) {
-			return fail(401, { error: 'That email cannot sign in here.', email });
+		const allowed = await isAllowed(email);
+		if (!allowed.ok) {
+			const error =
+				allowed.reason === 'unconfigured'
+					? 'This editor is not set up yet. Please contact your developer.'
+					: allowed.reason === 'blank'
+						? 'Please enter your email address.'
+						: 'That email cannot sign in here.';
+			return fail(401, { error, email });
 		}
 
 		const { error } = await locals.supabase.auth.signInWithPassword({ email, password });

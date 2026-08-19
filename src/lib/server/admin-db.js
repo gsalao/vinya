@@ -41,5 +41,12 @@ export async function isAllowed(email) {
 		.split(/[,\s]+/)
 		.map((s) => s.trim().toLowerCase())
 		.filter(Boolean);
-	return list.includes(String(email ?? '').toLowerCase());
+
+	// An empty list means the lookup failed or nobody has been configured —
+	// not that this particular address was rejected. Saying "that email cannot
+	// sign in" for a broken connection sends whoever is locked out to check the
+	// one thing that is fine.
+	if (list.length === 0) return { ok: false, reason: 'unconfigured' };
+	if (!String(email ?? '').trim()) return { ok: false, reason: 'blank' };
+	return { ok: list.includes(String(email).toLowerCase()), reason: 'not-listed' };
 }

@@ -1,6 +1,12 @@
 <script>
 	let { form } = $props();
 	let busy = $state(false);
+
+	// bind:value, not value={}. A plain value attribute is reactive in Svelte 5,
+	// so the re-render caused by setting `busy` on submit re-applied the initial
+	// value and wiped what was typed — the form then posted an empty email and
+	// the server correctly refused it, while blaming the address.
+	let email = $state(form?.email ?? '');
 </script>
 
 <svelte:head><title>Sign in · Vinya</title><meta name="robots" content="noindex" /></svelte:head>
@@ -16,7 +22,7 @@
 
 		<label>
 			<span>Email</span>
-			<input name="email" type="email" autocomplete="username" required value={form?.email ?? ''} />
+			<input name="email" type="email" autocomplete="username" required bind:value={email} />
 		</label>
 		<label>
 			<span>Password</span>

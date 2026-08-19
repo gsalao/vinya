@@ -14,7 +14,7 @@
     "test:watch": "vitest",
     "mail:check": "node --env-file=.env scripts/check-mail.mjs",
     "content:sync": "node --env-file-if-exists=.env scripts/sync-content.mjs",
-    "content:seed": "node --env-file=.env scripts/seed-sheet.mjs"
+    "content:seed": "node --env-file=.env scripts/seed-db.mjs"
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^3.3.1",

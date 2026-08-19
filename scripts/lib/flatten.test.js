@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { flatten } from './flatten.mjs';
-import { validate, REQUIRED, OPTIONAL_WHEN_EMPTY } from './schema.mjs';
+import { validate, REQUIRED, OPTIONAL_WHEN_EMPTY, OPTIONAL_EXTRAS } from './schema.mjs';
 
 // The real, committed content — the same file the whole site reads, and the
 // same file seed-sheet.mjs will read. Using it rather than a hand-picked
@@ -17,7 +17,6 @@ const content = JSON.parse(readFileSync(CONTENT_PATH, 'utf8'));
 // emit these too, or the round trip in shape.test.js could not reproduce
 // content.generated.json byte-for-byte. Recorded here, once, so "exactly the
 // required columns" can be asserted precisely instead of loosely.
-const OPTIONAL_EXTRAS = { events: ['remaining'], partners: ['href', 'height'], prices: ['feature'] };
 
 describe('flatten', () => {
 	// pastEvents is the one tab schema.mjs allows to be empty (OPTIONAL_WHEN_EMPTY)

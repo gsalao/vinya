@@ -74,6 +74,15 @@ export const REQUIRED = {
 // have zero rows — flatten.test.js's fixture check, seed-sheet.mjs's column
 // derivation for a tab with no data row to read a shape from — asks this set
 // rather than keeping its own second opinion that could drift from it.
+// Columns a tab may carry beyond REQUIRED. Optional because the site treats them
+// as absent when blank — a partner with no link, an event with no places note.
+// Kept next to REQUIRED so "which columns exist" has exactly one authority.
+export const OPTIONAL_EXTRAS = {
+	events: ['remaining'],
+	partners: ['href', 'height'],
+	prices: ['feature']
+};
+
 export const OPTIONAL_WHEN_EMPTY = new Set(['pastEvents']);
 
 export function validate(tabs) {

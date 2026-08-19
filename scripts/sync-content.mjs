@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
-import { readTabs } from './lib/sheets.mjs';
+import { readTables } from './lib/db.mjs';
 import { validate, REQUIRED } from './lib/schema.mjs';
 import { shape } from './lib/shape.mjs';
 
@@ -70,7 +70,7 @@ function report(errors) {
 async function main() {
 	let tabs;
 	try {
-		tabs = await readTabs(TABS);
+		tabs = await readTables(TABS);
 	} catch (err) {
 		// A setup problem — no credentials, an invalid key, a wrong sheet id —
 		// not a content problem, so there is no tab or row to point report() at.

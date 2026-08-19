@@ -79,6 +79,7 @@
 
 {#if stage !== 'idle'}
 	<div class="wrap {tone}" role="status" aria-live="polite">
+	 <div class="inner">
 		<div class="line">
 			<span class="dot" class:still={stage === 'live' || stage === 'failed'}></span>
 			<p>
@@ -105,12 +106,14 @@
 				<li class:on={stage === 'live'}>Live on the site</li>
 			</ol>
 		{/if}
+	 </div>
 	</div>
 {/if}
 
 <style>
 	.wrap { padding: 12px clamp(16px, 3vw, 32px) 14px; border-bottom: 1px solid var(--border-subtle);
-		font-size: var(--text-sm); position: sticky; top: 64px; z-index: 30; }
+		font-size: var(--text-sm); position: sticky; top: 64px; z-index: 35; width: 100%; }
+	.inner { width: min(1100px, 100%); margin: 0 auto; }
 	.busy { background: #fdf6e6; color: #6b5320; }
 	.good { background: #eef7ea; color: #2f5d2a; }
 	.bad  { background: #fdeceb; color: #8a2318; }

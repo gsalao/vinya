@@ -35,7 +35,9 @@
 
 		<PublishBanner />
 
-		<main>{@render children()}</main>
+		<div class="scroll">
+			<main>{@render children()}</main>
+		</div>
 
 		<footer>
 			<a href="/" target="_blank" rel="noopener">View the site →</a>
@@ -63,7 +65,9 @@
 	.who button { background: none; border: none; color: var(--rust-500); cursor: pointer; font: inherit;
 		font-size: var(--text-xs); padding: 0; }
 	.who button:hover { color: var(--rust-600); }
-	main { flex: 1; width: min(1100px, 100%); margin: 0 auto; padding: clamp(24px, 4vw, 44px) clamp(16px, 3vw, 32px) 64px; }
+	.scroll { position: relative; z-index: 0; flex: 1; display: flex; flex-direction: column; }
+	main { flex: 1; width: min(1100px, 100%); margin: 0 auto; width: 100%; max-width: 1100px;
+		padding: clamp(24px, 4vw, 44px) clamp(16px, 3vw, 32px) 64px; }
 	footer { padding: 20px 32px 40px; text-align: center; font-size: var(--text-sm); }
 	@media (max-width: 720px) {
 		.bar { height: auto; padding-block: 12px; }

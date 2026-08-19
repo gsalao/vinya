@@ -34,3 +34,30 @@ describe('field metadata', () => {
 		expect(blankRow(['a', 'b'])).toEqual({ a: '', b: '' });
 	});
 });
+
+describe('orderCopy', () => {
+	it('puts the hero first and unlisted sections last, not alphabetical', async () => {
+		const { orderCopy } = await import('./fields.js');
+		const rows = [
+			{ key: 'home.jump.classes' },
+			{ key: 'home.about.title' },
+			{ key: 'home.hero.title' },
+			{ key: 'home.zzz.unknown' }
+		];
+		expect(orderCopy(rows, 'home').map((r) => r.key)).toEqual([
+			'home.hero.title',
+			'home.about.title',
+			'home.jump.classes',
+			'home.zzz.unknown'
+		]);
+	});
+
+	it('keeps two fields of one block together and stable', async () => {
+		const { orderCopy } = await import('./fields.js');
+		const rows = [{ key: 'home.hero.title' }, { key: 'home.hero.cta.book' }];
+		expect(orderCopy(rows, 'home').map((r) => r.key)).toEqual([
+			'home.hero.cta.book',
+			'home.hero.title'
+		]);
+	});
+});

@@ -11,7 +11,13 @@
 	import { booking } from '$lib/booking.js';
 	import { detail } from '$lib/detail.js';
 	import { pay } from '$lib/pay.js';
+	import { page } from '$app/stores';
 	let { children } = $props();
+
+	// The editor brings its own chrome. Without this the visitor-facing header,
+	// footer and booking modals render around it — two navbars stacked, and a
+	// "Book a class" button in a tool for editing the site.
+	let isAdmin = $derived($page.url.pathname.startsWith('/admin'));
 
 	injectAnalytics({ mode: dev ? 'development' : 'production' });
 	injectSpeedInsights();
@@ -26,9 +32,13 @@
 	<meta name="description" content="Vinya. A small yoga studio in the Netherlands. Slow, warm, unhurried classes and quiet gatherings with Nikita Coppens. All levels welcome." />
 </svelte:head>
 
-<Header />
-<main>{@render children()}</main>
-<Footer />
-<BookingModal />
-<DetailModal />
-<PayModal />
+{#if isAdmin}
+	{@render children()}
+{:else}
+	<Header />
+	<main>{@render children()}</main>
+	<Footer />
+	<BookingModal />
+	<DetailModal />
+	<PayModal />
+{/if}

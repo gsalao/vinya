@@ -44,6 +44,29 @@ export const COPY_PAGES = {
 	about: 'about.'
 };
 
+/** The order sections appear as you scroll each page, so the words are listed
+ *  the way she meets them rather than alphabetically — which put the hero
+ *  headline in the middle of the list, under G. Anything unlisted sorts last. */
+export const COPY_ORDER = {
+	home: ['hero', 'practice', 'about', 'pillars', 'teachers', 'gathering', 'testimonials', 'gallery', 'partners', 'jump'],
+	classes: ['hero', 'detail', 'timetable', 'prices', 'offerings', 'faq'],
+	teachers: ['hero', 'work'],
+	events: ['hero', 'reserve', 'archive'],
+	about: ['hero', 'expect', 'founder', 'find']
+};
+
+/** Sorts copy rows into page order, then alphabetically within a section so two
+ *  fields of the same block keep a stable position. */
+export function orderCopy(rows, pageKey) {
+	const order = COPY_ORDER[pageKey] ?? [];
+	const rank = (key) => {
+		const section = key.split('.')[1] ?? '';
+		const i = order.indexOf(section);
+		return i === -1 ? order.length : i;
+	};
+	return [...rows].sort((a, b) => rank(a.key) - rank(b.key) || a.key.localeCompare(b.key));
+}
+
 /** Labels and input kinds, keyed by tab then column. Anything not named here
  *  falls back to a title-cased column name and a single-line box. */
 export const FIELDS = {

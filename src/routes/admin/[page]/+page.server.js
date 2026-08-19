@@ -1,5 +1,5 @@
 import { error, fail } from '@sveltejs/kit';
-import { SECTIONS, COPY_PAGES } from '$lib/admin/fields.js';
+import { SECTIONS, COPY_PAGES, orderCopy } from '$lib/admin/fields.js';
 import { readAll, checkChange, writeTab, armPublish, columnsFor } from '$lib/server/content-store.js';
 
 export async function load({ params }) {
@@ -16,7 +16,7 @@ export async function load({ params }) {
 	// Prose for this page only, so the words land under the page the owner is
 	// looking at rather than in one undifferentiated list of 110 keys.
 	const prefix = COPY_PAGES[pageKey];
-	const copy = all.copy.filter((r) => r.key.startsWith(prefix));
+	const copy = orderCopy(all.copy.filter((r) => r.key.startsWith(prefix)), pageKey);
 
 	return { pageKey, sections, copy };
 }

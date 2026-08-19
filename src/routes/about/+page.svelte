@@ -3,6 +3,7 @@
 	import Photo from '$lib/components/Photo.svelte';
 	import { openBooking } from '$lib/booking.js';
 	import { providers } from '$lib/data.js';
+	import { txt, paras } from '$lib/copy.js';
 
 	const venues = Object.values(providers);
 	const query = (v) => encodeURIComponent(`${v.name} ${v.address}`);
@@ -21,11 +22,12 @@
 <section class="sec about-hero">
 	<div class="wrap split about-split">
 		<div class="reveal" use:reveal>
-			<div class="eyebrow">About Vinya</div>
-			<h1>A space with room to breathe.</h1>
-			<p class="lede" style="font-size:var(--text-lg);line-height:1.75;color:var(--brown-700);margin-top:34px">Vinya is a yoga inspired initiative in the Netherlands. Most people who find us are somewhere in the middle of: a change, a tiredness, a hesitation they can’t name or ready to step out of their comfort zone. Either you’re ready to work on your physical and mental state.</p>
-			<p style="font-size:var(--text-base);line-height:1.9;color:var(--text-secondary);margin-top:26px">The practice sits in two places at once: The physical and the mental. Breathe is rarely just breathe. It’s the beginning of changing the narrative. Using it as a tool to control our mind, so we are choosing who we become.</p>
-			<p style="font-size:var(--text-base);line-height:1.9;color:var(--text-secondary);margin-top:22px">Vinya is just creating a space for you to make space for yourself.</p>
+			<div class="eyebrow">{txt('about.hero.eyebrow')}</div>
+			<h1>{txt('about.hero.title')}</h1>
+			<p class="lede" style="font-size:var(--text-lg);line-height:1.75;color:var(--brown-700);margin-top:34px">{txt('about.hero.lede')}</p>
+			{#each paras(txt('about.hero.body')) as p, i (i)}
+				<p style="font-size:var(--text-base);line-height:1.9;color:var(--text-secondary);margin-top:{i === 0 ? 26 : 22}px">{p}</p>
+			{/each}
 		</div>
 		<div class="media reveal" use:reveal>
 			<Photo
@@ -43,18 +45,18 @@
 <section class="sec sunken">
 	<div class="wrap">
 		<div class="sec-head reveal" use:reveal style="text-align:center;margin-left:auto;margin-right:auto">
-			<div class="eyebrow">What to expect</div>
-			<h2 style="margin-top:18px">How the room is held.</h2>
+			<div class="eyebrow">{txt('about.expect.eyebrow')}</div>
+			<h2 style="margin-top:18px">{txt('about.expect.title')}</h2>
 		</div>
 		<div class="triptych quad">
-			<div class="t reveal" use:reveal><div class="h">How we teach</div><p>Personal attention is our non negotiable. There are hands-on adjustments and deepening, if consent has been given.</p></div>
-			<div class="t reveal" use:reveal><div class="h">Who it’s for</div><p>Complete beginners, and regulars who want to deepen their practice.</p></div>
-			<div class="t reveal" use:reveal><div class="h">Training</div><p>Teaching hours and certifications, to be confirmed and listed here.</p></div>
-			<div class="t reveal" use:reveal><div class="h">Beyond class</div><p>1:1 holistic sessions, private groups, and retreats a few times a year.</p></div>
+			<div class="t reveal" use:reveal><div class="h">{txt('about.expect.1.title')}</div><p>{txt('about.expect.1.body')}</p></div>
+			<div class="t reveal" use:reveal><div class="h">{txt('about.expect.2.title')}</div><p>{txt('about.expect.2.body')}</p></div>
+			<div class="t reveal" use:reveal><div class="h">{txt('about.expect.3.title')}</div><p>{txt('about.expect.3.body')}</p></div>
+			<div class="t reveal" use:reveal><div class="h">{txt('about.expect.4.title')}</div><p>{txt('about.expect.4.body')}</p></div>
 		</div>
 		<div class="reveal" use:reveal style="margin-top:56px;display:flex;gap:14px;flex-wrap:wrap;justify-content:center">
-			<button class="btn btn-primary" onclick={() => openBooking('1:1 Holistic session')}>Book a 1:1 session</button>
-			<a class="btn btn-secondary" href="/classes">See the timetable</a>
+			<button class="btn btn-primary" onclick={() => openBooking('1:1 Holistic session')}>{txt('about.expect.cta.book')}</button>
+			<a class="btn btn-secondary" href="/classes">{txt('about.expect.cta.timetable')}</a>
 		</div>
 	</div>
 </section>
@@ -74,15 +76,13 @@
 			/>
 		</div>
 		<div class="reveal" use:reveal>
-			<div class="eyebrow">About the founder</div>
-			<h2 style="margin-top:22px">Nikita Coppens</h2>
-			<div class="role">Founder · Yoga, breathwork and Kirtan</div>
-			<p class="lede" style="margin-top:28px">Before starting Vinya, Nikita has been studying different forms of yoga in India, exploring the body, movement, breath and the connection between physical and mental wellbeing. After her studies, she travelled to Sri Lanka, where she taught yoga and continued to deepen her experience of working with the body.
-</p>
-			<p style="margin-top:22px">Before starting Vinya, Nikita has been studying different forms of yoga in India, exploring the body, movement, breath and the connection between physical and mental wellbeing. After her studies, she travelled to Sri Lanka, where she taught yoga and continued to deepen her experience of working with the body.
-</p>
-			<p style="margin-top:22px">Originally from Amsterdam, Nikita now lives and works there, bringing these different experiences together through Vinya. Through yoga, movement, breath and sound, she creates spaces where people can reconnect with their bodies and create more space for healing, awareness and connection.</p>
-			<div style="margin-top:36px"><a class="tlink" href="/teachers">Meet the teachers <span>→</span></a></div>
+			<div class="eyebrow">{txt('about.founder.eyebrow')}</div>
+			<h2 style="margin-top:22px">{txt('about.founder.name')}</h2>
+			<div class="role">{txt('about.founder.role')}</div>
+			{#each paras(txt('about.founder.body')) as p, i (i)}
+				<p class={i === 0 ? 'lede' : null} style="margin-top:{i === 0 ? 28 : 22}px">{p}</p>
+			{/each}
+			<div style="margin-top:36px"><a class="tlink" href="/teachers">{txt('about.founder.link')} <span>→</span></a></div>
 		</div>
 	</div>
 </section>
@@ -92,16 +92,16 @@
      inside a class detail overlay. -->
 <section class="sec sunken" id="find-us">
 	<div class="wrap wrap-narrow" style="text-align:center">
-		<div class="divider reveal" use:reveal><div class="line"></div><span class="lbl">Find us</span><div class="line"></div></div>
-		<h2 class="reveal" use:reveal style="font-size:var(--text-3xl);color:var(--brown-700);margin-top:48px">Where we practice.</h2>
-		<p class="reveal" use:reveal style="font-size:var(--text-base);line-height:1.85;color:var(--text-secondary);margin:22px auto 0;max-width:52ch">Classes are held at partner studios around the city. Every class on the timetable says where it meets.</p>
+		<div class="divider reveal" use:reveal><div class="line"></div><span class="lbl">{txt('about.find.divider')}</span><div class="line"></div></div>
+		<h2 class="reveal" use:reveal style="font-size:var(--text-3xl);color:var(--brown-700);margin-top:48px">{txt('about.find.title')}</h2>
+		<p class="reveal" use:reveal style="font-size:var(--text-base);line-height:1.85;color:var(--text-secondary);margin:22px auto 0;max-width:52ch">{txt('about.find.body')}</p>
 		<div class="venues">
 			{#each venues as v (v.name)}
 				<div class="venue reveal" use:reveal>
 					<div class="venue-copy">
 						<div class="k">{v.name}</div>
 						<p>{v.address}</p>
-						<a class="tlink" href={mapsUrl(v)} target="_blank" rel="noopener noreferrer">Open in maps <span>→</span></a>
+						<a class="tlink" href={mapsUrl(v)} target="_blank" rel="noopener noreferrer">{txt('about.find.maps')} <span>→</span></a>
 					</div>
 					<div class="venue-map">
 						<iframe

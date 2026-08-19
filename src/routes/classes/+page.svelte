@@ -4,13 +4,14 @@
 	import { classes, timetable, prices, faqs, offerings, locationOf } from '$lib/data.js';
 	import { openDetail } from '$lib/detail.js';
 	import { openPay } from '$lib/pay.js';
+	import { txt } from '$lib/copy.js';
 
 	function classDetail(c) {
-		openDetail({ eyebrow: 'Class', title: c.name, meta: c.meta, body: c.blurb, location: locationOf(c.name), bookLabel: c.name });
+		openDetail({ eyebrow: txt('classes.detail.class'), title: c.name, meta: c.meta, body: c.blurb, location: locationOf(c.name), bookLabel: c.name });
 	}
 	function slotDetail(day, s) {
 		const [time, name, duration] = s;
-		openDetail({ eyebrow: 'Session', title: name, meta: `${day} · ${time} · ${duration}`, location: locationOf(name), bookLabel: name });
+		openDetail({ eyebrow: txt('classes.detail.session'), title: name, meta: `${day} · ${time} · ${duration}`, location: locationOf(name), bookLabel: name });
 	}
 </script>
 
@@ -19,8 +20,8 @@
 <section>
 	<div class="wrap phead">
 		<div class="lead-row">
-			<div><div class="eyebrow">Classes</div><h1>A week with room in it.</h1></div>
-			<p>Classes facilitated in different studios. Book the class you need. No membership, no pressure to keep a streak.</p>
+			<div><div class="eyebrow">{txt('classes.hero.eyebrow')}</div><h1>{txt('classes.hero.title')}</h1></div>
+			<p>{txt('classes.hero.body')}</p>
 		</div>
 	</div>
 </section>
@@ -33,7 +34,7 @@
 					<div class="lead"><div class="tone {c.tone}"></div><h3>{c.name}</h3><div class="meta">{c.meta}</div></div>
 					<button class="row-trigger" onclick={() => classDetail(c)}>
 						<span class="row-trigger-txt">{locationOf(c.name)}</span>
-						<span class="tap-cue">Details <span class="arrow">→</span></span>
+						<span class="tap-cue">{txt('classes.detail.cue')} <span class="arrow">→</span></span>
 					</button>
 					<button class="btn btn-secondary" onclick={() => openBooking(c.name)}>Book {c.name}</button>
 				</div>
@@ -45,8 +46,8 @@
 <section class="sec sunken">
 	<div class="wrap">
 		<div class="sec-head row" style="margin-bottom:44px">
-			<div><div class="eyebrow">Weekly rhythm</div><h2 style="margin-top:16px">The timetable</h2></div>
-			<span style="font-size:var(--text-sm);color:var(--text-muted)">Tap a session to book</span>
+			<div><div class="eyebrow">{txt('classes.timetable.eyebrow')}</div><h2 style="margin-top:16px">{txt('classes.timetable.title')}</h2></div>
+			<span style="font-size:var(--text-sm);color:var(--text-muted)">{txt('classes.timetable.hint')}</span>
 		</div>
 		<div>
 			{#each timetable as r}
@@ -57,9 +58,9 @@
 							<div class="slot">
 								<button class="row-trigger" onclick={() => slotDetail(r.day, s)}>
 									<span class="row-trigger-txt"><strong>{s[0]}</strong> · {s[1]} · {s[2]}</span>
-									<span class="tap-cue">Details <span class="arrow">→</span></span>
+									<span class="tap-cue">{txt('classes.detail.cue')} <span class="arrow">→</span></span>
 								</button>
-								<button class="btn btn-primary sm" onclick={() => openBooking(s[1])}>Book</button>
+								<button class="btn btn-primary sm" onclick={() => openBooking(s[1])}>{txt('classes.timetable.book')}</button>
 							</div>
 						{/each}
 					</div>
@@ -71,7 +72,7 @@
 
 <section class="sec" id="prices">
 	<div class="wrap">
-		<div class="sec-head reveal" use:reveal><div class="eyebrow">Passes &amp; prices</div><h2 style="margin-top:18px">Pay for the week you need.</h2></div>
+		<div class="sec-head reveal" use:reveal><div class="eyebrow">{txt('classes.prices.eyebrow')}</div><h2 style="margin-top:18px">{txt('classes.prices.title')}</h2></div>
 		<div class="prices">
 			{#each prices as p}
 				<!-- spans, not div/p: a button's content model is phrasing content only -->
@@ -81,20 +82,20 @@
 				</button>
 			{/each}
 		</div>
-		<p class="prices-note">Paying a pass and booking a class are separate — pay whenever suits, book when you know the date.</p>
+		<p class="prices-note">{txt('classes.prices.note')}</p>
 	</div>
 </section>
 
 <section class="sec sunken">
 	<div class="wrap">
-		<div class="sec-head reveal" use:reveal><div class="eyebrow">Our offerings</div><h2 style="margin-top:18px">Beyond the weekly mat.</h2></div>
+		<div class="sec-head reveal" use:reveal><div class="eyebrow">{txt('classes.offerings.eyebrow')}</div><h2 style="margin-top:18px">{txt('classes.offerings.title')}</h2></div>
 		{#each offerings as g}
 			<div class="offer-cat"><h3>{g.cat}</h3><div class="line"></div></div>
 			<div class="offer-list">
 				{#each g.items as it}
 					<div class="offer-row reveal" use:reveal>
 						<div><h4>{it.name}</h4><p>{it.note}</p></div>
-						<button class="btn btn-secondary" onclick={() => openBooking(it.name)}>Enquire</button>
+						<button class="btn btn-secondary" onclick={() => openBooking(it.name)}>{txt('classes.offerings.enquire')}</button>
 					</div>
 				{/each}
 			</div>
@@ -104,7 +105,7 @@
 
 <section class="sec" id="faq">
 	<div class="wrap wrap-narrow">
-		<div class="sec-head reveal" use:reveal><div class="eyebrow">First time?</div><h2 style="margin-top:18px">Everything you're quietly wondering</h2></div>
+		<div class="sec-head reveal" use:reveal><div class="eyebrow">{txt('classes.faq.eyebrow')}</div><h2 style="margin-top:18px">{txt('classes.faq.title')}</h2></div>
 		<div class="faq">
 			{#each faqs as f}
 				<details>

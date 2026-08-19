@@ -1,5 +1,6 @@
 <script>
 	import { subscribeEmail } from '$lib/supabase.js';
+	import { txt } from '$lib/copy.js';
 	let email = $state('');
 	let note = $state('');
 	let busy = $state(false);
@@ -25,27 +26,27 @@
 	<div class="wrap foot-grid">
 		<div>
 			<div class="foot-brand"><img src="/logos/vinya-logo-cream.png" alt="Vinya" /></div>
-			<p>Breathe. Connect. Bloom.</p>
+			<p>{txt('footer.tagline')}</p>
 		</div>
 		<div class="foot-col">
-			<div class="h">Site</div>
+			<div class="h">{txt('footer.site.heading')}</div>
 			<a href="/">Home</a><a href="/classes">Classes</a><a href="/teachers">Teachers</a><a href="/events">Events</a><a href="/about">About</a>
 		</div>
 		<div class="foot-col">
-			<div class="h">Practical</div>
-			<a href="/classes#faq">First-timer FAQ</a><a href="/classes#prices">Passes &amp; prices</a><a href="/about#find-us">Find us</a>
+			<div class="h">{txt('footer.practical.heading')}</div>
+			<a href="/classes#faq">{txt('footer.practical.faq')}</a><a href="/classes#prices">{txt('footer.practical.prices')}</a><a href="/about#find-us">{txt('footer.practical.find')}</a>
 		</div>
 		<div class="foot-col">
-			<div class="h">Stay close</div>
-			<p style="max-width:32ch">A quiet note when a new month of events opens. Nothing else.</p>
+			<div class="h">{txt('footer.subscribe.heading')}</div>
+			<p style="max-width:32ch">{txt('footer.subscribe.body')}</p>
 			<div class="sub">
-				<input placeholder="you@email.com" aria-label="Email" bind:value={email} onkeydown={(e) => e.key === 'Enter' && join()} />
-				<button class="btn btn-primary sm" onclick={join} disabled={busy}>Join</button>
+				<input placeholder={txt('footer.subscribe.placeholder')} aria-label="Email" bind:value={email} onkeydown={(e) => e.key === 'Enter' && join()} />
+				<button class="btn btn-primary sm" onclick={join} disabled={busy}>{txt('footer.subscribe.cta')}</button>
 			</div>
 			<p style="font-size:12px;color:var(--tan-400);margin-top:14px">{note}</p>
 		</div>
 	</div>
 	<div class="wrap foot-bottom">
-		<span>© 2026 Vinya Yoga</span>
+		<span>{txt('footer.copyright')}</span>
 	</div>
 </footer>

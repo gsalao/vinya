@@ -3,9 +3,9 @@
 // both success and failure, so the owner sees the outcome where she is already
 // looking rather than in an inbox or a GitHub log she has never opened.
 import { pathToFileURL } from 'node:url';
-import { writeCell } from './lib/sheets.mjs';
+import { setPublishState } from './lib/db.mjs';
 
-/** Formats the Status cell's one line: an Amsterdam-local timestamp — that is
+/** Formats the publish banner's one line: an Amsterdam-local timestamp — that is
  *  where the person reading it is — followed by an em dash and the message.
  *  Pure and exported so the formatting is proved directly rather than only
  *  through a live write to a real spreadsheet. */
@@ -33,10 +33,10 @@ export async function main() {
 	// Never fail the workflow over a status write. A deploy that succeeded but
 	// could not report itself is still a deploy that succeeded.
 	try {
-		await writeCell('Status!B2', line);
+		await setPublishState({ status: process.argv[3] ?? 'idle', message: line });
 		console.log(`Status: ${line}`);
 	} catch (error) {
-		console.error(`::warning::Could not write the Status cell: ${error.message}`);
+		console.error(`::warning::Could not write the publish banner: ${error.message}`);
 	}
 }
 

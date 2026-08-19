@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { validate, STANDALONE_BOOK_OPTIONS, PRICE_IDS } from './schema.mjs';
-import { rowsToObjects } from './sheets.mjs';
+import { rowToObject } from './db.mjs';
 import { standaloneBookOptions, payIds } from '../../src/lib/data.js';
 
 /** A minimal set of tabs that passes every rule. Each test below breaks exactly
@@ -34,17 +34,17 @@ describe('validate', () => {
 		expect(validate(await withCopy(ok()))).toEqual([]);
 	});
 
-	// openBooking() preselects on an exact string match. rowsToObjects() already
+	// openBooking() preselects on an exact string match. rowToObject() already
 	// trims ordinary leading/trailing spaces, so an *ordinary* trailing space
 	// never reaches this file — the real hazard is a character trim() cannot
 	// remove: a non-breaking space in the middle of a value (trim only strips
 	// the ends) or a zero-width space anywhere (trim never strips it at all).
-	// The fixture is pushed through the real rowsToObjects() rather than
+	// The fixture is pushed through the real rowToObject() rather than
 	// hand-built, so this only passes if the rule fires on what the actual
 	// pipeline can deliver.
 	it('rejects a class name with an invisible character that survives trimming', async () => {
 		const tabs = await withCopy(ok());
-		const [row] = rowsToObjects([['name'], ['Kundalini Yoga']]);
+		const row = rowToObject({ name: 'Kundalini Yoga' }, 0);
 		tabs.classes[0].name = row.name;
 		expect(messages(validate(tabs))).toContain('invisible');
 	});

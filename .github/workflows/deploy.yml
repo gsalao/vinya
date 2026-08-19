@@ -91,16 +91,16 @@ jobs:
       # "Report an unexpected failure to the sheet" step further down.
       - name: Check required secrets are present
         env:
-          GOOGLE_SA_KEY: ${{ secrets.GOOGLE_SA_KEY }}
-          VINYA_SHEET_ID: ${{ vars.VINYA_SHEET_ID }}
+          PUBLIC_SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           missing=()
           [ -n "$VERCEL_TOKEN" ]      || missing+=(VERCEL_TOKEN)
           [ -n "$VERCEL_ORG_ID" ]     || missing+=(VERCEL_ORG_ID)
           [ -n "$VERCEL_PROJECT_ID" ] || missing+=(VERCEL_PROJECT_ID)
           if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
-            [ -n "$GOOGLE_SA_KEY" ]  || missing+=(GOOGLE_SA_KEY)
-            [ -n "$VINYA_SHEET_ID" ] || missing+=(VINYA_SHEET_ID)
+            [ -n "$PUBLIC_SUPABASE_URL" ]       || missing+=(PUBLIC_SUPABASE_URL)
+            [ -n "$SUPABASE_SERVICE_ROLE_KEY" ] || missing+=(SUPABASE_SERVICE_ROLE_KEY)
           fi
           if [ ${#missing[@]} -gt 0 ]; then
             echo "::error::Not set for this job: ${missing[*]}"
@@ -116,8 +116,8 @@ jobs:
         id: sync
         if: github.event_name == 'repository_dispatch'
         env:
-          GOOGLE_SA_KEY: ${{ secrets.GOOGLE_SA_KEY }}
-          VINYA_SHEET_ID: ${{ vars.VINYA_SHEET_ID }}
+          PUBLIC_SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           # 2>&1 because every failure bullet is written to stderr, and the
           # reporting steps below read this file. pipefail because GitHub's
@@ -129,8 +129,8 @@ jobs:
       - name: Report a failed sync to the sheet
         if: github.event_name == 'repository_dispatch' && failure()
         env:
-          GOOGLE_SA_KEY: ${{ secrets.GOOGLE_SA_KEY }}
-          VINYA_SHEET_ID: ${{ vars.VINYA_SHEET_ID }}
+          PUBLIC_SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           # The first bullet from the sync's own report. It already names the tab,
           # the row and what to type instead, so it needs no reformatting.
@@ -224,15 +224,15 @@ jobs:
       - name: Report success to the sheet
         if: github.event_name == 'repository_dispatch' && success() && steps.commit.outputs.changed == 'true'
         env:
-          GOOGLE_SA_KEY: ${{ secrets.GOOGLE_SA_KEY }}
-          VINYA_SHEET_ID: ${{ vars.VINYA_SHEET_ID }}
+          PUBLIC_SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/report-status.mjs "Live — ${{ steps.deploy.outputs.url }}"
 
       - name: Report a no-op to the sheet
         if: github.event_name == 'repository_dispatch' && success() && steps.commit.outputs.changed != 'true'
         env:
-          GOOGLE_SA_KEY: ${{ secrets.GOOGLE_SA_KEY }}
-          VINYA_SHEET_ID: ${{ vars.VINYA_SHEET_ID }}
+          PUBLIC_SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/report-status.mjs "Nothing to publish — the site already matches the sheet."
 
       # Catch-all for everything the two reporters above cannot see. Both of them
@@ -259,8 +259,8 @@ jobs:
       - name: Report an unexpected failure to the sheet
         if: github.event_name == 'repository_dispatch' && failure() && steps.sync.outcome == 'success'
         env:
-          GOOGLE_SA_KEY: ${{ secrets.GOOGLE_SA_KEY }}
-          VINYA_SHEET_ID: ${{ vars.VINYA_SHEET_ID }}
+          PUBLIC_SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/report-status.mjs "Not published — your change was accepted, but a technical problem stopped the website from updating. This is not something you can fix — contact your developer."
 
       - name: Email the owner about an unexpected failure

@@ -4,7 +4,8 @@ import { env } from '$env/dynamic/private';
 import { verifyToken } from '$lib/server/otp.js';
 import { isEmail, sniffAttachment, clamp, ATTACHMENT_MAX } from '$lib/server/validate.js';
 import { composeBooking } from '$lib/server/compose.js';
-import { sendMail, mailReady, ownerRecipients, mailConfig } from '$lib/server/mail.js';
+import { sendMail, mailReady, ownerRecipients, ownerRecipientsLive, mailConfig } from '$lib/server/mail.js';
+import { readSettings } from '$lib/server/admin-db.js';
 import { createLimiter } from '$lib/server/ratelimit.js';
 import { priceById } from '$lib/data.js';
 
@@ -27,7 +28,7 @@ function notConfigured(reason) {
 export async function POST({ request, getClientAddress }) {
 	if (!env.OTP_SECRET) return notConfigured('OTP_SECRET is not set');
 	if (!mailReady()) return notConfigured('mail settings are incomplete (MAIL_HOST, MAIL_USER, MAIL_PASS)');
-	const owners = ownerRecipients();
+	const owners = await ownerRecipientsLive(readSettings);
 	if (owners.length === 0) return notConfigured('MAIL_TO is empty, so nobody would receive this booking');
 	if (!perIp.check(getClientAddress()).ok) {
 		return json({ error: 'Too many attempts. Please try again shortly.' }, { status: 429 });

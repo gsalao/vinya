@@ -14,7 +14,7 @@
     "test:watch": "vitest",
     "mail:check": "node --env-file=.env scripts/check-mail.mjs",
     "content:sync": "node --env-file-if-exists=.env scripts/sync-content.mjs",
-    "content:seed": "node --env-file=.env scripts/seed-sheet.mjs"
+    "content:seed": "node --env-file=.env scripts/seed-db.mjs"
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^3.3.1",
@@ -27,6 +27,7 @@
     "vitest": "^2.1.9"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.47.10",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",

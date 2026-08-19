@@ -129,6 +129,18 @@ jobs:
           problem=$(grep -m1 '^  • ' sync.log | sed 's/^  • //')
           node scripts/report-status.mjs "Not published — ${problem:-the content could not be read. Ask the developer.}"
 
+      - name: Email the owner about the failure
+        if: github.event_name == 'repository_dispatch' && failure()
+        continue-on-error: true
+        env:
+          MAIL_HOST: ${{ secrets.MAIL_HOST }}
+          MAIL_PORT: ${{ secrets.MAIL_PORT }}
+          MAIL_USER: ${{ secrets.MAIL_USER }}
+          MAIL_PASS: ${{ secrets.MAIL_PASS }}
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+        run: node scripts/notify-failure.mjs
+
       - name: Commit the updated content
         id: commit
         if: github.event_name == 'repository_dispatch' && success()

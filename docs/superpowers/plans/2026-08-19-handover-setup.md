@@ -1,9 +1,8 @@
 # Setup you have to do yourself
 
-Tasks 1-10 of `2026-08-19-sheets-cms-phase-0-2.md` are built, reviewed and
-committed. Everything below needs an account only you have — a Google Cloud
-project, a spreadsheet, and a GitHub token. Work through it in order; each step
-says how to know it worked.
+**All the code is built, reviewed and committed.** Everything below needs an
+account only you have — a Google Cloud project, a spreadsheet, and a GitHub
+token. Work through it in order; each step says how to know it worked.
 
 Nothing here is reversible-by-accident, but two steps handle credentials. Those
 are marked.
@@ -16,9 +15,15 @@ are marked.
 - `scripts/lib/shape.mjs` turns flat rows into that file, and a test proves the
   two agree byte-for-byte on every commit.
 - `scripts/sync-content.mjs` orchestrates read → validate → shape → write.
+- `scripts/seed-sheet.mjs` fills an empty spreadsheet from that file, and checks
+  every tab exists before writing anything.
+- `.github/workflows/deploy.yml` responds to the spreadsheet, commits and deploys.
+- `apps-script/Code.gs` is the 30-second debounce, ready to paste in.
+- `scripts/report-status.mjs` and `scripts/notify-failure.mjs` report the outcome
+  into the sheet and to your inbox.
 
-What does not exist yet: the spreadsheet, the credentials, the workflow trigger,
-and the Apps Script debounce.
+What does not exist yet: the spreadsheet, the credentials, and the Apps Script
+installed against them. That is all this document is for.
 
 ---
 
@@ -90,11 +95,12 @@ GOOGLE_SA_KEY=<the entire JSON key file, on one line>
 
 ## 4. Seed the spreadsheet
 
-Task 11 writes `scripts/seed-sheet.mjs`, which fills the empty tabs from the
-committed content so nothing is retyped. That task is not built yet — it is the
-first thing I do when you come back.
+`scripts/seed-sheet.mjs` fills the empty tabs from the committed content, so
+nothing is retyped. It runs **once**: after this the spreadsheet is upstream, and
+running it again would overwrite whatever has been typed since.
 
-Once it exists:
+If any tab is missing or misspelled it writes nothing at all and tells you which
+ones to create, so a half-filled sheet is not a state you can reach.
 
 ```bash
 pnpm content:seed     # writes today's content into the sheet
@@ -154,8 +160,6 @@ and nobody knows why.
 
 ## 7. Install the Apps Script
 
-Task 13 writes `apps-script/Code.gs`. Once it exists:
-
 1. On the spreadsheet: Extensions → Apps Script.
 2. Replace `Code.gs` with the committed file. Save.
 3. Project Settings → Script Properties → add `GH_TOKEN` with the token from
@@ -183,21 +187,24 @@ not to API access. That is exactly the split wanted.
 
 ---
 
-## What I do when you come back
+## After it is running
 
-Tasks 11-16, in order:
+Watch these five things on the first live run, in this order:
 
-| Task | Deliverable |
-| ---- | ----------- |
-| 11 | `scripts/seed-sheet.mjs` + `writeTab` in the Sheets client |
-| 12 | `deploy.yml`: dispatch trigger, production flags fix, content concurrency group, sync + commit steps |
-| 13 | `apps-script/Code.gs` — the 30-second debounce and `Publish now` menu |
-| 14 | `scripts/report-status.mjs` — writes publish state into the Status tab |
-| 15 | `scripts/notify-failure.mjs` — emails the owner when an edit was rejected |
-| 16 | `Read me first` tab content and `apps-script/README.md` runbook |
-
-Steps 4, 7 and 8 above interleave with those: I write the code, you run it
-against your own accounts.
+1. **Retype one timetable time and one event month by hand**, then let it publish
+   and look at what came back. This is where Google's own helpfulness bites: it
+   turns `10:30` into a time value and `August 2026` into a date unless the cell
+   is formatted as plain text. The validator now rejects both, so you should get
+   a clear message rather than a mangled site — but this is the first thing to
+   confirm, because it is the most ordinary edit anyone will make.
+2. **One full cycle end to end:** `Status` should move `Edit noted…` →
+   `Publishing…` → `Live — <url>` with a timestamp.
+3. **Break something on purpose.** Put `2026-09-05` in an `events` month cell.
+   The site must not change, `Status` must name the tab and row, and an email
+   must arrive.
+4. **Check the seeded `copy` tab has 110 rows** and a filled-in `where` column.
+5. **Check the first content commit on `main`** is authored by
+   `vinya-content[bot]` and did *not* trigger a second workflow run.
 
 ## One thing I could not verify and you should
 

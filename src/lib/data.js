@@ -58,8 +58,12 @@ export function eventLabel(item, group) {
 	return `${item.name} · ${Number(item.d)} ${group.month.slice(0, 3)}`;
 }
 
-// Picker entries that aren't a class, an offering or an event.
-const standaloneBookOptions = ['1:1 Holistic session', 'Beginners course (4 evenings)'];
+// Picker entries that aren't a class, an offering or an event. Exported so
+// scripts/lib/schema.mjs can pin its own copy of this list against it in a
+// test — schema.mjs cannot import this module directly, since data.js reads
+// content.generated.json, the very file the spreadsheet sync is validating
+// before that file exists.
+export const standaloneBookOptions = ['1:1 Holistic session', 'Beginners course (4 evenings)'];
 
 // Derived, never hand-kept. openBooking() preselects on an exact match against
 // this list, so a label written out a second time anywhere else opens an empty

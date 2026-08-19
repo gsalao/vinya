@@ -4,6 +4,15 @@ import { KEYS } from '../../src/lib/copy-manifest.js';
 // with no way to pay for it must fail here rather than render.
 const PRICE_IDS = ['drop-in', '5-class', '10-class', '1on1'];
 
+// Booking-form entries that are neither a class, an offering nor an event —
+// mirrors standaloneBookOptions in src/lib/data.js. This file cannot import
+// that module: data.js reads content.generated.json, the very file this
+// validation runs ahead of regenerating, so importing it here would be
+// circular. schema.test.js pins this list against data.js's exported copy so
+// the two cannot drift apart unnoticed, the same way PRICE_IDS above is kept
+// in sync with data.js's PAY by convention.
+export const STANDALONE_BOOK_OPTIONS = ['1:1 Holistic session', 'Beginners course (4 evenings)'];
+
 const MONTH = /^(January|February|March|April|May|June|July|August|September|October|November|December) \d{4}$/;
 const URL_LIKE = /https?:\/\//i;
 const KEBAB = /^[a-z0-9]+(-[a-z0-9]+)*$/;
@@ -133,6 +142,16 @@ export function validate(tabs) {
 			if (!Number.isFinite(n) || n < 0 || n > 100) {
 				fail('teachers', t.__row, `${axis} reads "${t[axis]}" but must be a number between 0 and 100.`);
 			}
+		}
+		// The teacher page's booking button preselects on an exact match against
+		// the booking form's list, built from every class, offering and event name
+		// plus the two entries above. A ctaOption spelled even slightly differently
+		// opens that list with nothing selected and the button stuck disabled — the
+		// same silent failure as an unresolved provider, just one button instead of
+		// a whole page.
+		if (!seen.has(t.ctaOption) && !STANDALONE_BOOK_OPTIONS.includes(t.ctaOption)) {
+			const options = [...seen.keys(), ...STANDALONE_BOOK_OPTIONS];
+			fail('teachers', t.__row, `the booking option "${t.ctaOption}" is not one of the choices on the booking form, so this teacher's booking button would open with nothing selected. Valid options: ${options.join(', ')}.`);
 		}
 	}
 

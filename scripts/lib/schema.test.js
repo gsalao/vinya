@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { validate } from './schema.mjs';
+import { validate, STANDALONE_BOOK_OPTIONS } from './schema.mjs';
 import { rowsToObjects } from './sheets.mjs';
+import { standaloneBookOptions } from '../../src/lib/data.js';
 
 /** A minimal set of tabs that passes every rule. Each test below breaks exactly
  *  one thing, so a failure names the rule that caught it. */
@@ -167,6 +168,34 @@ describe('validate', () => {
 		const tabs = await withCopy(ok());
 		tabs.teachers[0].fy = '120';
 		expect(messages(validate(tabs))).toContain('between 0 and 100');
+	});
+
+	// openBooking(t.cta.option) preselects on an exact match against the booking
+	// form's list. A ctaOption that matches nothing there opens the picker with
+	// no selection and the submit button stuck disabled — the same silent
+	// failure as the unresolved-provider rule above, just for one button.
+	it('rejects a teacher ctaOption that matches nothing on the booking form', async () => {
+		const tabs = await withCopy(ok());
+		tabs.teachers[0].ctaOption = '1:1 Holisitc session';
+		const errors = validate(tabs);
+		expect(errors[0].tab).toBe('teachers');
+		expect(errors[0].row).toBe(2);
+		expect(errors[0].message).toContain('1:1 Holisitc session');
+		expect(errors[0].message).toContain('1:1 Holistic session');
+	});
+
+	it('accepts a teacher ctaOption that names a class, offering or event instead of a standalone option', async () => {
+		const tabs = await withCopy(ok());
+		tabs.teachers[0].ctaOption = 'Kundalini Yoga';
+		expect(validate(tabs)).toEqual([]);
+	});
+
+	// PRICE_IDS above has no such pin, and that gap is exactly the kind this
+	// rule exists to close: schema.mjs keeps its own copy of this list because
+	// it cannot import data.js, so nothing but a test stops the two from
+	// drifting the moment someone edits one and not the other.
+	it('keeps its standalone booking options in sync with data.js', () => {
+		expect(STANDALONE_BOOK_OPTIONS).toEqual(standaloneBookOptions);
 	});
 
 	it('rejects a required cell left blank', async () => {

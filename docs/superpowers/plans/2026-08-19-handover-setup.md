@@ -43,8 +43,11 @@ and the Apps Script debounce.
 2. Create one tab per name below. **Names are case-sensitive and must match
    exactly** — `scripts/lib/schema.mjs` looks them up by these strings:
 
-   `copy` · `providers` · `classes` · `timetable` · `events` · `offerings` ·
-   `faqs` · `teachers` · `partners` · `prices` · `testimonials`
+   `copy` · `providers` · `classes` · `timetable` · `events` · `pastEvents` ·
+   `offerings` · `faqs` · `teachers` · `partners` · `prices` · `testimonials`
+
+   Twelve of them. If you get one wrong, the seed script says so and writes
+   nothing, rather than filling some tabs and stopping halfway.
 
 3. Add a twelfth tab named `Status`, with `Last publish` in cell `A2`. Leave
    `B2` empty.

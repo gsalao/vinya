@@ -12,7 +12,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "mail:check": "node --env-file=.env scripts/check-mail.mjs"
+    "mail:check": "node --env-file=.env scripts/check-mail.mjs",
+    "content:sync": "node --env-file-if-exists=.env scripts/sync-content.mjs"
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^3.3.1",

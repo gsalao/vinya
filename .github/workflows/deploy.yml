@@ -5,12 +5,21 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  # Fired by the spreadsheet's Apps Script, thirty seconds after the owner's last
+  # edit. See docs/superpowers/specs/2026-08-19-sheets-cms-design.md
+  repository_dispatch:
+    types: [content-update]
 
-# Serialise deploys per branch/PR and drop superseded runs, so a slow older
-# build can never land on top of a newer one and leave main stale.
+# Code pushes still supersede each other: a slow older build must never land on
+# top of a newer one. Content runs get their own group and do NOT cancel, because
+# a run cancelled between its commit and its deploy would leave main ahead of the
+# live site with nothing scheduled to fix it.
 concurrency:
-  group: deploy-${{ github.ref }}
-  cancel-in-progress: true
+  group: >-
+    ${{ github.event_name == 'repository_dispatch'
+        && 'content-sync'
+        || format('deploy-{0}', github.ref) }}
+  cancel-in-progress: ${{ github.event_name != 'repository_dispatch' }}
 
 # The Vercel CLI reads all three of these straight from the environment, so no
 # command below passes --token. An inline --token=${{ secrets.X }} expands to a
@@ -20,42 +29,55 @@ env:
   VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-  # push to main => production, pull request => throwaway preview
-  VERCEL_ENV: ${{ github.event_name == 'push' && 'production' || 'preview' }}
-  PROD_FLAG: ${{ github.event_name == 'push' && '--prod' || '' }}
+  # push to main and content updates => production, pull request => throwaway preview
+  IS_PROD: ${{ github.event_name == 'push' || github.event_name == 'repository_dispatch' }}
+  VERCEL_ENV: ${{ (github.event_name == 'push' || github.event_name == 'repository_dispatch') && 'production' || 'preview' }}
+  PROD_FLAG: ${{ (github.event_name == 'push' || github.event_name == 'repository_dispatch') && '--prod' || '' }}
 
 jobs:
   deploy:
     name: Build and deploy
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       pull-requests: write
     # Surfaces the live URL on the repo's home page sidebar and under
     # Deployments, and keeps the production link pointing at whatever main last
     # shipped.
+    #
+    # This field cannot read the job's `env:` context (environment selection has
+    # to be resolved before environment-scoped secrets/vars come into play), so
+    # the push-or-dispatch condition is repeated here rather than referencing
+    # env.IS_PROD.
     environment:
-      name: ${{ github.event_name == 'push' && 'production' || 'preview' }}
+      name: ${{ (github.event_name == 'push' || github.event_name == 'repository_dispatch') && 'production' || 'preview' }}
       url: ${{ steps.deploy.outputs.url }}
 
     steps:
       # First, and before any setup, so a missing secret costs seconds and names
       # itself instead of surfacing as a credentials error deeper in the job.
       - name: Check required secrets are present
+        env:
+          GOOGLE_SA_KEY: ${{ secrets.GOOGLE_SA_KEY }}
+          VINYA_SHEET_ID: ${{ vars.VINYA_SHEET_ID }}
         run: |
           missing=()
           [ -n "$VERCEL_TOKEN" ]      || missing+=(VERCEL_TOKEN)
           [ -n "$VERCEL_ORG_ID" ]     || missing+=(VERCEL_ORG_ID)
           [ -n "$VERCEL_PROJECT_ID" ] || missing+=(VERCEL_PROJECT_ID)
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            [ -n "$GOOGLE_SA_KEY" ]  || missing+=(GOOGLE_SA_KEY)
+            [ -n "$VINYA_SHEET_ID" ] || missing+=(VINYA_SHEET_ID)
+          fi
           if [ ${#missing[@]} -gt 0 ]; then
             echo "::error::Not set for this job: ${missing[*]}"
             echo "Add them under Settings -> Secrets and variables -> Actions -> Repository secrets."
             echo "That exact tab: secrets on the Codespaces or Dependabot tabs are invisible here."
-            echo "This job targets the '${{ github.event_name == 'push' && 'production' || 'preview' }}' environment."
+            echo "This job targets the '${{ (github.event_name == 'push' || github.event_name == 'repository_dispatch') && 'production' || 'preview' }}' environment."
             echo "If you added them as *environment* secrets, they must be on that environment."
             exit 1
           fi
-          echo "All three Vercel secrets are present."
+          echo "All required secrets are present."
 
       - uses: actions/checkout@v4
 
@@ -71,21 +93,64 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Sync content from the spreadsheet
+        id: sync
+        if: github.event_name == 'repository_dispatch'
+        env:
+          GOOGLE_SA_KEY: ${{ secrets.GOOGLE_SA_KEY }}
+          VINYA_SHEET_ID: ${{ vars.VINYA_SHEET_ID }}
+        run: |
+          # 2>&1 because every failure bullet is written to stderr, and the
+          # reporting steps below read this file. pipefail because GitHub's
+          # default shell is `bash -e {0}`: without it the pipeline reports
+          # tee's exit code and a rejected sync would look like a success.
+          set -o pipefail
+          node scripts/sync-content.mjs 2>&1 | tee sync.log
+
+      - name: Commit the updated content
+        id: commit
+        if: github.event_name == 'repository_dispatch' && success()
+        run: |
+          if ! grep -q 'SYNC_RESULT=changed' sync.log; then
+            echo "Nothing changed. Skipping the commit and the deploy."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git config user.name  "vinya-content[bot]"
+          git config user.email "vinya-content[bot]@users.noreply.github.com"
+          git add src/lib/content.generated.json
+
+          # [skip ci] belt and braces: a push made with the default GITHUB_TOKEN
+          # already does not trigger further workflow runs, which is the guard that
+          # stops this deploying itself in a loop. The marker documents the intent
+          # for anyone reading the history.
+          git commit -m "content: update from the spreadsheet [skip ci]"
+
+          # Rebase rather than merge: content runs are serialised by the concurrency
+          # group, but a code push can still land between checkout and here.
+          git pull --rebase origin main
+          git push origin HEAD:main
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
       - name: Install Vercel CLI
         run: npm install -g vercel@51
 
       # Fetches project settings plus the environment variables configured in
       # Vercel (PUBLIC_SUPABASE_*), which the build step then reads.
       - name: Pull Vercel project settings
+        if: github.event_name != 'repository_dispatch' || steps.commit.outputs.changed == 'true'
         run: vercel pull --yes --environment="$VERCEL_ENV"
 
       # Also the CI build check: a broken build fails here, before anything is
       # uploaded, so a red PR can never be merged into a deployable main.
       - name: Build
+        if: github.event_name != 'repository_dispatch' || steps.commit.outputs.changed == 'true'
         run: vercel build $PROD_FLAG
 
       - name: Deploy
         id: deploy
+        if: github.event_name != 'repository_dispatch' || steps.commit.outputs.changed == 'true'
         run: |
           deployment_url=$(vercel deploy --prebuilt $PROD_FLAG)
 

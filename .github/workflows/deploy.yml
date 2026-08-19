@@ -25,12 +25,22 @@ concurrency:
 # command below passes --token. An inline --token=${{ secrets.X }} expands to a
 # bare `--token=` when the secret is missing, which the CLI reports as "no
 # existing credentials" rather than "your secret is not set".
+#
+# push to main and content updates => production, pull request => throwaway preview.
+# That boolean is repeated, deliberately, at each of the four places that need it
+# below and elsewhere in this file (VERCEL_ENV and PROD_FLAG right here,
+# jobs.deploy.environment.name, and the echo in "Check required secrets are
+# present"), instead of being factored into one shared variable. A shared
+# `env.IS_PROD` cannot actually do the job: `jobs.<job_id>.environment` has no
+# access to the job's `env:` context (see the comment on that field below), and
+# entries within a single `env:` block cannot reference their own siblings
+# either, so VERCEL_ENV and PROD_FLAG could not have consumed it even though
+# they sit right next to it. Anyone adding a fifth trigger type must edit all
+# four sites by hand.
 env:
   VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-  # push to main and content updates => production, pull request => throwaway preview
-  IS_PROD: ${{ github.event_name == 'push' || github.event_name == 'repository_dispatch' }}
   VERCEL_ENV: ${{ (github.event_name == 'push' || github.event_name == 'repository_dispatch') && 'production' || 'preview' }}
   PROD_FLAG: ${{ (github.event_name == 'push' || github.event_name == 'repository_dispatch') && '--prod' || '' }}
 
@@ -47,8 +57,9 @@ jobs:
     #
     # This field cannot read the job's `env:` context (environment selection has
     # to be resolved before environment-scoped secrets/vars come into play), so
-    # the push-or-dispatch condition is repeated here rather than referencing
-    # env.IS_PROD.
+    # the push-or-dispatch condition is written out again here rather than
+    # referencing a shared variable. See the comment on the `env:` block above
+    # for why that's true of the other repeats of this condition too.
     environment:
       name: ${{ (github.event_name == 'push' || github.event_name == 'repository_dispatch') && 'production' || 'preview' }}
       url: ${{ steps.deploy.outputs.url }}
@@ -134,6 +145,7 @@ jobs:
           echo "changed=true" >> "$GITHUB_OUTPUT"
 
       - name: Install Vercel CLI
+        if: github.event_name != 'repository_dispatch' || steps.commit.outputs.changed == 'true'
         run: npm install -g vercel@51
 
       # Fetches project settings plus the environment variables configured in

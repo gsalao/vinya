@@ -44,7 +44,10 @@ function auth() {
 
 function sheetId() {
 	const id = process.env.VINYA_SHEET_ID;
-	if (!id) throw new Error('VINYA_SHEET_ID is not set.');
+	if (!id)
+		throw new Error(
+			'VINYA_SHEET_ID is not set. Add it under Settings -> Secrets and variables -> Actions -> Variables (it is a repository variable, not a secret).'
+		);
 	return id;
 }
 

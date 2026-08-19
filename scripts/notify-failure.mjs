@@ -36,7 +36,7 @@ export function buildMailBody(problems) {
 		'The website has not changed. It is still showing the last version that worked.',
 		'Fix the cells above and it will publish itself about thirty seconds later.',
 		'',
-		'The Status tab of the editor shows the same message.'
+		'The banner at the top of the editor shows the same message.'
 	].join('\n');
 }
 
@@ -77,7 +77,7 @@ export function buildGenericFailureBody(reason = 'deploy') {
 		'',
 		'Please contact your developer.',
 		'',
-		'The Status tab of the editor shows the same message.'
+		'The banner at the top of the editor shows the same message.'
 	].join('\n');
 }
 

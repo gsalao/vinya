@@ -74,10 +74,10 @@ describe('buildMailBody', () => {
 		expect(body).toContain('  • second problem');
 	});
 
-	it('says the site is unchanged and names the same message the Status tab shows', () => {
+	it('says the site is unchanged and names the same message the banner shows', () => {
 		const body = buildMailBody(['x']);
 		expect(body).toContain('The website has not changed');
-		expect(body).toContain('The Status tab of the sheet shows the same message.');
+		expect(body).toContain('The banner at the top of the editor shows the same message.');
 	});
 });
 
@@ -97,10 +97,10 @@ describe('buildGenericFailureBody', () => {
 		expect(body).toContain('nothing for you to fix');
 	});
 
-	it('says the site is unchanged and names the same message the Status tab shows, like buildMailBody', () => {
+	it('says the site is unchanged and names the same message the banner shows, like buildMailBody', () => {
 		const body = buildGenericFailureBody();
 		expect(body).toContain('The website has not changed');
-		expect(body).toContain('The Status tab of the sheet shows the same message.');
+		expect(body).toContain('The banner at the top of the editor shows the same message.');
 	});
 
 	it('routes her to the developer instead of a cell to edit', () => {
@@ -128,10 +128,10 @@ describe('buildGenericFailureBody("connection")', () => {
 		expect(body).toContain('nothing for you to fix');
 	});
 
-	it('says the site is unchanged and names the same message the Status tab shows, like the other bodies', () => {
+	it('says the site is unchanged and names the same message the banner shows, like the other bodies', () => {
 		const body = buildGenericFailureBody('connection');
 		expect(body).toContain('The website has not changed');
-		expect(body).toContain('The Status tab of the sheet shows the same message.');
+		expect(body).toContain('The banner at the top of the editor shows the same message.');
 	});
 
 	it('routes her to the developer instead of a cell to edit', () => {

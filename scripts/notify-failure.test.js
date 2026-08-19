@@ -5,7 +5,7 @@ import { describe, it, expect } from 'vitest';
 // on import rather than only when the file is invoked directly, loading this test
 // file would throw before a single "it" ran. That every test below executes at all
 // is the proof.
-import { extractProblems, buildMailBody } from './notify-failure.mjs';
+import { extractProblems, buildMailBody, buildGenericFailureBody } from './notify-failure.mjs';
 
 describe('extractProblems', () => {
 	// This is the exact shape report() in sync-content.mjs writes: a header line,
@@ -78,5 +78,32 @@ describe('buildMailBody', () => {
 		const body = buildMailBody(['x']);
 		expect(body).toContain('The website has not changed');
 		expect(body).toContain('The Status tab of the sheet shows the same message.');
+	});
+});
+
+describe('buildGenericFailureBody', () => {
+	// Used when the sync itself succeeded but something later in the job failed
+	// (a commit conflict, a Vercel outage, a build break) — the catch-all reporter
+	// added at the end of deploy.yml for that gap. There is no cell to point at
+	// here, unlike buildMailBody(), so the wording must say so rather than imply
+	// a sheet problem exists.
+	it('never mentions GitHub, a build or a workflow', () => {
+		expect(buildGenericFailureBody()).not.toMatch(/GitHub|workflow|build/i);
+	});
+
+	it('says her change was accepted and there is nothing in the sheet to fix', () => {
+		const body = buildGenericFailureBody();
+		expect(body).toContain('was accepted');
+		expect(body).toContain('nothing for you to fix');
+	});
+
+	it('says the site is unchanged and names the same message the Status tab shows, like buildMailBody', () => {
+		const body = buildGenericFailureBody();
+		expect(body).toContain('The website has not changed');
+		expect(body).toContain('The Status tab of the sheet shows the same message.');
+	});
+
+	it('routes her to the developer instead of a cell to edit', () => {
+		expect(buildGenericFailureBody()).toContain('contact your developer');
 	});
 });

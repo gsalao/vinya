@@ -38,13 +38,43 @@ export function buildMailBody(problems) {
 	].join('\n');
 }
 
-async function main() {
-	const log = readFileSync('sync.log', 'utf8');
-	const problems = extractProblems(log);
+/** The mail body for a failure that has nothing to do with her sheet edit —
+ *  the sync itself succeeded, but something later (the commit, the build, the
+ *  deploy) failed. Unlike buildMailBody(), there is no cell to point at: she
+ *  did nothing wrong and there is nothing in the sheet for her to fix. Never
+ *  GitHub, a build or a workflow. Pure and exported for the same reason as
+ *  buildMailBody(). */
+export function buildGenericFailureBody() {
+	return [
+		'Your latest change to the Vinya content sheet was accepted.',
+		'',
+		'The website could not be updated because of a technical problem — not anything in the sheet. There is nothing for you to fix.',
+		'',
+		'The website has not changed. It is still showing the last version that worked.',
+		'',
+		'Please contact your developer.',
+		'',
+		'The Status tab of the sheet shows the same message.'
+	].join('\n');
+}
 
-	if (problems.length === 0) {
-		console.log('No itemised problems in sync.log. Not sending mail.');
-		return;
+async function main() {
+	// Two modes: the default reads sync.log and reports the sheet's own itemised
+	// problems (a content-validation failure). "--generic" is used when the sync
+	// itself succeeded but a later step in the job failed — there is no sync.log
+	// bullet to report, only the fact that something went wrong on the publishing
+	// side. See the "Report an unexpected failure to the sheet" workflow step.
+	const generic = process.argv[2] === '--generic';
+
+	let problems = [];
+	if (!generic) {
+		const log = readFileSync('sync.log', 'utf8');
+		problems = extractProblems(log);
+
+		if (problems.length === 0) {
+			console.log('No itemised problems in sync.log. Not sending mail.');
+			return;
+		}
 	}
 
 	const { MAIL_HOST, MAIL_PORT, MAIL_USER, MAIL_PASS, MAIL_FROM, MAIL_TO } = process.env;
@@ -53,21 +83,33 @@ async function main() {
 		return;
 	}
 
+	// Matches src/lib/server/mail.js's own `Number(env.MAIL_PORT || 465)`: `||`
+	// falls back to 465 for an empty-string secret, same as here. `??` would not
+	// — it only falls back for null/undefined — and would silently produce
+	// port 0 / secure:false on what is supposed to be a 465 connection.
+	const port = Number(MAIL_PORT || 465);
+
 	const transport = nodemailer.createTransport({
 		host: MAIL_HOST,
-		port: Number(MAIL_PORT ?? 465),
-		secure: Number(MAIL_PORT ?? 465) === 465,
+		port,
+		secure: port === 465,
 		auth: { user: MAIL_USER, pass: MAIL_PASS }
 	});
 
 	await transport.sendMail({
 		from: MAIL_FROM || MAIL_USER,
 		to: MAIL_TO,
-		subject: 'Vinya website: your change was not published',
-		text: buildMailBody(problems)
+		subject: generic
+			? 'Vinya website: a technical problem stopped your change from publishing'
+			: 'Vinya website: your change was not published',
+		text: generic ? buildGenericFailureBody() : buildMailBody(problems)
 	});
 
-	console.log(`Emailed ${problems.length} problem(s) to the owner.`);
+	console.log(
+		generic
+			? 'Emailed the owner about a non-sync failure.'
+			: `Emailed ${problems.length} problem(s) to the owner.`
+	);
 }
 
 // Runs the send when this file is executed directly (`node scripts/notify-failure.mjs`),

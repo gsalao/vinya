@@ -227,6 +227,46 @@ jobs:
           VINYA_SHEET_ID: ${{ vars.VINYA_SHEET_ID }}
         run: node scripts/report-status.mjs "Nothing to publish — the site already matches the sheet."
 
+      # Catch-all for everything the two reporters above cannot see. Both of them
+      # sit right after "Sync content from the spreadsheet" and their `failure()`
+      # checks are evaluated at that point in the sequence, so they only ever
+      # fire for a sync failure (or something that failed even earlier, before
+      # sync ran). If the sync succeeds and something later fails instead — a
+      # `git push` conflict in "Commit the updated content", a Vercel outage, a
+      # build break the content validator cannot catch — the job ends failed but
+      # neither of those steps runs again, and the two success reporters above
+      # both require success(), which is now false. Nothing would report it and
+      # Status!B2 would stay on "Publishing…" forever: the exact failure mode
+      # this whole reporting chain exists to prevent, just triggered by
+      # infrastructure instead of content.
+      #
+      # `steps.sync.outcome == 'success'` is what makes this mutually exclusive
+      # with "Report a failed sync to the sheet" rather than a duplicate of it:
+      # that step's `if: ... && failure()` already fires whenever the job is
+      # already failed by the time it runs — i.e. the sync itself failed, or
+      # something even earlier (checkout, install) did, leaving `sync` skipped.
+      # Neither of those leaves `steps.sync.outcome` as 'success'. Only "sync
+      # completed cleanly, something after it did not" does, which is exactly
+      # the gap this step covers.
+      - name: Report an unexpected failure to the sheet
+        if: github.event_name == 'repository_dispatch' && failure() && steps.sync.outcome == 'success'
+        env:
+          GOOGLE_SA_KEY: ${{ secrets.GOOGLE_SA_KEY }}
+          VINYA_SHEET_ID: ${{ vars.VINYA_SHEET_ID }}
+        run: node scripts/report-status.mjs "Not published — your change was accepted, but a technical problem stopped the website from updating. This is not something you can fix — contact your developer."
+
+      - name: Email the owner about an unexpected failure
+        if: github.event_name == 'repository_dispatch' && failure() && steps.sync.outcome == 'success'
+        continue-on-error: true
+        env:
+          MAIL_HOST: ${{ secrets.MAIL_HOST }}
+          MAIL_PORT: ${{ secrets.MAIL_PORT }}
+          MAIL_USER: ${{ secrets.MAIL_USER }}
+          MAIL_PASS: ${{ secrets.MAIL_PASS }}
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+        run: node scripts/notify-failure.mjs --generic
+
       - name: Comment the preview URL on the PR
         if: github.event_name == 'pull_request'
         env:

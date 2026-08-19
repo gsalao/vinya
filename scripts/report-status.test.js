@@ -5,7 +5,7 @@ import { describe, it, expect } from 'vitest';
 // when the file is invoked directly, loading this test file would throw or call
 // process.exit before a single "it" ran. That every test below executes at all is
 // the proof.
-import { formatStatusLine } from './report-status.mjs';
+import { formatStatusLine, main } from './report-status.mjs';
 
 describe('formatStatusLine', () => {
 	it('renders an Amsterdam-local day, short month, hour and minute ahead of an em dash and the message', () => {
@@ -27,5 +27,36 @@ describe('formatStatusLine', () => {
 		// two timestamps bracketing the call (same minute in all but the rarest race).
 		expect(line.endsWith('— test')).toBe(true);
 		expect(after - before).toBeLessThan(5000);
+	});
+});
+
+describe('main', () => {
+	// "A failed status write must never fail the workflow" is the single most
+	// repeated requirement across these briefs. Proves it directly: with
+	// GOOGLE_SA_KEY deliberately unset, writeCell()'s own auth() throws, so
+	// main()'s try/catch is what stands between that and a rejected promise /
+	// non-zero exit reaching the shell.
+	it('does not reject or call process.exit when the write fails', async () => {
+		const originalArgv = process.argv;
+		const originalKey = process.env.GOOGLE_SA_KEY;
+		const originalExit = process.exit;
+		let exitCalledWith;
+
+		process.argv = [...originalArgv.slice(0, 2), 'a status line the write will fail to persist'];
+		delete process.env.GOOGLE_SA_KEY;
+		process.exit = (code) => {
+			exitCalledWith = code;
+		};
+
+		try {
+			await expect(main()).resolves.toBeUndefined();
+		} finally {
+			process.argv = originalArgv;
+			if (originalKey === undefined) delete process.env.GOOGLE_SA_KEY;
+			else process.env.GOOGLE_SA_KEY = originalKey;
+			process.exit = originalExit;
+		}
+
+		expect(exitCalledWith).toBeUndefined();
 	});
 });

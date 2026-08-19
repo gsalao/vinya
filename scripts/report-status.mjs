@@ -17,7 +17,11 @@ export function formatStatusLine(text, date = new Date()) {
 	return `${stamp} — ${text}`;
 }
 
-async function main() {
+// Exported (rather than left private) so the try/catch below — "a failed
+// status write must never fail the workflow", the single most-repeated
+// requirement across these briefs — has a direct regression test instead of
+// only being correct by inspection.
+export async function main() {
 	const text = process.argv[2];
 	if (!text) {
 		console.error('usage: report-status.mjs "<text>"');

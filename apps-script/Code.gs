@@ -53,7 +53,9 @@ function firePublish() {
 
   var token = PropertiesService.getScriptProperties().getProperty('GH_TOKEN');
   if (!token) {
-    setStatus('Not published: GH_TOKEN is missing from Script Properties. Ask the developer.');
+    // Owner-facing: no mention of GitHub, tokens or Script Properties — none of
+    // those are things she can act on. Route her straight to the developer.
+    setStatus('Not published: the site\'s publishing connection is not set up. Your change was saved, but the website has not been updated. This is not something you can fix — contact your developer.');
     return;
   }
 
@@ -69,7 +71,9 @@ function firePublish() {
   if (code !== 204) {
     // 401 means the token expired, which will happen once a year and is otherwise
     // completely invisible: the owner edits, nothing happens, and nobody knows why.
-    setStatus('Not published: GitHub refused the request (' + code + '). Ask the developer to check the token.');
+    // Owner-facing message: no mention of GitHub. The code is kept because it is
+    // useless to her but valuable to whoever she calls.
+    setStatus('Not published: the system that publishes your change could not be reached (error ' + code + '). Your change was saved, but the website has not been updated. This is not something you can fix — contact your developer.');
   }
 }
 

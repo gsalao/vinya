@@ -1,6 +1,6 @@
 import { KEYS } from '../../src/lib/copy-manifest.js';
 
-// Every price id the code has a Tikkie target for. A spreadsheet row for a pass
+// Every price id the code has a Tikkie target for. A row for a pass
 // with no way to pay for it must fail here rather than render. Exported so
 // schema.test.js can pin this list against data.js's exported payIds, the
 // same way it pins STANDALONE_BOOK_OPTIONS below against
@@ -19,12 +19,12 @@ export const STANDALONE_BOOK_OPTIONS = ['1:1 Holistic session', 'Beginners cours
 const MONTH = /^(January|February|March|April|May|June|July|August|September|October|November|December) \d{4}$/;
 const URL_LIKE = /https?:\/\//i;
 const KEBAB = /^[a-z0-9]+(-[a-z0-9]+)*$/;
-// Catches a date Sheets has silently reformatted into a machine form, e.g.
+// Catches a date typed in a machine form rather than the readable one, e.g.
 // typing "26 Jul" and having the cell turn into "7/26/2026" or "2026-07-26" —
 // pastEvents.date is the most date-shaped column in the whole schema and has
 // no dedicated cell-format instruction the owner can be reminded of otherwise.
 const MACHINE_DATE = /\d{1,4}[-/]\d{1,2}[-/]\d{1,4}/;
-// Catches a time Sheets has silently reformatted into a machine form, e.g.
+// Catches a time typed in a machine form rather than the readable one, e.g.
 // typing "10:30" and having the cell turn into "10:30:00" — the same failure
 // mode as MACHINE_DATE above, just for timetable.time, which readTabs()
 // reads back as FORMATTED_VALUE the same way it does every other column.
@@ -93,12 +93,12 @@ export function validate(tabs) {
 	for (const [tab, columns] of Object.entries(REQUIRED)) {
 		const rows = tabs[tab];
 		if (!Array.isArray(rows)) {
-			fail(tab, null, `the "${tab}" tab is missing from the spreadsheet.`);
+			fail(tab, null, `the "${tab}" section is missing.`);
 			continue;
 		}
 		if (rows.length === 0) {
 			if (OPTIONAL_WHEN_EMPTY.has(tab)) continue;
-			fail(tab, null, `the "${tab}" tab has no rows. The site needs at least one.`);
+			fail(tab, null, `the "${tab}" section has no rows. The site needs at least one.`);
 			continue;
 		}
 		for (const row of rows) {
@@ -131,21 +131,21 @@ export function validate(tabs) {
 		}
 	}
 
-	// --- timetable references a real class, and its time is plain text ---
+	// --- timetable references a real class, and its time is readable ---
 	const classNames = new Set(tabs.classes.map((c) => c.name));
 	for (const t of tabs.timetable) {
 		if (!classNames.has(t.class)) {
 			fail('timetable', t.__row, `class "${t.class}" is not on the classes tab, so this session would show no venue.`);
 		}
 		if (!CLOCK.test(t.time)) {
-			fail('timetable', t.__row, `time reads "${t.time}" but must read like "10:30". A time-formatted cell will not work — set the cell format to plain text.`);
+			fail('timetable', t.__row, `time reads "${t.time}" but must read like "10:30". Type it exactly like that, hours and minutes only.`);
 		}
 	}
 
 	// --- events month format ---
 	for (const e of tabs.events) {
 		if (!MONTH.test(e.month)) {
-			fail('events', e.__row, `month reads "${e.month}" but must read like "September 2026". A date-formatted cell will not work — set the cell format to plain text.`);
+			fail('events', e.__row, `month reads "${e.month}" but must read like "September 2026". Type it exactly like that, with the month spelled out.`);
 		}
 		if (!/^\d{2}$/.test(e.day)) {
 			fail('events', e.__row, `day reads "${e.day}" but must be two digits, like "08".`);
@@ -155,7 +155,7 @@ export function validate(tabs) {
 	// --- pastEvents date format ---
 	for (const p of tabs.pastEvents) {
 		if (MACHINE_DATE.test(p.date)) {
-			fail('pastEvents', p.__row, `date reads "${p.date}" but must read like "26 Jul". A date-formatted cell will not work — set the cell format to plain text.`);
+			fail('pastEvents', p.__row, `date reads "${p.date}" but must read like "26 Jul". Type it exactly like that, with the month spelled out.`);
 		}
 	}
 

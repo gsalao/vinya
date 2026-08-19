@@ -112,7 +112,7 @@ jobs:
           fi
           echo "All required secrets are present."
 
-      - name: Sync content from the spreadsheet
+      - name: Sync content from the editor
         id: sync
         if: github.event_name == 'repository_dispatch'
         env:
@@ -167,7 +167,7 @@ jobs:
           # already does not trigger further workflow runs, which is the guard that
           # stops this deploying itself in a loop. The marker documents the intent
           # for anyone reading the history.
-          git commit -m "content: update from the spreadsheet [skip ci]"
+          git commit -m "content: update from the editor [skip ci]"
 
           # Rebase rather than merge: content runs are serialised by the concurrency
           # group, but a code push can still land between checkout and here.
@@ -236,7 +236,7 @@ jobs:
         run: node scripts/report-status.mjs "Nothing to publish — the site already matches the sheet."
 
       # Catch-all for everything the two reporters above cannot see. Both of them
-      # sit right after "Sync content from the spreadsheet" and their `failure()`
+      # sit right after "Sync content from the editor" and their `failure()`
       # checks are evaluated at that point in the sequence, so they only ever
       # fire for a sync failure (or something that failed even earlier, before
       # sync ran). If the sync succeeds and something later fails instead — a

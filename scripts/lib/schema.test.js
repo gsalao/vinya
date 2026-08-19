@@ -88,16 +88,16 @@ describe('validate', () => {
 	// Seeding writes "10:30" as literal text (RAW), so a freshly seeded sheet is
 	// safe — but nothing stops the cell format from staying Automatic, and the
 	// first time the owner retypes a time (moving a class from 10:30 to 11:00,
-	// an entirely ordinary edit) Sheets silently turns it into a time value.
+	// an entirely ordinary edit) a machine time form can creep in.
 	// readTabs() reads FORMATTED_VALUE, so "11:00:00" comes back and would
 	// otherwise pass every other rule clean.
-	it('rejects a timetable time that Sheets would silently reformat as a time', async () => {
+	it('rejects a timetable time that a machine time form is rejected', async () => {
 		const tabs = await withCopy(ok());
 		tabs.timetable[0].time = '11:00:00';
 		const errors = validate(tabs);
 		expect(errors[0].tab).toBe('timetable');
 		expect(errors[0].message).toContain('10:30');
-		expect(errors[0].message).toContain('plain text');
+		expect(errors[0].message).toContain('exactly like that');
 	});
 
 	it('accepts a single-digit-hour timetable time', async () => {
@@ -322,20 +322,20 @@ describe('validate', () => {
 
 	// pastEvents is the most date-shaped column in the schema (real values:
 	// "26 Jul", "12 Jul", "14 Jun") but has no format rule, unlike events.month.
-	// Typing a real date into the cell lets Sheets silently reformat it into a
+	// Typing a real date rather than the readable form produces a
 	// machine date, which then renders on the live site with no error anywhere.
-	it('rejects a pastEvents date that Sheets would silently reformat as a date', async () => {
+	it('rejects a pastEvents date that a machine date form is rejected', async () => {
 		const tabs = await withCopy(ok());
 		tabs.pastEvents[0].date = '2026-07-26';
 		const errors = validate(tabs);
 		expect(errors[0].tab).toBe('pastEvents');
-		expect(errors[0].message).toContain('plain text');
+		expect(errors[0].message).toContain('exactly like that');
 	});
 
 	it('rejects a pastEvents date in the other common machine order too', async () => {
 		const tabs = await withCopy(ok());
 		tabs.pastEvents[0].date = '7/26/2026';
-		expect(messages(validate(tabs))).toContain('plain text');
+		expect(messages(validate(tabs))).toContain('exactly like that');
 	});
 
 	// Every failure at once, so the owner fixes them in one pass rather than

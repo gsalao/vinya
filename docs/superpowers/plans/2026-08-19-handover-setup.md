@@ -49,14 +49,15 @@ and the Apps Script debounce.
    Twelve of them. If you get one wrong, the seed script says so and writes
    nothing, rather than filling some tabs and stopping halfway.
 
-3. Add a twelfth tab named `Status`, with `Last publish` in cell `A2`. Leave
+3. Add one more tab named `Status`, with `Last publish` in cell `A2`. Leave
    `B2` empty.
 4. Share the spreadsheet with the service-account email from step 1, as
    **Editor**.
 5. Copy the spreadsheet id out of its URL — the segment between `/d/` and
    `/edit`.
 
-**Worked when:** twelve tabs exist and the service account appears in Share.
+**Worked when:** thirteen tabs exist — the twelve content tabs plus `Status` —
+and the service account appears in Share.
 
 ---
 

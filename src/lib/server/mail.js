@@ -36,6 +36,24 @@ export function ownerRecipients() {
 	return mailConfig().to;
 }
 
+/** Recipients the owner controls, read at request time so changing who receives
+ *  booking enquiries needs neither a deploy nor a developer. Falls back to the
+ *  environment when the setting is blank or the store is unreachable — a booking
+ *  must never be lost because a settings lookup failed. */
+export async function ownerRecipientsLive(readSettings) {
+	try {
+		const settings = await readSettings();
+		const list = String(settings.mail_to ?? '')
+			.split(/[,\s]+/)
+			.map((x) => x.trim())
+			.filter(Boolean);
+		if (list.length > 0) return list;
+	} catch {
+		// fall through to the environment
+	}
+	return ownerRecipients();
+}
+
 let transport;
 function getTransport() {
 	if (!transport) {

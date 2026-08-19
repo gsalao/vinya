@@ -43,7 +43,9 @@
     "classes.timetable.eyebrow": "Weekly rhythm",
     "classes.timetable.hint": "Tap a session to book",
     "classes.timetable.title": "The timetable",
+    "events.archive.hide": "Hide",
     "events.archive.label": "Past gatherings",
+    "events.archive.show": "Show",
     "events.hero.body": "Workshops, full-moon flows, sound baths and the occasional day retreat. Each one is its own thing, with its own place and price.",
     "events.hero.eyebrow": "Events",
     "events.hero.title": "Gatherings, month by month.",
@@ -195,6 +197,23 @@
           "rem": "8 places"
         }
       ]
+    }
+  ],
+  "pastEvents": [
+    {
+      "dt": "26 Jul",
+      "nm": "Breathwork Circle",
+      "st": "Full"
+    },
+    {
+      "dt": "12 Jul",
+      "nm": "Solstice Slow Flow",
+      "st": "Full"
+    },
+    {
+      "dt": "14 Jun",
+      "nm": "Bloom Series I · three evenings",
+      "st": "Ran twice"
     }
   ],
   "offerings": [

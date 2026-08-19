@@ -35,6 +35,7 @@ export const REQUIRED = {
 	classes: ['name', 'tone', 'meta', 'blurb', 'provider'],
 	timetable: ['day', 'time', 'class', 'duration'],
 	events: ['month', 'day', 'weekday', 'name', 'detail', 'blurb'],
+	pastEvents: ['date', 'name', 'status'],
 	offerings: ['category', 'name', 'note'],
 	faqs: ['question', 'answer'],
 	teachers: ['slug', 'name', 'role', 'intro', 'highlights', 'photo', 'alt', 'fx', 'fy', 'ctaLabel', 'ctaOption'],
@@ -43,6 +44,14 @@ export const REQUIRED = {
 	testimonials: ['quote', 'who'],
 	copy: ['key', 'text']
 };
+
+// Every other tab fails the build when it has no rows: a site with no classes,
+// or no prices, is not a site. A studio that has not yet held a past event is
+// a normal, temporary state rather than a broken one, so pastEvents is the one
+// tab allowed to be empty. The events page hides the whole "Past gatherings"
+// toggle when there is nothing to show it for, rather than rendering an empty
+// accordion — see src/routes/events/+page.svelte.
+const OPTIONAL_WHEN_EMPTY = new Set(['pastEvents']);
 
 export function validate(tabs) {
 	const errors = [];
@@ -56,6 +65,7 @@ export function validate(tabs) {
 			continue;
 		}
 		if (rows.length === 0) {
+			if (OPTIONAL_WHEN_EMPTY.has(tab)) continue;
 			fail(tab, null, `the "${tab}" tab has no rows. The site needs at least one.`);
 			continue;
 		}

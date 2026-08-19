@@ -7,6 +7,7 @@ export const timetable = content.timetable;
 export const offerings = content.offerings;
 export const faqs = content.faqs;
 export const testimonials = content.testimonials;
+export const pastEvents = content.pastEvents;
 
 export const partners = content.partners;
 

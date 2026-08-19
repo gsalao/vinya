@@ -49,6 +49,11 @@ export function shape(tabs) {
 		items: rows.map((r) => ({ d: r.day, w: r.weekday, name: r.name, det: r.detail, p: r.blurb, rem: r.remaining }))
 	}));
 
+	// pastEvents has no grouping and no per-row identity column — flat rows in,
+	// flat objects out, in sheet order, same as events.remaining being carried
+	// straight through.
+	const pastEvents = tabs.pastEvents.map((e) => ({ dt: e.date, nm: e.name, st: e.status }));
+
 	const offerings = [...groupBy(tabs.offerings, 'category')].map(([cat, rows]) => ({
 		cat,
 		items: rows.map((r) => ({ name: r.name, note: r.note }))
@@ -60,6 +65,7 @@ export function shape(tabs) {
 		classes: tabs.classes.map((c) => ({ name: c.name, tone: c.tone, meta: c.meta, blurb: c.blurb, provider: c.provider })),
 		timetable,
 		events,
+		pastEvents,
 		offerings,
 		faqs: tabs.faqs.map((f) => ({ q: f.question, a: f.answer })),
 		teachers: tabs.teachers.map((t) => ({

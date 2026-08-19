@@ -419,8 +419,9 @@ body.menu-open .mobile-menu{opacity:1;visibility:visible;transform:none}
 .archive-toggle .lbl{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-muted)}
 .archive-toggle .line{flex:1;height:1px;background:var(--border-subtle)}
 .archive-toggle .a{font-size:var(--text-sm);color:var(--rust-500)}
-.archive{overflow:hidden;max-height:0;transition:max-height .4s var(--ease);opacity:.8}
-.archive.open{max-height:400px}
+.archive{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s var(--ease);opacity:.8}
+.archive.open{grid-template-rows:1fr}
+.archive-inner{overflow:hidden;min-height:0}
 .arch-row{display:grid;grid-template-columns:120px 1fr auto;gap:36px;align-items:center;padding:20px 0;border-bottom:1px solid var(--border-subtle)}
 .arch-row .dt{font-size:var(--text-sm);color:var(--text-muted);letter-spacing:.06em}
 .arch-row .nm{font-family:var(--font-display);font-size:var(--text-lg);color:var(--text-secondary)}

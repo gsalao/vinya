@@ -51,6 +51,13 @@ export function flatten(content) {
 		}))
 	);
 
+	// pastEvents: shape() neither groups nor sorts it, so the reverse is a
+	// straight column rename back to the sheet's friendlier names — the same
+	// relationship prices has between lbl/amt and label/amount.
+	const pastEvents = content.pastEvents.map((e) => ({
+		date: e.dt, name: e.nm, status: e.st, __row: nextRow()
+	}));
+
 	// offerings: shape() groups by category. Reversing means one row per item,
 	// carrying its group's category.
 	const offerings = content.offerings.flatMap((group) =>
@@ -92,5 +99,5 @@ export function flatten(content) {
 
 	const testimonials = content.testimonials.map((t) => ({ quote: t.quote, who: t.who, __row: nextRow() }));
 
-	return { copy, providers, classes, timetable, events, offerings, faqs, teachers, partners, prices, testimonials };
+	return { copy, providers, classes, timetable, events, pastEvents, offerings, faqs, teachers, partners, prices, testimonials };
 }

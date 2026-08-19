@@ -6,7 +6,7 @@ import { validate } from './lib/schema.mjs';
 import { shape } from './lib/shape.mjs';
 
 const TABS = [
-	'copy', 'providers', 'classes', 'timetable', 'events',
+	'copy', 'providers', 'classes', 'timetable', 'events', 'pastEvents',
 	'offerings', 'faqs', 'teachers', 'partners', 'prices', 'testimonials'
 ];
 

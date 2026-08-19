@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { events, eventLabel, testimonials } from './data.js';
+import { events, eventLabel, testimonials, pastEvents } from './data.js';
 import content from './content.generated.json';
 import { classes, prices, providers, locationOf } from './data.js';
 
@@ -21,6 +21,12 @@ describe('testimonials', () => {
 	it('is content, not markup', () => {
 		expect(testimonials).toHaveLength(3);
 		expect(testimonials[0].who).toBe('Marieke · Slow Yoga Adjustment');
+	});
+});
+
+describe('pastEvents', () => {
+	it('is a plain pass-through of the generated content, same as testimonials', () => {
+		expect(pastEvents).toBe(content.pastEvents);
 	});
 });
 

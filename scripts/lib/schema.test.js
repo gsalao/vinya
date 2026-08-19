@@ -10,6 +10,7 @@ const ok = () => ({
 	classes: [{ name: 'Kundalini Yoga', tone: 'tan', meta: '60 min', blurb: 'Breath.', provider: 'truColours', __row: 2 }],
 	timetable: [{ day: 'Tuesday', time: '10:30', class: 'Kundalini Yoga', duration: '60 min', __row: 2 }],
 	events: [{ month: 'August 2026', day: '08', weekday: 'Sat', name: 'Full Moon', detail: '19:00', blurb: 'Slow flow.', remaining: '6 places left', __row: 2 }],
+	pastEvents: [{ date: '26 Jul', name: 'Breathwork Circle', status: 'Full', __row: 2 }],
 	offerings: [{ category: 'Weekly', name: 'Multi-Style Yoga Classes', note: 'A mix.', __row: 2 }],
 	faqs: [{ question: 'Really okay?', answer: 'Yes.', __row: 2 }],
 	teachers: [{ slug: 'nikita-coppens', name: 'Nikita Coppens', role: 'Teacher', intro: 'Long way round.', highlights: 'One\nTwo', photo: '/images/nikita-standing-2200.jpg', alt: 'Nikita', fx: '50', fy: '20', ctaLabel: 'Book a 1:1', ctaOption: '1:1 Holistic session', __row: 2 }],
@@ -210,6 +211,24 @@ describe('validate', () => {
 		const tabs = await withCopy(ok());
 		tabs.classes = [];
 		expect(messages(validate(tabs))).toContain('no rows');
+	});
+
+	// A studio that has not yet held a past event is a normal, temporary state,
+	// not a broken one — unlike every other tab, pastEvents is allowed to have
+	// no rows. The events page hides the "Past gatherings" toggle entirely
+	// rather than rendering an empty accordion; see events/+page.svelte.
+	it('accepts an empty pastEvents tab, unlike every other tab', async () => {
+		const tabs = await withCopy(ok());
+		tabs.pastEvents = [];
+		expect(validate(tabs)).toEqual([]);
+	});
+
+	// The exemption above is for zero rows only — a pastEvents row that does
+	// exist still has to be complete, the same as any other tab's row.
+	it('still rejects a blank cell on a pastEvents row that does exist', async () => {
+		const tabs = await withCopy(ok());
+		tabs.pastEvents[0].status = '';
+		expect(messages(validate(tabs))).toContain('status');
 	});
 
 	// Every failure at once, so the owner fixes them in one pass rather than

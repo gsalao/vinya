@@ -17,6 +17,10 @@ const tabs = {
 		{ month: 'August 2026', day: '08', weekday: 'Sat', name: 'Full Moon', detail: '19:00', blurb: 'Slow.', remaining: '6 left', __row: 2 },
 		{ month: 'August 2026', day: '23', weekday: 'Sun', name: 'Bloom Slowly', detail: '10:00', blurb: 'Three hours.', remaining: '10 places', __row: 3 }
 	],
+	pastEvents: [
+		{ date: '26 Jul', name: 'Breathwork Circle', status: 'Full', __row: 2 },
+		{ date: '12 Jul', name: 'Solstice Slow Flow', status: 'Full', __row: 3 }
+	],
 	offerings: [
 		{ category: 'Weekly', name: 'Multi-Style', note: 'A mix.', __row: 2 },
 		{ category: 'Private', name: '1:1 Sessions', note: 'One on one.', __row: 3 }
@@ -63,6 +67,15 @@ describe('shape', () => {
 		expect(august.items).toEqual([
 			{ d: '08', w: 'Sat', name: 'Full Moon', det: '19:00', p: 'Slow.', rem: '6 left' },
 			{ d: '23', w: 'Sun', name: 'Bloom Slowly', det: '10:00', p: 'Three hours.', rem: '10 places' }
+		]);
+	});
+
+	// pastEvents is not grouped and not sorted: it's a flat list, rendered in
+	// exactly the order the owner put the rows in.
+	it('maps pastEvents columns to the keys the markup uses, preserving sheet order', () => {
+		expect(shape(tabs).pastEvents).toEqual([
+			{ dt: '26 Jul', nm: 'Breathwork Circle', st: 'Full' },
+			{ dt: '12 Jul', nm: 'Solstice Slow Flow', st: 'Full' }
 		]);
 	});
 

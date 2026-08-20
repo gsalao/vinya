@@ -175,6 +175,10 @@
     "truColours": {
       "name": "Tru Colours",
       "address": "Geschutswerf 12-14, 1018 BX Amsterdam"
+    },
+    "villaCecilia": {
+      "name": "Villa Cecilia",
+      "address": "Villa Cecilia Subdivision"
     }
   },
   "classes": [
@@ -375,6 +379,27 @@
       },
       "cta": {
         "label": "Book a 1:1 with Nikita",
+        "option": "1:1 Holistic session"
+      }
+    },
+    {
+      "slug": "gerard-salao",
+      "name": "Gerard Salao",
+      "role": "Web Designer",
+      "intro": "Him.",
+      "highlights": [
+        "Originally the GOAT"
+      ],
+      "photo": {
+        "src": "https://hggzymrkzzcnxpemxija.supabase.co/storage/v1/object/public/site-images/teachers-2-ume1et-2200.jpg",
+        "srcset": "https://hggzymrkzzcnxpemxija.supabase.co/storage/v1/object/public/site-images/teachers-2-ume1et-1400.jpg 1400w, https://hggzymrkzzcnxpemxija.supabase.co/storage/v1/object/public/site-images/teachers-2-ume1et-2200.jpg 2200w",
+        "srcsetWebp": "https://hggzymrkzzcnxpemxija.supabase.co/storage/v1/object/public/site-images/teachers-2-ume1et-1400.webp 1400w, https://hggzymrkzzcnxpemxija.supabase.co/storage/v1/object/public/site-images/teachers-2-ume1et-2200.webp 2200w",
+        "alt": "G Train",
+        "fx": 51,
+        "fy": 50
+      },
+      "cta": {
+        "label": "Him.",
         "option": "1:1 Holistic session"
       }
     }

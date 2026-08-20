@@ -17,6 +17,21 @@ pull request gets its own throwaway preview URL. See
 
 ---
 
+## Documentation
+
+| Read this | When |
+| --------- | ---- |
+| [docs/architecture.md](docs/architecture.md) | Start here. How content reaches the site |
+| [docs/runbook.md](docs/runbook.md) | Something is wrong, or you are adding a section |
+| [docs/owner-guide.md](docs/owner-guide.md) | Written for the studio owner, not for developers |
+| [docs/handover.md](docs/handover.md) | Passing the site to the studio or another developer |
+| [docs/credentials.md](docs/credentials.md) | Every secret, where it lives, when to rotate |
+| [docs/adr/0001-cms-not-google-sheets.md](docs/adr/0001-cms-not-google-sheets.md) | Why it is built this way, and what was tried first |
+
+The owner edits the site at `/admin`. Saving writes to Supabase and triggers a
+rebuild; visitors are served static files, so a failed publish never degrades the
+live site.
+
 ## Run it locally
 
 Requires Node 22 and [pnpm](https://pnpm.io).

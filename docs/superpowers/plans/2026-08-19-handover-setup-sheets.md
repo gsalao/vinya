@@ -1,5 +1,10 @@
 # Handover — what is set up, and what is left
 
+> **Historical.** Google Sheets was never used in production — creating a
+> Google Cloud project on this account proved impossible. See
+> `docs/adr/0001-cms-not-google-sheets.md`. This document is replaced by `docs/handover.md`.
+> Kept for the reasoning it records; do not follow its steps.
+
 Everything in this document is **done**. It is kept as a record of where things
 live and what to check if something stops working.
 

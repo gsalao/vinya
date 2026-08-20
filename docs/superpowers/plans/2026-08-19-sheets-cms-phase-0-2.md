@@ -1,5 +1,10 @@
 # Spreadsheet Content System — Phases 0-2 Implementation Plan
 
+> **Historical.** Google Sheets was never used in production — creating a
+> Google Cloud project on this account proved impossible. See
+> `docs/adr/0001-cms-not-google-sheets.md`. This document is the pipeline it built is still in use; only its Google Sheets source was replaced.
+> Kept for the reasoning it records; do not follow its steps.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Make every editorial string on the site editable from a Google Sheet, with validated auto-publishing thirty seconds after the owner stops typing, and visible success/failure state in the sheet itself.

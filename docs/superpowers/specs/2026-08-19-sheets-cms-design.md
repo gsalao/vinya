@@ -1,5 +1,10 @@
 # The spreadsheet as the site's content system
 
+> **Historical.** Google Sheets was never used in production — creating a
+> Google Cloud project on this account proved impossible. See
+> `docs/adr/0001-cms-not-google-sheets.md`. This document is superseded by `2026-08-20-vinya-cms-design.md`.
+> Kept for the reasoning it records; do not follow its steps.
+
 **Date:** 2026-08-19
 **Status:** designed, awaiting review
 **Supersedes:** `2026-08-18-sheets-cms-design.md`, which scoped `data.js` only and

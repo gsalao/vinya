@@ -169,6 +169,14 @@
       "alt": "An evening kirtan in the hall, musicians on the low stage under warm lights",
       "fx": 50,
       "fy": 52
+    },
+    {
+      "src": "https://hggzymrkzzcnxpemxija.supabase.co/storage/v1/object/public/site-images/gallery-4-znifqm-2200.jpg",
+      "srcset": "https://hggzymrkzzcnxpemxija.supabase.co/storage/v1/object/public/site-images/gallery-4-znifqm-1400.jpg 1400w, https://hggzymrkzzcnxpemxija.supabase.co/storage/v1/object/public/site-images/gallery-4-znifqm-2200.jpg 2200w",
+      "srcsetWebp": "https://hggzymrkzzcnxpemxija.supabase.co/storage/v1/object/public/site-images/gallery-4-znifqm-1400.webp 1400w, https://hggzymrkzzcnxpemxija.supabase.co/storage/v1/object/public/site-images/gallery-4-znifqm-2200.webp 2200w",
+      "alt": "Nikita opener",
+      "fx": 50,
+      "fy": 78
     }
   ],
   "providers": {

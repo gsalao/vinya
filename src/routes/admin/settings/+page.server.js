@@ -1,12 +1,17 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { readSettings, writeSetting, admin } from '$lib/server/admin-db.js';
+import { readSettings, writeSetting, admin, adminEmails, passwordIsCorrect } from '$lib/server/admin-db.js';
 import { isEmail } from '$lib/server/validate.js';
 import { sendMail, mailReady } from '$lib/server/mail.js';
+import { canAdd, canRemove } from '$lib/admin/access.js';
 
 const list = (s) => String(s ?? '').split(/[,\s]+/).map((x) => x.trim()).filter(Boolean);
 
-export async function load() {
-	return { settings: await readSettings() };
+export async function load({ locals }) {
+	return {
+		settings: await readSettings(),
+		people: await adminEmails(),
+		me: locals.user?.email?.toLowerCase() ?? ''
+	};
 }
 
 export const actions = {
@@ -62,6 +67,81 @@ export const actions = {
 		const { error } = await locals.supabase.auth.updateUser({ password: next });
 		if (error) return fail(400, { error: error.message });
 		return { saved: 'password' };
+	},
+
+	addPerson: async ({ request, locals }) => {
+		const form = await request.formData();
+		const email = String(form.get('email') ?? '').trim().toLowerCase();
+		const theirPassword = String(form.get('theirPassword') ?? '');
+		const myPassword = String(form.get('myPassword') ?? '');
+		const me = locals.user?.email?.toLowerCase() ?? '';
+
+		if (!isEmail(email)) return fail(400, { error: 'That does not look like an email address.', form: 'people' });
+		if (theirPassword.length < 12) return fail(400, { error: 'Give them at least 12 characters to start with.', form: 'people' });
+		if (!(await passwordIsCorrect(me, myPassword))) {
+			return fail(401, { error: 'That is not your password.', form: 'people' });
+		}
+
+		const people = await adminEmails();
+		const allowed = canAdd(people, email);
+		if (!allowed.ok) {
+			return fail(400, {
+				error: allowed.reason === 'already-listed' ? `${email} can already sign in.` : 'Enter an email address.',
+				form: 'people'
+			});
+		}
+
+		const db = admin();
+		if (!db) return fail(503, { error: 'Not connected to the content store.', form: 'people' });
+
+		// The account is created confirmed: this is an invitation from someone who
+		// just proved they hold the password, not a public signup.
+		const { error } = await db.auth.admin.createUser({
+			email,
+			password: theirPassword,
+			email_confirm: true
+		});
+		// An account may already exist without being allowed in — adding to the
+		// list is still the right outcome, so this is not an error.
+		if (error && !/already/i.test(error.message)) {
+			return fail(502, { error: `Could not create that account: ${error.message}`, form: 'people' });
+		}
+
+		await writeSetting('admin_emails', [...people, email].join(','));
+		return { saved: 'people', added: email };
+	},
+
+	removePerson: async ({ request, locals }) => {
+		const form = await request.formData();
+		const email = String(form.get('email') ?? '').trim().toLowerCase();
+		const myPassword = String(form.get('myPassword') ?? '');
+		const me = locals.user?.email?.toLowerCase() ?? '';
+
+		if (!(await passwordIsCorrect(me, myPassword))) {
+			return fail(401, { error: 'That is not your password.', form: 'people' });
+		}
+
+		const people = await adminEmails();
+		const allowed = canRemove(people, email);
+		if (!allowed.ok) {
+			return fail(400, {
+				error:
+					allowed.reason === 'last-account'
+						? 'This is the only account that can sign in. Add someone else before removing it.'
+						: 'That person is not on the list.',
+				form: 'people'
+			});
+		}
+
+		await writeSetting('admin_emails', people.filter((p) => p !== email).join(','));
+
+		// Removing yourself is leaving: the session is no longer meaningful, so end
+		// it rather than leaving a signed-in page nobody can act from.
+		if (email === me) {
+			await locals.supabase?.auth.signOut();
+			throw redirect(303, '/admin/login');
+		}
+		return { saved: 'people', removed: email };
 	},
 
 	signout: async ({ locals }) => {

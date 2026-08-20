@@ -33,6 +33,30 @@ export async function writeSetting(key, value) {
 	if (error) throw new Error(error.message);
 }
 
+/** The people who may sign in, in the order they were added. */
+export async function adminEmails() {
+	const settings = await readSettings();
+	return String(settings.admin_emails ?? '')
+		.split(/[,\s]+/)
+		.map((s) => s.trim().toLowerCase())
+		.filter(Boolean);
+}
+
+/** Proves the person at the keyboard knows the password, not just that a session
+ *  is open. Without this, anyone who finds an unattended signed-in laptop could
+ *  mint themselves a permanent account.
+ *
+ *  Uses a throwaway client so checking the password cannot disturb the session
+ *  of whoever is currently signed in. */
+export async function passwordIsCorrect(email, password) {
+	const url = pub.PUBLIC_SUPABASE_URL;
+	const key = pub.PUBLIC_SUPABASE_ANON_KEY;
+	if (!url || !key || !email || !password) return false;
+	const probe = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+	const { error } = await probe.auth.signInWithPassword({ email, password });
+	return !error;
+}
+
 /** Only allow-listed addresses may sign in, so an account created elsewhere in
  *  the Supabase project cannot reach the admin. */
 export async function isAllowed(email) {

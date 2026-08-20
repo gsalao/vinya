@@ -22,7 +22,11 @@ import Footer from '$lib/components/Footer.svelte';
 const skeleton = (html) =>
 	html
 		.replace(/>[^<]+</g, (m) => (m.trim() === '><' ? m : '>·<'))
-		.replace(/(value|placeholder|alt|title|aria-label)="[^"]*"/g, '$1="·"');
+		// src, srcset and href are content too, now that she chooses the pictures
+		// and the partner links. Leaving them in meant the snapshot went stale
+		// every time she changed a photo — the same staleness stripping the text
+		// was meant to remove.
+		.replace(/(value|placeholder|alt|title|aria-label|src|srcset|href|sizes)="[^"]*"/g, '$1="·"');
 
 const pages = [
 	['home', Home],

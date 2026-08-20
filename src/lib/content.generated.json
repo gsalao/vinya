@@ -175,10 +175,6 @@
     "truColours": {
       "name": "Tru Colours",
       "address": "Geschutswerf 12-14, 1018 BX Amsterdam"
-    },
-    "villaCecilia": {
-      "name": "Villa Cecilia",
-      "address": "Villa Cecilia Subdivision"
     }
   },
   "classes": [

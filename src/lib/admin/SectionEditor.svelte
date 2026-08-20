@@ -81,6 +81,7 @@
 								<ImageField
 									{row}
 									{column}
+									index={i}
 									slot={row.key ? String(row.key) : `${section.tab}-${i + 1}`}
 									label={f.label}
 									help={f.help}

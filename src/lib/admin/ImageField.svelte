@@ -10,7 +10,7 @@
 	 *  point the site already uses, so she can fix that herself instead of asking
 	 *  a developer to edit numbers.
 	 */
-	let { row, column, slot, aspect = '4 / 5', help = '', crop = true, label = 'Photo' } = $props();
+	let { row, column, index, slot, aspect = '4 / 5', help = '', crop = true, label = 'Photo' } = $props();
 
 	let busy = $state(false);
 	let error = $state('');
@@ -129,7 +129,11 @@
 		{/if}
 	</div>
 
-	<input type="hidden" name={`${slot}.${column}`} value={row[column] ?? ''} />
+	<!-- Named by row position, because the save action reads columns positionally.
+	     `slot` names the file in storage and must not be used here: they held the
+	     same value once, and the moment they diverged every image save silently
+	     submitted an empty field. -->
+	<input type="hidden" name={`${index}.${column}`} value={row[column] ?? ''} />
 </div>
 
 <style>

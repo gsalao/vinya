@@ -266,11 +266,16 @@ body.menu-open .mobile-menu{opacity:1;visibility:visible;transform:none}
 /* Reduced motion kills the animation globally, which would leave the later logos
    parked off-screen, so the strip becomes scrollable by hand instead. */
 @media(prefers-reduced-motion:reduce){.partner-marquee{overflow-x:auto}}
-.partner-logo{position:relative;display:flex;align-items:center;justify-content:center;aspect-ratio:3/2;
+.partner-logo{position:relative;display:flex;align-items:center;justify-content:center;aspect-ratio:3/2;overflow:hidden;
   background:var(--surface-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);
   padding:28px;cursor:pointer;font-family:inherit;
   transition:box-shadow .2s var(--ease),transform .2s var(--ease),border-color .2s var(--ease)}
-.partner-logo img{max-width:100%;max-height:min(var(--logo-h,72px),100%);width:auto;height:auto;
+/* A plain length, not min(…, 100%): the percentage resolved against a card whose
+   height comes from aspect-ratio, which WebKit treats as indefinite — so the whole
+   min() was dropped, the logo rendered at natural size, and it forced its card wider
+   than the phone. Chromium honoured it, so this only ever showed on iPhone.
+   The card is at least 133px tall at every width, so the 100% guard never bound. */
+.partner-logo img{max-width:100%;max-height:var(--logo-h,72px);width:auto;height:auto;
   min-height:0;object-fit:contain;
   filter:grayscale(1);opacity:.72;transition:filter .2s var(--ease),opacity .2s var(--ease)}
 .partner-logo:hover,.partner-logo:focus-visible,.partner-logo.open{box-shadow:var(--shadow-card);border-color:var(--border-strong);transform:translateY(-2px)}

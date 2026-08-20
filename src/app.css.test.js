@@ -33,6 +33,19 @@ describe('app.css layout invariants', () => {
 		);
 	});
 
+	// A percentage inside min()/max() resolves against the containing block. When
+	// that block's height comes from aspect-ratio, WebKit treats the percentage as
+	// indefinite and drops the whole function — so the cap silently does nothing,
+	// the image renders at natural size, and it forces its card wider than the
+	// phone. Chromium applies it, which is why this only ever appeared on iPhone.
+	it('never caps a height with a percentage inside min() or max()', () => {
+		const offenders = rules(css)
+			.filter((r) => /max-height:\s*(min|max)\([^;}]*%/.test(r.body))
+			.map((r) => r.selector);
+
+		expect(offenders, 'these caps are ignored by WebKit inside an aspect-ratio box').toEqual([]);
+	});
+
 	// The same recomputation happens from the other direction: a fixed height plus a
 	// ratio derives the width, so a stretch container is not honoured.
 	it('never combines aspect-ratio with a fixed height without pinning the width', () => {

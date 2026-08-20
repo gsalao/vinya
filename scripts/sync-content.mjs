@@ -42,7 +42,17 @@ export function missingFiles(content) {
 		}
 	}
 	for (const p of content.partners) add(p.logo, 'partners');
+	// Only local paths can be checked here. An uploaded photo is a full URL into
+	// the storage bucket, which existsSync can never find — treating those as
+	// local files reported every upload as missing and refused the publish, so a
+	// working upload stopped the site updating at all.
+	//
+	// They are not checked another way on purpose: the upload endpoint only
+	// returns a URL after the file is stored, and a HEAD request per image would
+	// put a network call between the owner and her own publish, where a blip
+	// would look like a broken photo.
 	return [...tabOf]
+		.filter(([path]) => path.startsWith('/'))
 		.filter(([path]) => !existsSync(new URL(`.${path}`, STATIC + '/')))
 		.map(([path, tab]) => ({ path, tab }));
 }

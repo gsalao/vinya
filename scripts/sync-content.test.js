@@ -14,6 +14,29 @@ import { missingFiles } from './sync-content.mjs';
 const CONTENT_PATH = fileURLToPath(new URL('../src/lib/content.generated.json', import.meta.url));
 const content = JSON.parse(readFileSync(CONTENT_PATH, 'utf8'));
 
+describe('missingFiles and uploaded images', () => {
+	// Uploaded photos are full URLs into the storage bucket, not files in
+	// static/. existsSync can never find one, so checking them as local paths
+	// reported every uploaded image as missing and refused the whole publish —
+	// which is how a working upload silently stopped the site updating at all.
+	it('does not report an uploaded image as missing', () => {
+		const url = 'https://example.supabase.co/storage/v1/object/public/site-images/x-2200.jpg';
+		const content = {
+			teachers: [{ photo: { src: url, srcset: `${url} 2200w`, srcsetWebp: `${url} 2200w` } }],
+			partners: []
+		};
+		expect(missingFiles(content)).toEqual([]);
+	});
+
+	it('still reports a local file that is genuinely absent', () => {
+		const content = {
+			teachers: [{ photo: { src: '/images/nope.jpg', srcset: '/images/nope.jpg 2200w', srcsetWebp: '/images/nope.webp 2200w' } }],
+			partners: []
+		};
+		expect(missingFiles(content).length).toBeGreaterThan(0);
+	});
+});
+
 describe('missingFiles', () => {
 	it('reports nothing for the real content: every teacher photo and partner logo it references exists under static/', () => {
 		expect(missingFiles(content)).toEqual([]);

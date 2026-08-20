@@ -112,6 +112,21 @@
     "teachers.work.title": "Care first, always."
   },
   "images": {
+    "about.hero": {
+      "src": "/images/vinya-studio-b.jpeg",
+      "alt": "An evening kirtan in the hall, musicians on the low stage under warm lights",
+      "fx": 50,
+      "fy": 52,
+      "fyMobile": 60
+    },
+    "about.founder": {
+      "src": "/images/nikita-standing-2200.jpg",
+      "srcset": "/images/nikita-standing-1400.jpg 1400w, /images/nikita-standing-2200.jpg 2200w",
+      "srcsetWebp": "/images/nikita-standing-1400.webp 1400w, /images/nikita-standing-2200.webp 2200w",
+      "alt": "Nikita Coppens standing in natural light",
+      "fx": 50,
+      "fy": 20
+    },
     "home.hero": {
       "src": "/images/nikita-form-2200.jpg",
       "srcset": "/images/nikita-form-1400.jpg 1400w, /images/nikita-form-2200.jpg 2200w",
@@ -132,21 +147,6 @@
       "alt": "Nikita sounding a singing bowl over someone resting in savasana",
       "fx": 50,
       "fy": 45
-    },
-    "about.hero": {
-      "src": "/images/vinya-studio-b.jpeg",
-      "alt": "An evening kirtan in the hall, musicians on the low stage under warm lights",
-      "fx": 50,
-      "fy": 52,
-      "fyMobile": 60
-    },
-    "about.founder": {
-      "src": "/images/nikita-standing-2200.jpg",
-      "srcset": "/images/nikita-standing-1400.jpg 1400w, /images/nikita-standing-2200.jpg 2200w",
-      "srcsetWebp": "/images/nikita-standing-1400.webp 1400w, /images/nikita-standing-2200.webp 2200w",
-      "alt": "Nikita Coppens standing in natural light",
-      "fx": 50,
-      "fy": 20
     }
   },
   "gallery": [

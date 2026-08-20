@@ -52,7 +52,7 @@ image reference, make sure it is not checked as a local file.
 
 ```bash
 pnpm content:sync     # read the database, validate, rewrite the content file
-pnpm test             # 206 tests
+pnpm test             # 200 tests
 pnpm dev              # local site + admin at :5173
 ```
 

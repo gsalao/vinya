@@ -1,6 +1,7 @@
 import { error, fail } from '@sveltejs/kit';
 import { SECTIONS, COPY_PAGES, orderCopy } from '$lib/admin/fields.js';
-import { readAll, checkChange, writeTab, armPublish, columnsFor } from '$lib/server/content-store.js';
+import { readAll, checkChange, writeTab, columnsFor } from '$lib/server/content-store.js';
+import { triggerPublish } from '$lib/server/publish.js';
 
 export async function load({ params }) {
 	const pageKey = params.page;
@@ -56,7 +57,7 @@ export const actions = {
 		}
 
 		await writeTab(tab, merged);
-		await armPublish();
+		await triggerPublish();
 		return { saved: tab, count: rows.length };
 	},
 
@@ -77,7 +78,7 @@ export const actions = {
 		}
 
 		await writeTab('copy', next);
-		await armPublish();
+		await triggerPublish();
 		return { saved: 'copy', count: next.length };
 	}
 };

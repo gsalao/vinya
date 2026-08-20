@@ -36,10 +36,6 @@
 		};
 	});
 
-	let secondsLeft = $derived(
-		state?.publishAfter ? Math.max(0, Math.ceil((new Date(state.publishAfter).getTime() - now) / 1000)) : 0
-	);
-
 	let liveIsStale = $derived(
 		state?.status === 'live' && state?.updatedAt
 			? now - new Date(state.updatedAt).getTime() > 120_000
@@ -56,15 +52,12 @@
 				: state?.status === 'publishing'
 					? 'building'
 					: state?.status === 'pending'
-						? secondsLeft > 0
-							? 'waiting'
-							: 'starting'
+						? 'starting'
 						: 'idle'
 	);
 
 	const COPY = {
-		waiting: 'Saved. Publishing when you stop editing…',
-		starting: 'Starting to publish…',
+		starting: 'Saved. Starting to publish…',
 		building: 'Updating your site — about a minute…',
 		live: 'Your changes are live.',
 		failed: ''
@@ -72,7 +65,7 @@
 
 	// Rough, and deliberately so: a bar that claims 63% would be inventing
 	// precision it does not have. These are the three real stages.
-	const FILL = { waiting: 0.15, starting: 0.35, building: 0.7, live: 1, failed: 1 };
+	const FILL = { starting: 0.3, building: 0.7, live: 1, failed: 1 };
 	let fill = $derived((FILL[stage] ?? 0) * 100);
 	let tone = $derived(stage === 'failed' ? 'bad' : stage === 'live' ? 'good' : 'busy');
 </script>
@@ -85,8 +78,6 @@
 			<p>
 				{#if stage === 'failed'}
 					{state.message}
-				{:else if stage === 'waiting'}
-					Saved. Publishing in {secondsLeft}s — keep editing if you are not done.
 				{:else}
 					{COPY[stage]}
 				{/if}

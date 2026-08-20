@@ -3,7 +3,7 @@
 // both success and failure, so the owner sees the outcome where she is already
 // looking rather than in an inbox or a GitHub log she has never opened.
 import { pathToFileURL } from 'node:url';
-import { setPublishState } from './lib/db.mjs';
+import { setPublishState, isDirty } from './lib/db.mjs';
 
 /** Formats the publish banner's one line: an Amsterdam-local timestamp — that is
  *  where the person reading it is — followed by an em dash and the message.
@@ -36,11 +36,17 @@ export async function main() {
 		// argv[3] is the stage the banner shows — 'live', 'failed', or 'idle' when
 		// there was nothing to publish. argv[4] is the deployed URL, so "See it on
 		// the site" has somewhere to point.
-		await setPublishState({
-			status: process.argv[3] ?? 'idle',
-			message: line,
-			url: process.argv[4] ?? ''
-		});
+		// A save that arrived while this run was in flight set `dirty`, because
+		// firing a second deploy then would have raced this one. This run may have
+		// read the tables before that edit landed, so hand it back to the sweep
+		// rather than declaring the site up to date.
+		const owed = await isDirty();
+		await setPublishState(
+			owed
+				? { status: 'pending', message: line, url: process.argv[4] ?? '', dirty: false }
+				: { status: process.argv[3] ?? 'idle', message: line, url: process.argv[4] ?? '' }
+		);
+		if (owed) console.log('Another change arrived while publishing; it will go out next.');
 		console.log(`Status: ${line}`);
 	} catch (error) {
 		console.error(`::warning::Could not write the publish banner: ${error.message}`);

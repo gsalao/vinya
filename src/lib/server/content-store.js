@@ -57,20 +57,7 @@ export async function writeTab(tab, rows) {
 	if (error) throw new Error(error.message);
 }
 
-/** Arms the debounce. A save is immediate; publishing waits for quiet, so a run
- *  of edits produces one deploy rather than one per field. */
-export async function armPublish(seconds = 30) {
-	const db = admin();
-	if (!db) return;
-	await db
-		.from('publish_state')
-		.update({
-			status: 'pending',
-			message: 'Saved. Publishing shortly.',
-			publish_after: new Date(Date.now() + seconds * 1000).toISOString()
-		})
-		.eq('id', 1);
-}
+
 
 export async function readPublishState() {
 	const db = admin();

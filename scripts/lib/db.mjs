@@ -67,6 +67,18 @@ export async function writeTable(tab, rows) {
 	if (error) throw new Error(`Could not write "${tab}": ${error.message}`);
 }
 
+/** True when a save arrived while a publish was running. Read before reporting
+ *  a result, so an edit made mid-deploy is not silently dropped. */
+export async function isDirty() {
+	try {
+		const db = client();
+		const { data } = await db.from('publish_state').select('dirty').eq('id', 1).single();
+		return Boolean(data?.dirty);
+	} catch {
+		return false;
+	}
+}
+
 /** The admin's publish banner and the Action's result both land here. Never
  *  throws: a publish that succeeded but could not report itself still
  *  succeeded. */

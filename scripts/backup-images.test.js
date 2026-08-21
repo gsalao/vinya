@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest';
+import { mkdtempSync, mkdirSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { reconcile, buildManifest } from './backup-images.mjs';
-import { planRestore, contentTypeFor } from './restore-images.mjs';
+import { planRestore, contentTypeFor, findBackupDir } from './restore-images.mjs';
 
 const file = (name, size) => ({ name, metadata: { size } });
 
@@ -71,5 +74,33 @@ describe('contentTypeFor', () => {
 	// browser refuses to render.
 	it('falls back rather than guessing for an unknown extension', () => {
 		expect(contentTypeFor('notes.txt')).toBe('application/octet-stream');
+	});
+});
+
+describe('findBackupDir', () => {
+	// Two sibling directories on disk, so the ambiguity case has something real
+	// to scan; which of them "has images" is decided by the injected predicate.
+	const FIXTURE = mkdtempSync(join(tmpdir(), 'vinya-restore-'));
+	mkdirSync(join(FIXTURE, 'nested'), { recursive: true });
+	mkdirSync(join(FIXTURE, 'other'), { recursive: true });
+
+	// unzip -d recovered  =>  recovered/images
+	it('accepts a directory that holds images directly', () => {
+		expect(findBackupDir(FIXTURE, (p) => p === `${FIXTURE}/images`)).toBe(FIXTURE);
+	});
+
+	// gh run download -D recovered  =>  recovered/<artifact-name>/images
+	it('descends one level, which is where gh run download puts it', () => {
+		const has = (p) => p === `${FIXTURE}/nested/images`;
+		expect(findBackupDir(FIXTURE, has)).toBe(`${FIXTURE}/nested`);
+	});
+
+	// Picking one silently could restore the wrong month.
+	it('refuses to guess between two candidates', () => {
+		expect(findBackupDir(FIXTURE, (p) => p.endsWith('/images') && p !== `${FIXTURE}/images`)).toBe(null);
+	});
+
+	it('returns null when there is no backup anywhere', () => {
+		expect(findBackupDir(FIXTURE, () => false)).toBe(null);
 	});
 });

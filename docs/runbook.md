@@ -267,10 +267,18 @@ because artifacts on a public repository are public. The images already are.
 ### Restoring
 
 ```bash
+# either way of fetching it works — the script finds the images itself
 unzip vinya-images-123456.zip -d recovered
+gh run download <run-id> -D recovered
+
 node scripts/restore-images.mjs recovered            # dry run — shows the plan
 node scripts/restore-images.mjs recovered --apply    # actually uploads
 ```
+
+`unzip` and `gh run download` lay the archive out differently — the latter
+nests it under the artifact's name — so the script descends one level when it
+has to. It refuses if it finds two candidates, rather than restoring the wrong
+month silently.
 
 **The site needs no change and no redeploy.** Content stores each photo as a
 full URL ending in its filename, so re-uploading under the same names makes

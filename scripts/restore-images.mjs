@@ -29,6 +29,24 @@ const TYPES = {
 
 export const contentTypeFor = (name) => TYPES[name.slice(name.lastIndexOf('.')).toLowerCase()] ?? 'application/octet-stream';
 
+/** Finds the backup inside whatever the caller pointed at.
+ *
+ *  `unzip -d recovered` puts images at recovered/images, while
+ *  `gh run download -D recovered` nests one level deeper, under the artifact's
+ *  own name. Both are normal ways to get a backup, and making the operator
+ *  work out which they have — mid-recovery, when something is already wrong —
+ *  is a poor use of their attention. One level of descent covers both. */
+export function findBackupDir(dir, hasImages) {
+	if (hasImages(join(dir, 'images'))) return dir;
+	const nested = readdirSync(dir, { withFileTypes: true })
+		.filter((e) => e.isDirectory())
+		.map((e) => join(dir, e.name))
+		.filter((d) => hasImages(join(d, 'images')));
+	// Only when it is unambiguous. Two candidates means two backups, and picking
+	// one silently could restore the wrong month.
+	return nested.length === 1 ? nested[0] : null;
+}
+
 /** What a restore would change, decided before anything is written.
  *
  *  Split three ways because the three mean different things: `missing` is what
@@ -49,13 +67,20 @@ export function planRestore(backupFiles, storedFiles) {
 async function main() {
 	const args = process.argv.slice(2);
 	const apply = args.includes('--apply');
-	const dir = args.find((a) => !a.startsWith('--')) || 'backup';
-	const imageDir = join(dir, 'images');
+	const given = args.find((a) => !a.startsWith('--')) || 'backup';
 
-	if (!existsSync(imageDir)) {
-		console.error(`No images directory at ${imageDir}. Point this at an unpacked backup.`);
+	if (!existsSync(given)) {
+		console.error(`No such directory: ${given}`);
 		process.exit(1);
 	}
+
+	const dir = findBackupDir(given, (p) => existsSync(p) && statSync(p).isDirectory());
+	if (!dir) {
+		console.error(`No backup found in ${given}. Expected an "images" directory there or in exactly one subdirectory.`);
+		process.exit(1);
+	}
+	if (dir !== given) console.log(`Using the backup at ${dir}\n`);
+	const imageDir = join(dir, 'images');
 
 	const manifestPath = join(dir, 'manifest.json');
 	if (existsSync(manifestPath)) {

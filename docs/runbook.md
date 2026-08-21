@@ -220,11 +220,32 @@ again. `.github/workflows/health.yml` watches those, daily.
 | Failure ignored | `failed` for over 24 h — she was told and has not fixed it |
 | Storage filling | Over 80% of the limit; critical over 95% |
 
-**A failed run is the alert.** GitHub emails whoever watches the repository, so
-this needs no monitoring service and no new credential. Setting the `ALERT_TO`
-secret adds a direct mail on top. It is deliberately not `MAIL_TO`: that is
-where booking enquiries go, and nothing here is the owner's to act on — a
-technical alert she cannot use is how she learns to ignore mail from the site.
+### Who actually gets told
+
+Three separate channels, easily confused because two of them use mail:
+
+| Channel | Fires when | Goes to | Configured by |
+| --- | --- | --- | --- |
+| GitHub's own | any workflow run fails | a **person's** GitHub account | nothing — it is on by default |
+| `ALERT_TO` | the health check finds something | whatever address it holds | `ALERT_TO` secret, sent over `MAIL_*` |
+| Owner notice | her publish failed | `MAIL_TO` | `MAIL_*` secrets, sent by `notify-failure.mjs` |
+
+**The `MAIL_*` secrets are not what notifies GitHub.** They are SMTP credentials
+— the account the site sends *from*. GitHub's own failure mail has nothing to do
+with them and works without them.
+
+**The GitHub channel is bound to a person, not to the repository.** For a
+scheduled workflow, GitHub sends the failure notice to whoever last edited the
+cron schedule in the workflow file. So it follows a developer out of the door:
+once they stop reading that inbox, nobody is being told, and nothing about the
+repository looks wrong. `ALERT_TO` is the durable one, because it belongs to the
+repository and is changed by editing a secret rather than by committing.
+
+Set both. They fail differently.
+
+`ALERT_TO` is deliberately not `MAIL_TO`: that is where booking enquiries go,
+and nothing the health check finds is the owner's to act on — a technical alert
+she cannot use is how she learns to ignore mail from her own site.
 
 A fresh publish failure stays quiet on purpose. She already sees it in the
 editor and gets a mail; repeating it to the developer the same day is noise.

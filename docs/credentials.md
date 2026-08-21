@@ -15,6 +15,8 @@ Keep the values in a password manager.
 | `MAIL_HOST` `MAIL_PORT` `MAIL_USER` `MAIL_PASS` `MAIL_FROM` | SMTP for booking confirmations and failure notices | Vercel env, GitHub Actions secrets, `.env` | With the mailbox |
 | `MAIL_TO` `MAIL_CC` | Who receives booking requests. Editable by the owner in the admin Settings screen | Supabase `settings` table | n/a — owner-managed |
 | `OTP_SECRET` | Signs booking confirmation codes | Vercel env, `.env` | If exposed. Changing it invalidates codes in flight, which is harmless |
+| `ALERT_TO` | Where the daily health check mails its findings. A developer's address — never the owner's | GitHub Actions secret | On staff change |
+| `SITE_URL` | The public URL the health check tests. Use the real domain, not the vercel.app alias, so DNS and certificate failures are caught | GitHub Actions variable | Never (not secret) |
 | `VERCEL_TOKEN` `VERCEL_ORG_ID` `VERCEL_PROJECT_ID` | Deploys from CI | GitHub Actions secrets | With the Vercel account |
 | Supabase database password | Direct SQL access to Postgres | Password manager only | Not used day to day; keep it recoverable |
 

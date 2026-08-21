@@ -10,3 +10,7 @@ node_modules
 
 # local pre-launch audit / fix tracker, not for the repo
 AUDIT.md
+
+# Image backups, produced by scripts/backup-images.mjs. Photos deliberately
+# never enter the repository; the workflow keeps these as an artifact instead.
+backup/

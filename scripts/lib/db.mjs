@@ -14,7 +14,9 @@ export const toSnake = (s) => String(s).replace(/[A-Z]/g, (c) => `_${c.toLowerCa
  *  because schema.mjs scans every field of a prices row looking for URLs. */
 export const columnsFor = (tab) => [...REQUIRED[tab], ...(OPTIONAL_EXTRAS[tab] ?? [])];
 
-function client() {
+/** Exported so the health check, the backup and the restore all fail with the
+ *  same message naming the same settings page, rather than three variations. */
+export function client() {
 	const url = process.env.PUBLIC_SUPABASE_URL;
 	const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 	if (!url) throw new Error('PUBLIC_SUPABASE_URL is not set. Add it under Settings -> Secrets and variables -> Actions -> Variables.');

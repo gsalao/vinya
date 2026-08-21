@@ -43,7 +43,27 @@ code limits abuse; only a cap limits the invoice.
   is the uncapped vector: every site image is a public URL.
 - Point both alerts at an address the studio reads, not only yours.
 
-### 4. Move ownership of the accounts
+### 4. Switch the monitoring on
+
+It needs one repository variable to work at all:
+
+- Settings → Secrets and variables → Actions → **Variables** → `SITE_URL`, the
+  live URL.
+- Optional, same page → **Secrets** → `ALERT_TO`, a developer's address for a
+  direct mail. Without it, a failed run still emails whoever watches the repo,
+  which is the channel that needs no setup.
+- Do **not** point `ALERT_TO` at the studio owner. Nothing it reports is hers
+  to act on.
+
+Then Actions → Health check → Run workflow, and confirm it goes green.
+
+Tell whoever inherits this: **GitHub disables scheduled workflows after 60 days
+of repository inactivity.** Publishing content counts as activity, so a studio
+that edits its site keeps the monitoring alive by doing nothing special. A
+studio that goes quiet for two months gets an email asking to re-enable it, and
+until someone clicks, nothing is watching.
+
+### 5. Move ownership of the accounts
 
 The site depends on four accounts. Whoever owns them controls the site, and if
 they are all yours, the studio has a dependency on you forever.
@@ -59,13 +79,13 @@ The honest options are to transfer them to a studio-owned account, or to keep
 them and be explicit that you are the studio's hosting provider. Either is fine.
 Leaving it undecided is not — it is discovered at the worst moment.
 
-### 5. Give her an account in her own name
+### 6. Give her an account in her own name
 
 Settings → Who can sign in. Add her address, tell her the starting password
 yourself, and watch her change it. Then remove any account that was only ever
 yours for setup.
 
-### 6. Put something on the timetable that expires
+### 7. Put something on the timetable that expires
 
 `GH_DISPATCH_TOKEN` is a fine-grained PAT with a one-year expiry. When it lapses,
 publishing stops with no warning and the failure is invisible from her side —
@@ -153,13 +173,23 @@ any amount of reading achieves.
 
 ## What is not covered, and should be said plainly
 
-**Nobody is watching the site.** There is no uptime monitoring, no alerting, no
-error tracking. If it goes down at 3am, it is down until someone looks. That may
-be entirely fine for a yoga studio — but it should be a decision, not a surprise.
+**Monitoring is daily, not immediate.** The health check runs once a day and
+covers the site responding, publishing being unblocked, and storage filling. If
+the site goes down at 3am it is down until the next run, or until someone
+looks. For a yoga studio that is a reasonable trade — but it is a trade, and it
+should be a decision rather than a surprise. There is still no error tracking
+and no per-request alerting.
 
-**There are no backups beyond git.** Content is recoverable from history because
-every publish is a commit. Uploaded photos are not: deleting one deletes it. The
-Supabase project has whatever backups its plan includes and nothing more.
+**Photos are backed up monthly; nothing else is.** Content never needed it —
+every publish is a commit, so git history is the backup. Uploaded photos are
+copied by `.github/workflows/backup-images.yml` into a workflow artifact kept
+90 days, roughly three generations. Restoring is
+`node scripts/restore-images.mjs <dir> --apply`, and the site needs no change
+because its URLs contain the filenames. See `docs/runbook.md`.
+
+A backup does not help if storage fills up — that needs space, not a copy. The
+health check warns at 80% of the limit, and every backup prints which files
+nothing references, which are what to delete.
 
 **One person can lock everyone out.** Removing the last account is blocked, but
 someone with access can change the allow-list and the recipients. The previous

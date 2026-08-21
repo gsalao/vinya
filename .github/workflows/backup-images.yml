@@ -1,0 +1,51 @@
+name: Backup images
+
+# Content needs no backup: every publish is a commit, so git already holds every
+# word the site has shown. Uploaded photos are the gap — they deliberately never
+# enter the repository, so deleting one deletes it permanently.
+#
+# The result is kept as a workflow artifact: Actions -> this run -> Artifacts.
+# Restore with `node scripts/restore-images.mjs <unpacked-dir> --apply`.
+#
+# Artifacts on this repository are public, which is fine here and only here:
+# these images are already served from public URLs. Nothing else belongs in this
+# archive — in particular not the settings table, which holds the editors'
+# email addresses.
+on:
+  schedule:
+    - cron: '23 4 1 * *' # 04:23 UTC on the 1st of each month
+  workflow_dispatch:
+
+concurrency:
+  group: backup-images
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    name: Copy the image bucket
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Copy the bucket to disk
+        env:
+          PUBLIC_SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/backup-images.mjs backup
+
+      # Dated so a list of runs reads as a list of generations. Ninety days at a
+      # monthly cadence keeps roughly three; anything that must outlive that has
+      # to be downloaded and kept somewhere deliberate.
+      - name: Keep it
+        uses: actions/upload-artifact@v4
+        with:
+          name: vinya-images-${{ github.run_id }}
+          path: backup/
+          retention-days: 90
+          if-no-files-found: warn

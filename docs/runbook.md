@@ -52,8 +52,11 @@ image reference, make sure it is not checked as a local file.
 
 ```bash
 pnpm content:sync     # read the database, validate, rewrite the content file
-pnpm test             # 213 tests
+pnpm test             # 248 tests
 pnpm dev              # local site + admin at :5173
+pnpm health           # the daily checks, needs SITE_URL
+pnpm images:backup    # copy the image bucket into ./backup, list orphans
+pnpm images:restore   # dry run; add --apply to upload
 ```
 
 The sync is safe to run locally — it only writes `content.generated.json`, and
@@ -200,6 +203,113 @@ single non-technical owner with nobody to call, the lockout risk on a lost
 phone outweighed the credential-stuffing risk it would remove. Revisit if the
 studio ever runs more than one or two accounts, since a second admin is what
 makes recovery possible.
+
+## Monitoring and alerting
+
+Vercel shows traffic, function logs and speed. All real, none of it about this
+system. It cannot tell you that a publish was claimed and never released, that
+the sweep stopped firing, or that the image bucket is filling — failures that
+leave the site looking perfectly healthy while it quietly refuses to change
+again. `.github/workflows/health.yml` watches those, daily.
+
+| Check | Fires when |
+| --- | --- |
+| Site responds | Not 200, or 200 with a truncated page |
+| Publish stuck | `publishing` for over 30 min — **this blocks every later publish** |
+| Sweep stalled | `pending` for over 20 min (four missed sweeps) |
+| Failure ignored | `failed` for over 24 h — she was told and has not fixed it |
+| Storage filling | Over 80% of the limit; critical over 95% |
+
+**A failed run is the alert.** GitHub emails whoever watches the repository, so
+this needs no monitoring service and no new credential. Setting the `ALERT_TO`
+secret adds a direct mail on top. It is deliberately not `MAIL_TO`: that is
+where booking enquiries go, and nothing here is the owner's to act on — a
+technical alert she cannot use is how she learns to ignore mail from the site.
+
+A fresh publish failure stays quiet on purpose. She already sees it in the
+editor and gets a mail; repeating it to the developer the same day is noise.
+After a day it means she did not fix it and the site has been stale since,
+which is worth knowing.
+
+Run it by hand any time:
+
+```bash
+SITE_URL=https://your-site pnpm health
+```
+
+**⚠ GitHub disables scheduled workflows after 60 days with no repository
+activity.** Publishing content pushes a commit, so ordinary use keeps the
+schedule alive. A studio that does not touch the site for two months gets an
+email from GitHub asking to re-enable it — and until someone clicks, *nothing
+is watching.* This is the one part of the monitoring that can fail silently.
+
+## Backups
+
+**Content is already backed up.** Every publish is a commit, so git history
+holds every word the site has shown. `git revert` restores it.
+
+**Photos are the gap.** They deliberately never enter the repository — eleven
+images were already 7 MB and git never forgets — so deleting one deletes it.
+`.github/workflows/backup-images.yml` copies the bucket monthly.
+
+### Where to find one
+
+GitHub → Actions → **Backup images** → pick a run → **Artifacts** →
+`vinya-images-<run id>`. Retention is 90 days, so a monthly cadence keeps
+roughly three generations. Anything that must outlive that has to be downloaded
+and kept somewhere deliberate.
+
+The archive holds the image files plus `manifest.json`: what was taken, when,
+and the reconciliation below. It contains nothing else on purpose — in
+particular not the `settings` table, which holds the editors' email addresses,
+because artifacts on a public repository are public. The images already are.
+
+### Restoring
+
+```bash
+unzip vinya-images-123456.zip -d recovered
+node scripts/restore-images.mjs recovered            # dry run — shows the plan
+node scripts/restore-images.mjs recovered --apply    # actually uploads
+```
+
+**The site needs no change and no redeploy.** Content stores each photo as a
+full URL ending in its filename, so re-uploading under the same names makes
+every existing reference resolve again. That falls out of the naming convention
+`shape.mjs` already depends on, and it is why the restore is twenty lines.
+
+Dry run is the default because a backup applied over newer photos is itself
+data loss. Files that changed since the backup are listed separately, marked
+`~`, and applying replaces them with the older copy.
+
+Supabase serves images with a year-long cache header, so someone who already
+saw a broken image may keep seeing it for a while after a restore.
+
+### What a backup does not do
+
+It does not help with a full bucket. That was the question worth asking, and
+the honest answer is that a copy of the files is the opposite of what a
+capacity problem needs. A full bucket needs **space** — delete or upgrade. The
+monitoring above is what addresses capacity; the backup addresses deletion and
+corruption. They are different failures.
+
+It is also not a failover. Nothing switches to it automatically, and nothing
+should: a live mirror that silently serves stale photos is harder to notice
+than a broken image.
+
+### Orphans — what to delete when it does fill
+
+Every backup reconciles the bucket against what the site actually points at:
+
+- **orphans** — stored files nothing references. Safe to delete, and the first
+  thing to remove when space runs short.
+- **missing** — references with no file behind them. A broken image on the live
+  site, which no dashboard would ever show you.
+
+Both are printed by the run and recorded in `manifest.json`.
+
+```bash
+pnpm images:backup     # locally, into ./backup (gitignored)
+```
 
 ## What is not covered by a test
 

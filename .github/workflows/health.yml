@@ -1,0 +1,54 @@
+name: Health check
+
+# Watches what Vercel cannot see. Vercel reports traffic, function logs and
+# speed — none of which say whether a publish was claimed and never released
+# (silently blocking every later one), whether the sweep still fires, or whether
+# the image bucket is filling up. Each of those leaves the site looking healthy
+# while it quietly refuses to change again.
+#
+# A failed run is the alert: GitHub emails whoever watches this repository, so
+# this needs no monitoring service and no new credential. ALERT_TO adds a direct
+# mail on top.
+#
+# NOTE: GitHub disables scheduled workflows after 60 days with no repository
+# activity. Publishing content pushes a commit, so ordinary use keeps this
+# alive; a studio that does not touch the site for two months will get an email
+# from GitHub asking to re-enable it. See docs/runbook.md.
+on:
+  schedule:
+    - cron: '17 7 * * *' # daily, 07:17 UTC — off the hour, where runners are less contended
+  workflow_dispatch:
+
+# A late run must never overlap the previous one.
+concurrency:
+  group: health
+  cancel-in-progress: false
+
+jobs:
+  check:
+    name: Check the site and its pipeline
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Run the checks
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+          PUBLIC_SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          STORAGE_LIMIT_MB: ${{ vars.STORAGE_LIMIT_MB }}
+          # Deliberately not MAIL_TO: that is where booking enquiries go, and
+          # nothing this workflow finds is the studio owner's to act on.
+          ALERT_TO: ${{ secrets.ALERT_TO }}
+          MAIL_HOST: ${{ secrets.MAIL_HOST }}
+          MAIL_PORT: ${{ secrets.MAIL_PORT }}
+          MAIL_USER: ${{ secrets.MAIL_USER }}
+          MAIL_PASS: ${{ secrets.MAIL_PASS }}
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}
+        run: node scripts/health-check.mjs

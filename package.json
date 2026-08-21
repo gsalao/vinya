@@ -1,38 +1,41 @@
 {
-  "name": "vinya-yoga",
-  "private": true,
-  "version": "0.1.0",
-  "type": "module",
-  "engines": {
-    "node": ">=22.9.0 <23.0.0"
-  },
-  "scripts": {
-    "dev": "vite dev",
-    "build": "vite build",
-    "preview": "vite preview",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "mail:check": "node --env-file=.env scripts/check-mail.mjs",
-    "content:sync": "node --env-file-if-exists=.env scripts/sync-content.mjs",
-    "content:seed": "node --env-file=.env scripts/seed-db.mjs"
-  },
-  "devDependencies": {
-    "@sveltejs/adapter-auto": "^3.3.1",
-    "@sveltejs/adapter-vercel": "^6.3.4",
-    "@sveltejs/kit": "^2.16.0",
-    "@sveltejs/vite-plugin-svelte": "^4.0.4",
-    "google-auth-library": "^11.0.2",
-    "playwright": "^1.62.1",
-    "svelte": "^5.19.0",
-    "vite": "^5.4.11",
-    "vitest": "^2.1.9"
-  },
-  "dependencies": {
-    "@supabase/ssr": "^0.12.4",
-    "@supabase/supabase-js": "^2.47.10",
-    "@vercel/analytics": "^2.0.1",
-    "@vercel/speed-insights": "^2.0.0",
-    "nodemailer": "^9.0.5"
-  },
-  "packageManager": "pnpm@10.30.3+sha512.c961d1e0a2d8e354ecaa5166b822516668b7f44cb5bd95122d590dd81922f606f5473b6d23ec4a5be05e7fcd18e8488d47d978bbe981872f1145d06e9a740017"
+	"name": "vinya-yoga",
+	"private": true,
+	"version": "0.1.0",
+	"type": "module",
+	"engines": {
+		"node": ">=22.9.0 <23.0.0"
+	},
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"mail:check": "node --env-file=.env scripts/check-mail.mjs",
+		"content:sync": "node --env-file-if-exists=.env scripts/sync-content.mjs",
+		"content:seed": "node --env-file=.env scripts/seed-db.mjs",
+		"health": "node --env-file-if-exists=.env scripts/health-check.mjs",
+		"images:backup": "node --env-file-if-exists=.env scripts/backup-images.mjs",
+		"images:restore": "node --env-file-if-exists=.env scripts/restore-images.mjs"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-auto": "^3.3.1",
+		"@sveltejs/adapter-vercel": "^6.3.4",
+		"@sveltejs/kit": "^2.16.0",
+		"@sveltejs/vite-plugin-svelte": "^4.0.4",
+		"google-auth-library": "^11.0.2",
+		"playwright": "^1.62.1",
+		"svelte": "^5.19.0",
+		"vite": "^5.4.11",
+		"vitest": "^2.1.9"
+	},
+	"dependencies": {
+		"@supabase/ssr": "^0.12.4",
+		"@supabase/supabase-js": "^2.47.10",
+		"@vercel/analytics": "^2.0.1",
+		"@vercel/speed-insights": "^2.0.0",
+		"nodemailer": "^9.0.5"
+	},
+	"packageManager": "pnpm@10.30.3+sha512.c961d1e0a2d8e354ecaa5166b822516668b7f44cb5bd95122d590dd81922f606f5473b6d23ec4a5be05e7fcd18e8488d47d978bbe981872f1145d06e9a740017"
 }

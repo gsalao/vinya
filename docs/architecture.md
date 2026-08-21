@@ -112,7 +112,9 @@ invariants so they cannot come back. When adding a section she can extend, use
 ## What is deliberately not built
 
 **Photos are hers to change, not to organise** — there is no media library, and
-replacing a photo deletes the old files rather than versioning them.
+replacing a photo deletes the old files rather than versioning them. They are
+copied out monthly by `.github/workflows/backup-images.yml`, because unlike
+content they are not in git and deleting one deletes it.
 
 **Booking enquiries are emailed, not stored.** Her mailbox is the record. This was
 a deliberate choice: storing them creates a personal-data obligation under GDPR

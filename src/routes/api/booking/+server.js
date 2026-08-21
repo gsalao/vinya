@@ -6,10 +6,15 @@ import { isEmail, sniffAttachment, clamp, ATTACHMENT_MAX } from '$lib/server/val
 import { composeBooking } from '$lib/server/compose.js';
 import { sendMail, mailReady, ownerRecipients, ownerRecipientsLive, mailConfig } from '$lib/server/mail.js';
 import { readSettings } from '$lib/server/admin-db.js';
-import { createLimiter } from '$lib/server/ratelimit.js';
+import { createSharedLimiter } from '$lib/server/ratelimit-shared.js';
+import { admin } from '$lib/server/admin-db.js';
 import { priceById } from '$lib/data.js';
 
-const perIp = createLimiter({ max: 10, windowMs: 15 * 60 * 1000 });
+// A verified OTP token stays usable for the rest of its window, so someone who
+// proves one address can replay this endpoint until it expires — every replay
+// landing another mail in the studio's inbox. Shared counting bounds that to
+// these numbers rather than these numbers times the instance count.
+const perIp = createSharedLimiter({ max: 10, windowMs: 15 * 60 * 1000, prefix: 'book-ip', client: admin });
 
 const FIELD_MAX = 200;
 
@@ -30,7 +35,7 @@ export async function POST({ request, getClientAddress }) {
 	if (!mailReady()) return notConfigured('mail settings are incomplete (MAIL_HOST, MAIL_USER, MAIL_PASS)');
 	const owners = await ownerRecipientsLive(readSettings);
 	if (owners.length === 0) return notConfigured('MAIL_TO is empty, so nobody would receive this booking');
-	if (!perIp.check(getClientAddress()).ok) {
+	if (!(await perIp.check(getClientAddress())).ok) {
 		return json({ error: 'Too many attempts. Please try again shortly.' }, { status: 429 });
 	}
 

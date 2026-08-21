@@ -1,22 +1,24 @@
-import { env } from '$env/dynamic/public';
-import { createClient } from '@supabase/supabase-js';
-
-const url = env.PUBLIC_SUPABASE_URL;
-const key = env.PUBLIC_SUPABASE_ANON_KEY;
-
-/** Whether a real Supabase backend is configured. When false the site still
- *  works as a prototype: submissions are simulated so nothing is lost. */
-export const supabaseEnabled = Boolean(url && key);
-export const supabase = supabaseEnabled ? createClient(url, key) : null;
-
-const wait = (ms) => new Promise((r) => setTimeout(r, ms));
-
+/** Newsletter signup.
+ *
+ *  This used to hold a browser Supabase client and insert into `subscribers`
+ *  directly. The anon key that made that work is public — it ships in the
+ *  bundle — so the insert was reachable by anyone with a loop, and because it
+ *  went straight to PostgREST it bypassed the app entirely and could not be
+ *  rate limited. The write now happens on the server; nothing here knows any
+ *  key, and the site no longer ships a Supabase client to visitors at all. */
 export async function subscribeEmail(email) {
-	if (!supabase) {
-		await wait(400);
-		return { ok: true, simulated: true };
+	let res;
+	try {
+		res = await fetch('/api/subscribe', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({ email, website: '' })
+		});
+	} catch {
+		return { ok: false, error: 'network' };
 	}
-	const { error } = await supabase.from('subscribers').insert({ email });
-	if (error) return { ok: false, error: error.message };
-	return { ok: true };
+
+	const body = await res.json().catch(() => ({}));
+	if (!res.ok) return { ok: false, error: body.error ?? 'Something went wrong. Please try again.' };
+	return { ok: true, simulated: Boolean(body.simulated) };
 }

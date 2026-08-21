@@ -5,12 +5,15 @@ import { generateCode, issueToken } from '$lib/server/otp.js';
 import { isEmail } from '$lib/server/validate.js';
 import { composeOtp } from '$lib/server/compose.js';
 import { sendMail, mailReady } from '$lib/server/mail.js';
-import { createLimiter } from '$lib/server/ratelimit.js';
+import { createSharedLimiter } from '$lib/server/ratelimit-shared.js';
+import { admin } from '$lib/server/admin-db.js';
 
-// Module scope, so the counters survive between requests on a warm instance.
-// See ratelimit.js for why that is best-effort rather than a guarantee.
-const perIp = createLimiter({ max: 5, windowMs: 15 * 60 * 1000 });
-const perEmail = createLimiter({ max: 3, windowMs: 15 * 60 * 1000 });
+// Counted in Postgres, not in this instance's memory. This endpoint spends the
+// studio's own mail quota, and enough abuse gets the sending account suspended
+// — which takes bookings down with it. A per-instance counter gave a caller a
+// multiple of these numbers depending on how many instances happened to be warm.
+const perIp = createSharedLimiter({ max: 5, windowMs: 15 * 60 * 1000, prefix: 'otp-ip', client: admin });
+const perEmail = createSharedLimiter({ max: 3, windowMs: 15 * 60 * 1000, prefix: 'otp-email', client: admin });
 
 /** One shape for every rejection. Telling a caller which check failed hands them
  *  a way to probe the endpoint, and none of it helps a real visitor. */
@@ -47,8 +50,8 @@ export async function POST({ request, getClientAddress }) {
 	const email = String(body.email ?? '').trim().toLowerCase();
 	if (!isEmail(email)) return json({ error: 'That email address does not look right.' }, { status: 400 });
 
-	if (!perIp.check(getClientAddress()).ok) return refuse();
-	if (!perEmail.check(email).ok) return refuse();
+	if (!(await perIp.check(getClientAddress())).ok) return refuse();
+	if (!(await perEmail.check(email)).ok) return refuse();
 
 	const code = generateCode();
 	const { token, expiresAt } = issueToken(email, code, env.OTP_SECRET);

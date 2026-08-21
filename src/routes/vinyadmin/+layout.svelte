@@ -9,7 +9,8 @@
 		['classes', 'Classes'],
 		['teachers', 'Teachers'],
 		['events', 'Events'],
-		['about', 'About']
+		['about', 'About'],
+		['footer', 'Footer']
 	];
 	let onLogin = $derived($page.url.pathname === `${ADMIN_BASE}/login`);
 </script>
@@ -48,13 +49,11 @@
 
 <style>
 	.admin { min-height: 100svh; background: var(--surface-sunken); display: flex; flex-direction: column; }
-	/* app.css styles every <header> for the public site: sticky, translucent, with
-	   a backdrop blur. Inherited here that made page content scroll straight
-	   through the admin bar. Opaque and explicitly layered instead — still
-	   sticky, because a nav you have to scroll up to reach is worse. */
+	/* The public site's sticky bar is now .site-header, so nothing here is
+	   undoing an inherited style — these are just the admin bar's own. */
 	.bar { position: sticky; top: 0; z-index: 40;
 		display: flex; align-items: center; gap: 28px; padding: 0 clamp(16px, 3vw, 32px); height: 64px;
-		background: var(--surface-card); backdrop-filter: none; -webkit-backdrop-filter: none;
+		background: var(--surface-card);
 		border-bottom: 1px solid var(--border-subtle); flex-wrap: wrap; box-shadow: var(--shadow-soft); }
 	.brand { font-family: var(--font-display); font-size: 24px; color: var(--brown-800); }
 	nav { display: flex; gap: 4px; flex: 1; flex-wrap: wrap; }

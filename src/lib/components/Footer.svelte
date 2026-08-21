@@ -1,6 +1,7 @@
 <script>
 	import { subscribeEmail } from '$lib/supabase.js';
 	import { txt } from '$lib/copy.js';
+	import { socials } from '$lib/data.js';
 	let email = $state('');
 	let note = $state('');
 	let busy = $state(false);
@@ -22,11 +23,21 @@
 	}
 </script>
 
-<footer>
+<footer class="site-footer">
 	<div class="wrap foot-grid">
 		<div>
 			<div class="foot-brand"><img src="/logos/vinya-logo-cream.png" alt="Vinya" /></div>
 			<p>{txt('footer.tagline')}</p>
+			<!-- Absent entirely when the studio has none, rather than leaving an
+			     empty row of nothing under the tagline. The scheme is checked in
+			     schema.mjs, so nothing unexpected reaches this href. -->
+			{#if socials.length > 0}
+				<ul class="socials">
+					{#each socials as s (s.url)}
+						<li><a href={s.url} target="_blank" rel="noopener noreferrer">{s.name}</a></li>
+					{/each}
+				</ul>
+			{/if}
 		</div>
 		<div class="foot-col">
 			<div class="h">{txt('footer.site.heading')}</div>

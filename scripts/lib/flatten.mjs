@@ -113,5 +113,10 @@ export function flatten(content) {
 
 	const testimonials = content.testimonials.map((t) => ({ quote: t.quote, who: t.who, __row: nextRow() }));
 
-	return { copy, images, gallery, providers, classes, timetable, events, pastEvents, offerings, faqs, teachers, partners, prices, testimonials };
+	// socials: like gallery, legitimately empty. `?? []` rather than assuming the
+	// key exists, so a content file written before this column was added still
+	// flattens instead of throwing.
+	const socials = (content.socials ?? []).map((s) => ({ name: s.name, url: s.url, __row: nextRow() }));
+
+	return { copy, images, gallery, providers, classes, timetable, events, pastEvents, offerings, faqs, teachers, partners, prices, testimonials, socials };
 }

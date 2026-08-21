@@ -101,10 +101,15 @@ section{position:relative}
 @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none}*{animation:none!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 
 /* ---------- header ---------- */
-header{position:sticky;top:0;z-index:60;background:rgba(251,246,239,.82);
+/* Scoped to a class, not the bare element. As `header{...}` this styled every
+   <header> in the app: the admin's section cards each have one around their
+   title, and inherited a sticky, translucent cream band that sat visibly on
+   top of the white card. The admin nav bar had already been given explicit
+   overrides to undo it, which fixed that one symptom and left the cards. */
+.site-header{position:sticky;top:0;z-index:60;background:rgba(251,246,239,.82);
   backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border-subtle);
   transition:box-shadow .3s var(--ease)}
-header.scrolled{box-shadow:var(--shadow-soft)}
+.site-header.scrolled{box-shadow:var(--shadow-soft)}
 .nav{display:flex;align-items:center;justify-content:space-between;height:78px}
 .brand{font-family:var(--font-display);font-size:28px;letter-spacing:.04em;color:var(--brown-800);cursor:pointer;line-height:1;background:none;border:none}
 .nav-links{display:flex;align-items:center;gap:4px}
@@ -450,10 +455,22 @@ body.menu-open .mobile-menu{opacity:1;visibility:visible;transform:none}
 .side-card .row{display:flex;flex-direction:column;gap:12px;font-size:var(--text-sm);color:var(--text-secondary)}
 
 /* footer */
-footer{background:var(--brown-800);color:var(--cream-50)}
+/* Scoped for the same reason as .site-header above: as a bare element this
+   painted every <footer> in the app dark brown, including any the admin grows. */
+.site-footer{background:var(--brown-800);color:var(--cream-50)}
 .foot-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1.5fr;gap:56px;padding-top:clamp(64px,9vh,96px);padding-bottom:52px}
 .foot-brand img{height:96px;width:auto;margin-bottom:8px}
 .foot-grid p{font-size:var(--text-sm);line-height:1.8;color:var(--tan-300);max-width:30ch}
+/* Social links under the tagline. A wrapping row rather than a column, because
+   the owner can add as many as she likes and a tall stack would push the
+   footer's first column out of step with the other three. */
+.socials{display:flex;flex-wrap:wrap;gap:8px 10px;list-style:none;padding:0;margin:16px 0 0}
+.socials a{display:inline-block;color:var(--cream-50);font-size:var(--text-sm);
+  border:1px solid rgba(247,240,230,.28);border-radius:var(--radius-pill);padding:5px 13px;
+  transition:border-color .2s var(--ease),color .2s var(--ease),background .2s var(--ease)}
+.socials a:hover{color:var(--brown-800);background:var(--gold-400);border-color:var(--gold-400)}
+.socials a:focus-visible{outline:2px solid var(--gold-400);outline-offset:2px}
+
 .foot-col{display:flex;flex-direction:column;gap:14px}
 .foot-col .h{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-500);margin-bottom:6px}
 .foot-col a{color:var(--cream-50);font-size:var(--text-sm)}

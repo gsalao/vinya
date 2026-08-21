@@ -15,6 +15,7 @@ export const gallery = content.gallery ?? [];
 export const pastEvents = content.pastEvents;
 
 export const partners = content.partners;
+export const socials = content.socials ?? [];
 
 export function locationOf(className) {
 	const c = classes.find((cl) => cl.name === className);

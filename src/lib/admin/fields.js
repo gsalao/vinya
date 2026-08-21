@@ -34,6 +34,18 @@ export const SECTIONS = {
 	about: [
 		{ tab: 'images', title: 'Pictures on this page', blurb: 'Drag each picture to choose what stays in view when it is cropped.', only: 'about.', fixed: true },
 		{ tab: 'providers', title: 'Where you teach', blurb: 'The key is used by the classes above to say where each one meets.' }
+	],
+	// The footer is on every page, so it gets its own tab rather than being
+	// buried under one of them. Its prose was previously unreachable: the copy
+	// list is filtered by page prefix, and no page claimed "footer.", so eleven
+	// keys the site renders had nowhere to be edited.
+	footer: [
+		{
+			tab: 'socials',
+			title: 'Social links',
+			blurb: 'Shown under the tagline at the bottom of every page. Paste the whole address from your browser — it must start with https://.',
+			alsoOn: 'every page'
+		}
 	]
 };
 
@@ -44,7 +56,8 @@ export const COPY_PAGES = {
 	classes: 'classes.',
 	teachers: 'teachers.',
 	events: 'events.',
-	about: 'about.'
+	about: 'about.',
+	footer: 'footer.'
 };
 
 /** The order sections appear as you scroll each page, so the words are listed
@@ -55,7 +68,8 @@ export const COPY_ORDER = {
 	classes: ['hero', 'detail', 'timetable', 'prices', 'offerings', 'faq'],
 	teachers: ['hero', 'work'],
 	events: ['hero', 'reserve', 'archive'],
-	about: ['hero', 'expect', 'founder', 'find']
+	about: ['hero', 'expect', 'founder', 'find'],
+	footer: ['tagline', 'site', 'practical', 'subscribe', 'copyright']
 };
 
 /** Sorts copy rows into page order, then alphabetically within a section so two
@@ -73,6 +87,10 @@ export function orderCopy(rows, pageKey) {
 /** Labels and input kinds, keyed by tab then column. Anything not named here
  *  falls back to a title-cased column name and a single-line box. */
 export const FIELDS = {
+	socials: {
+		name: { label: 'Name', kind: 'line', help: 'What the link says — Instagram, Facebook, WhatsApp.' },
+		url: { label: 'Link', kind: 'line', help: 'Paste the whole address from your browser. It must start with https://' }
+	},
 	classes: {
 		name: { label: 'Name', kind: 'line', help: 'Used on the booking form, so it must match exactly wherever it appears.' },
 		tone: { label: 'Colour', kind: 'line', help: 'One of: tan, sky, gold, rust.' },

@@ -58,3 +58,29 @@ describe('app.css layout invariants', () => {
 		expect(offenders).toEqual([]);
 	});
 });
+
+describe('bare element selectors', () => {
+	// app.css is loaded by the admin too, so an element selector here reaches
+	// markup it was never written for. `header{position:sticky;background:...}`
+	// styled the public navbar and also every <header> in the admin's section
+	// cards, putting a translucent cream band across each card title. The admin
+	// bar had been given explicit overrides to cancel it, which cured the one
+	// symptom anyone had noticed and left the cause in place.
+	//
+	// Only paint and positioning count. `section{position:relative}` is a bare
+	// selector too, and harmless — it establishes a containing block and paints
+	// nothing.
+	it('does not paint or position header or footer as bare elements', () => {
+		const offenders = rules(css)
+			.filter(({ selector, body }) =>
+				selector
+					.split(',')
+					.map((s) => s.trim())
+					.some((s) => s === 'header' || s === 'footer') &&
+				/(^|;|\s)(background|border|padding|z-index)\s*:|position\s*:\s*(sticky|fixed)/.test(body)
+			)
+			.map(({ selector }) => selector);
+
+		expect(offenders).toEqual([]);
+	});
+});

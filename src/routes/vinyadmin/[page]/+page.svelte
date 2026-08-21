@@ -5,7 +5,7 @@
 	let { data, form } = $props();
 
 	const TITLES = { home: 'Home page', classes: 'Classes page', teachers: 'Teachers page',
-		events: 'Events page', about: 'About page' };
+		events: 'Events page', about: 'About page', footer: 'Footer' };
 
 	let copyBusy = $state(false);
 	let copySaved = $state(false);

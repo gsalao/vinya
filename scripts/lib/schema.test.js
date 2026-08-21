@@ -19,6 +19,7 @@ const ok = () => ({
 	testimonials: [{ quote: 'Good.', who: 'Marieke', __row: 2 }],
 	images: [{ key: 'home.hero', src: '/images/x-2200.jpg', alt: 'Nikita in the studio', fx: '50', fy: '70', fyMobile: '', __row: 2 }],
 	gallery: [{ src: '/images/plain.jpeg', alt: 'The hall at dusk', fx: '50', fy: '40', __row: 2 }],
+	socials: [{ name: 'Instagram', url: 'https://instagram.com/vinya', __row: 2 }],
 	copy: [] // filled per-test from the manifest
 });
 
@@ -360,5 +361,79 @@ describe('validate', () => {
 		tabs.events[0].month = 'not a month';
 		tabs.prices[0].id = 'drop-inn';
 		expect(validate(tabs).length).toBeGreaterThanOrEqual(3);
+	});
+});
+
+describe('socials', () => {
+	const withSocials = async (rows) => {
+		const tabs = await withCopy(ok());
+		tabs.socials = rows.map((r, i) => ({ ...r, __row: i + 2 }));
+		return validate(tabs);
+	};
+
+	it('accepts an ordinary https link', async () => {
+		expect(await withSocials([{ name: 'Instagram', url: 'https://instagram.com/vinya' }])).toEqual([]);
+	});
+
+	it('accepts http, since not every small venue has a certificate', async () => {
+		expect(await withSocials([{ name: 'Studio', url: 'http://example.org' }])).toEqual([]);
+	});
+
+	// The whole reason this rule exists. An href is executable if its scheme
+	// says so, and everything here is typed by a person into a form.
+	it('refuses a javascript: link', async () => {
+		const errors = await withSocials([{ name: 'Bad', url: 'javascript:alert(1)' }]);
+		expect(errors).toHaveLength(1);
+		expect(messages(errors)).toMatch(/must start with https:\/\/ or http:\/\//);
+	});
+
+	it('refuses data: and other schemes', async () => {
+		expect(await withSocials([{ name: 'Bad', url: 'data:text/html,<script>x</script>' }])).toHaveLength(1);
+		expect(await withSocials([{ name: 'Bad', url: 'vbscript:x' }])).toHaveLength(1);
+		expect(await withSocials([{ name: 'Bad', url: 'file:///etc/passwd' }])).toHaveLength(1);
+	});
+
+	// Leading whitespace and mixed case are the obvious ways round a naive check.
+	it('is not fooled by casing or leading whitespace', async () => {
+		expect(await withSocials([{ name: 'Bad', url: '  JaVaScRiPt:alert(1)' }])).toHaveLength(1);
+		expect(await withSocials([{ name: 'Bad', url: 'JAVASCRIPT:alert(1)' }])).toHaveLength(1);
+	});
+
+	it('refuses a bare domain, which would resolve as a relative path', async () => {
+		const errors = await withSocials([{ name: 'Insta', url: 'instagram.com/vinya' }]);
+		expect(errors).toHaveLength(1);
+	});
+
+	it('requires a name, since the link needs something to label it', async () => {
+		expect(await withSocials([{ name: '', url: 'https://instagram.com/vinya' }])).toHaveLength(1);
+	});
+
+	it('requires a url, since a name alone links nowhere', async () => {
+		expect(await withSocials([{ name: 'Instagram', url: '' }])).toHaveLength(1);
+	});
+
+	// A studio with no social accounts is an ordinary state, not a broken one.
+	it('allows the whole section to be empty', async () => {
+		const tabs = await withCopy(ok());
+		tabs.socials = [];
+		expect(validate(tabs)).toEqual([]);
+	});
+});
+
+describe('partner links', () => {
+	// partners.href has been owner-editable all along with no scheme check, so
+	// the same rule has to reach it — otherwise the hole simply moves.
+	it('refuses a javascript: partner link', async () => {
+		const tabs = await withCopy(ok());
+		tabs.partners = [{ ...tabs.partners[0], href: 'javascript:alert(1)' }];
+		const errors = validate(tabs);
+		expect(errors).toHaveLength(1);
+		expect(messages(errors)).toMatch(/must start with https:\/\/ or http:\/\//);
+	});
+
+	it('still allows a partner with no link at all', async () => {
+		const tabs = await withCopy(ok());
+		tabs.partners = [{ ...tabs.partners[0], href: '' }];
+		expect(validate(tabs)).toEqual([]);
 	});
 });

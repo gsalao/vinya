@@ -171,6 +171,22 @@ create table if not exists publish_state (
 	url            text not null default ''
 );
 
+-- --------------------------------------------------------------- socials ---
+-- The footer's social links. Two columns, because that is the whole idea: a
+-- label and somewhere it goes. `sort` orders them the way the owner arranges
+-- them in the editor.
+--
+-- schema.mjs refuses any url that does not begin http:// or https://. An href
+-- is executable when its scheme says so, and every value here is typed into a
+-- form by a person.
+create table if not exists socials (
+	id          uuid primary key default gen_random_uuid(),
+	name        text not null,
+	url         text not null,
+	sort        integer not null default 0,
+	updated_at  timestamptz not null default now()
+);
+
 insert into publish_state (id) values (1) on conflict (id) do nothing;
 
 insert into settings (key, value) values
@@ -195,7 +211,7 @@ begin
 	foreach t in array array[
 		'providers','classes','timetable','events','past_events','offerings',
 		'faqs','teachers','partners','prices','testimonials','copy','settings',
-		'publish_state'
+		'publish_state','socials'
 	] loop
 		execute format('drop trigger if exists touch_%1$s on %1$I', t);
 		execute format(
@@ -203,6 +219,7 @@ begin
 			 for each row execute function touch_updated_at()', t);
 	end loop;
 end $$;
+
 
 -- -------------------------------------------------------------------- RLS ---
 
@@ -215,7 +232,7 @@ begin
 	foreach t in array array[
 		'providers','classes','timetable','events','past_events','offerings',
 		'faqs','teachers','partners','prices','testimonials','copy','settings',
-		'publish_state'
+		'publish_state','socials'
 	] loop
 		execute format('alter table %I enable row level security', t);
 		execute format('revoke all on %I from anon, authenticated', t);

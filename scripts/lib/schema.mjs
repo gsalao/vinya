@@ -18,6 +18,14 @@ export const STANDALONE_BOOK_OPTIONS = ['1:1 Holistic session', 'Beginners cours
 
 const MONTH = /^(January|February|March|April|May|June|July|August|September|October|November|December) \d{4}$/;
 const URL_LIKE = /https?:\/\//i;
+// An href is executable when its scheme says so — `javascript:` in a link the
+// site renders runs on click, and everything in these tabs is typed into a form
+// by a person. Anchored, case-insensitive, and applied after trimming, because
+// leading whitespace and odd casing are the two obvious ways round a naive
+// check. Allowing http as well as https is deliberate: small venues and old
+// partner sites still lack certificates, and refusing them would push someone
+// to work around the rule rather than follow it.
+const SAFE_LINK = /^https?:\/\/\S/i;
 const KEBAB = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 // Catches a date typed in a machine form rather than the readable one, e.g.
 // typing "26 Jul" and having the cell turn into "7/26/2026" or "2026-07-26" —
@@ -62,7 +70,8 @@ export const REQUIRED = {
 	testimonials: ['quote', 'who'],
 	copy: ['key', 'text'],
 	images: ['key', 'src', 'alt', 'fx', 'fy'],
-	gallery: ['src', 'alt', 'fx', 'fy']
+	gallery: ['src', 'alt', 'fx', 'fy'],
+	socials: ['name', 'url']
 };
 
 // Every other tab fails the build when it has no rows: a site with no classes,
@@ -86,7 +95,9 @@ export const OPTIONAL_EXTRAS = {
 	images: ['fyMobile']
 };
 
-export const OPTIONAL_WHEN_EMPTY = new Set(['pastEvents', 'gallery']);
+// A studio with no social accounts is an ordinary state rather than a broken
+// one, and the footer simply omits the row — see Footer.svelte.
+export const OPTIONAL_WHEN_EMPTY = new Set(['pastEvents', 'gallery', 'socials']);
 
 export function validate(tabs) {
 	const errors = [];
@@ -255,6 +266,24 @@ export function validate(tabs) {
 			fail('copy', row.__row, `"${row.key}" is already used on row ${copyRowsByKey.get(row.key)} of this tab. Only the first row with a given key is used, so editing this one changes nothing. Delete this row, or give it a different key.`);
 		} else {
 			copyRowsByKey.set(row.key, row.__row);
+		}
+	}
+
+	// --- links the owner can type -------------------------------------------
+	// Both of these end up in an href the site renders, so both go through one
+	// rule. Two copies of this check would be two chances for them to drift.
+	for (const s of tabs.socials ?? []) {
+		if (!SAFE_LINK.test(String(s.url ?? '').trim())) {
+			fail('socials', s.__row, `link for "${s.name || 'this row'}" must start with https:// or http:// — paste the whole address from your browser's address bar.`);
+		}
+	}
+
+	for (const p of tabs.partners ?? []) {
+		const href = String(p.href ?? '').trim();
+		// Blank is how a partner with no website is expressed, so only a
+		// non-empty value is checked.
+		if (href && !SAFE_LINK.test(href)) {
+			fail('partners', p.__row, `link for "${p.name || 'this row'}" must start with https:// or http:// — paste the whole address from your browser's address bar.`);
 		}
 	}
 

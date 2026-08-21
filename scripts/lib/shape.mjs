@@ -109,6 +109,9 @@ export function shape(tabs) {
 			note: p.note,
 			...(/^(yes|true|1|x)$/i.test(p.feature ?? '') ? { feature: true } : {})
 		})),
-		testimonials: tabs.testimonials.map((t) => ({ quote: t.quote, who: t.who }))
+		testimonials: tabs.testimonials.map((t) => ({ quote: t.quote, who: t.who })),
+		// The footer's social links. Kept a plain list so the footer renders
+		// however many there are, and none at all when the studio has none.
+		socials: (tabs.socials ?? []).map((s) => ({ name: s.name, url: s.url }))
 	};
 }

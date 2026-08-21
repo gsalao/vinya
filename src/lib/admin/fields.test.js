@@ -61,3 +61,28 @@ describe('orderCopy', () => {
 		]);
 	});
 });
+
+describe('every editable thing is actually reachable', () => {
+	// The bug this pins: the copy list is filtered by page prefix, and for a
+	// long time no page claimed "footer.". Eleven keys the site renders — the
+	// tagline, the newsletter blurb, the copyright — therefore had nowhere to be
+	// edited. Nothing failed; they simply never appeared, which is exactly the
+	// kind of gap nobody finds by looking.
+	it('assigns every copy key to a page', async () => {
+		const { COPY_PAGES } = await import('./fields.js');
+		const content = JSON.parse(
+			await import('node:fs').then((fs) => fs.readFileSync('src/lib/content.generated.json', 'utf8'))
+		);
+		const prefixes = Object.values(COPY_PAGES);
+		const unreachable = Object.keys(content.copy).filter((k) => !prefixes.some((p) => k.startsWith(p)));
+		expect(unreachable).toEqual([]);
+	});
+
+	// Same failure shape one level up: a table with a validation rule and a
+	// database column, that no page ever shows.
+	it('shows every content table on some page', async () => {
+		const shown = new Set(Object.values(SECTIONS).flat().map((s) => s.tab));
+		const missing = Object.keys(REQUIRED).filter((tab) => tab !== 'copy' && !shown.has(tab));
+		expect(missing).toEqual([]);
+	});
+});

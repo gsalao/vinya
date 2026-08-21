@@ -30,7 +30,7 @@
 	});
 </script>
 
-<header class:scrolled>
+<header class="site-header" class:scrolled>
 	<div class="wrap nav">
 		<a href="/" class="brand" onclick={close}>Vinya</a>
 		<nav class="nav-links" aria-label="Primary">

@@ -79,6 +79,27 @@ alter table subscribers enable row level security;
 drop policy if exists "anon can subscribe" on subscribers;
 grant all on subscribers to service_role;
 
+
+-- --------------------------------------------------------------- socials ---
+-- The footer's social links. Two columns, because that is the whole idea: a
+-- label and somewhere it goes. `sort` orders them the way the owner arranges
+-- them in the editor.
+--
+-- schema.mjs refuses any url that does not begin http:// or https://. An href
+-- is executable when its scheme says so, and every value here is typed into a
+-- form by a person.
+create table if not exists socials (
+	id          uuid primary key default gen_random_uuid(),
+	name        text not null,
+	url         text not null,
+	sort        integer not null default 0,
+	updated_at  timestamptz not null default now()
+);
+
+alter table socials enable row level security;
+revoke all on socials from anon, authenticated;
+grant all on socials to service_role;
+
 -- ------------------------------------------------------------- publish ---
 -- The sweep is a safety net: saving fires its own dispatch, so this only
 -- catches a publish that was owed and never went out. Once a minute costs

@@ -28,7 +28,7 @@ pull request gets its own throwaway preview URL. See
 | [docs/credentials.md](docs/credentials.md) | Every secret, where it lives, when to rotate |
 | [docs/adr/0001-cms-not-google-sheets.md](docs/adr/0001-cms-not-google-sheets.md) | Why it is built this way, and what was tried first |
 
-The owner edits the site at `/admin`. Saving writes to Supabase and triggers a
+The owner edits the site at `/vinyadmin`. Saving writes to Supabase and triggers a
 rebuild; visitors are served static files, so a failed publish never degrades the
 live site.
 

@@ -7,7 +7,7 @@ type here will break it.
 
 ## Getting in
 
-Go to **vinyayoga.com/admin** and sign in.
+Go to **vinyayoga.com/vinyadmin** and sign in.
 
 If you forget your password, whoever set this up can reset it for you.
 

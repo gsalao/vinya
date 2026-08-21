@@ -6,7 +6,7 @@ something is wrong.
 
 ## The one-line summary
 
-The owner edits at `/admin`. Saving writes to Supabase and fires a GitHub
+The owner edits at `/vinyadmin`. Saving writes to Supabase and fires a GitHub
 dispatch in the same request. The Action reads the tables, validates them,
 shapes them into `src/lib/content.generated.json`, commits it, and deploys.
 Visitors are served static files, so a broken publish never degrades the live
@@ -52,7 +52,7 @@ image reference, make sure it is not checked as a local file.
 
 ```bash
 pnpm content:sync     # read the database, validate, rewrite the content file
-pnpm test             # 200 tests
+pnpm test             # 213 tests
 pnpm dev              # local site + admin at :5173
 ```
 
@@ -80,7 +80,7 @@ git revert <sha> && git push
 
 That restores the site. **It does not restore the database**, so unless she also
 fixes the editor, the next publish reproduces it. Revert to stop the bleeding,
-then fix the content in `/admin`.
+then fix the content in `/vinyadmin`.
 
 ## Adding a new kind of content
 
@@ -124,6 +124,82 @@ Two more encode bugs that actually shipped, so do not delete them as trivia:
   ever broke on WebKit.
 - **`src/lib/admin/ImageField.test.js`** asserts the form field is named by row
   position. When that drifted, every image save silently submitted nothing.
+
+## Keeping the bill small
+
+Code cannot guarantee a bill. Only a cap can. Everything below the first
+section is damage limitation; the first section is the actual guarantee, and
+it is clicked, not written.
+
+### Set the caps (do this, nothing else replaces it)
+
+- **Vercel** → Settings → Billing → Spend Management. Set a hard limit and an
+  alert well below it. Vercel can pause the project at the limit; that is the
+  behaviour you want on a studio site, because a paused site is recoverable and
+  a surprise invoice is not.
+- **Supabase** → Organization → Billing → Cost Control. Set a spend cap. The
+  free tier already caps by pausing; on any paid plan it does not, and
+  **Storage egress is the uncapped vector here** — every image on the site is a
+  public URL anyone can request in a loop.
+- Put both alert emails somewhere the studio actually reads, not only the
+  developer's inbox.
+
+### What the app does about it
+
+| Door | Limit | Where |
+| --- | --- | --- |
+| Send a sign-in code | 5 per IP, 3 per address / 15 min | `api/otp/+server.js` |
+| Submit a booking | 10 per IP / 15 min | `api/booking/+server.js` |
+| Newsletter signup | 5 per IP, 3 per address / hour | `api/subscribe/+server.js` |
+| Sign in to the editor | 15 per IP, 8 per address / 15 min | `vinyadmin/login/+page.server.js` |
+
+Counting happens in Postgres via `rate_limit_hit` (`supabase/security.sql`), so
+every serverless instance counts against one total. `ratelimit-shared.js` falls
+back to the in-memory counter when the database cannot be reached — a Supabase
+outage degrades the limit to best-effort rather than removing it, which matters
+because the OTP endpoint spends the studio's own mail quota and enough abuse
+there gets the sending account suspended.
+
+The fallback announces itself in the logs:
+
+```
+[ratelimit] shared counter unavailable, falling back: ...
+```
+
+Seeing that regularly means `security.sql` was never run, or the function was
+dropped. The limits still hold approximately, but not exactly.
+
+### The publish sweep
+
+`pg_cron` calls `/api/publish/tick` every five minutes. It was every minute,
+which cost ~43,000 invocations a month to catch something that rarely happens,
+since saving fires its own dispatch. The worst case at five minutes is that a
+stranded publish waits four minutes longer.
+
+## Security boundaries worth knowing
+
+**The anon key is public.** It ships in the site's JavaScript. Anything `anon`
+is granted in Postgres is granted to the entire internet, reachable directly at
+PostgREST without touching Vercel — so no application rate limit can see it.
+The newsletter box worked exactly that way once. `no-browser-db.test.js` fails
+if any browser-reachable module constructs a Supabase client, which is the only
+reliable way to stop it coming back.
+
+**The editor's URL lives in one constant.** `ADMIN_BASE` in
+`src/lib/admin/paths.js`. SvelteKit takes the URL from the route directory
+name and the guard takes it from the constant, and nothing but
+`paths.test.js` makes them agree. They fail asymmetrically: a stale link 404s
+and someone notices, a stale guard prefix leaves the editor unauthenticated
+and looks normal. Moving the editor means renaming both, together.
+
+**Renaming the editor is not a security control.** It cuts scanner noise,
+which is a cost measure. Treat the password and the allow-list as the control.
+
+**There is no 2FA.** It was considered and deliberately deferred: for a
+single non-technical owner with nobody to call, the lockout risk on a lost
+phone outweighed the credential-stuffing risk it would remove. Revisit if the
+studio ever runs more than one or two accounts, since a second admin is what
+makes recovery possible.
 
 ## What is not covered by a test
 

@@ -17,7 +17,7 @@ replacement would bloat the repository permanently.
 ## The shape
 
 ```
-Owner ─▶ /admin ─▶ Save ─▶ Supabase ─▶ dispatch (same request)
+Owner ─▶ /vinyadmin ─▶ Save ─▶ Supabase ─▶ dispatch (same request)
                                             │
                             GitHub Action ──┤ read 16 tables
                                             ├─ validate   ← schema.mjs

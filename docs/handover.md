@@ -21,7 +21,29 @@ when someone else owns this. Steps in `docs/credentials.md`.
 - The GitHub dispatch token
 - The initial admin password
 
-### 2. Move ownership of the accounts
+### 2. Run `supabase/security.sql`, once
+
+SQL Editor → New query → paste → Run. It creates the shared rate-limit
+counter, creates the subscribers table (the original `schema.sql` was never
+run against this project, so newsletter signups have been failing silently),
+revokes the anonymous write path, and drops the publish sweep from every
+minute to every five. Safe to run more than once.
+
+Confirm it took: the logs should stop showing
+`[ratelimit] shared counter unavailable`.
+
+### 3. Set the spend caps
+
+**This is the only hard guarantee against a surprise bill.** Everything in the
+code limits abuse; only a cap limits the invoice.
+
+- Vercel → Settings → Billing → Spend Management — hard limit plus an alert
+  below it.
+- Supabase → Organization → Billing → Cost Control — spend cap. Storage egress
+  is the uncapped vector: every site image is a public URL.
+- Point both alerts at an address the studio reads, not only yours.
+
+### 4. Move ownership of the accounts
 
 The site depends on four accounts. Whoever owns them controls the site, and if
 they are all yours, the studio has a dependency on you forever.
@@ -37,13 +59,13 @@ The honest options are to transfer them to a studio-owned account, or to keep
 them and be explicit that you are the studio's hosting provider. Either is fine.
 Leaving it undecided is not — it is discovered at the worst moment.
 
-### 3. Give her an account in her own name
+### 5. Give her an account in her own name
 
 Settings → Who can sign in. Add her address, tell her the starting password
 yourself, and watch her change it. Then remove any account that was only ever
 yours for setup.
 
-### 4. Put something on the timetable that expires
+### 6. Put something on the timetable that expires
 
 `GH_DISPATCH_TOKEN` is a fine-grained PAT with a one-year expiry. When it lapses,
 publishing stops with no warning and the failure is invisible from her side —
@@ -78,6 +100,10 @@ rather than limitations matters.
 **Leave her `docs/owner-guide.md`** somewhere she will find it again — printed,
 emailed, or pasted into a document she owns. Not a link into this repository.
 
+**Make sure she has the editor's address written down.** It is
+`/vinyadmin`, not `/admin` — moved so that automated scanners stop probing it.
+She will not guess it, and there is nothing at the old address to redirect her.
+
 ### What to tell her about calling you
 
 Be concrete about the split, or she will either call about everything or nothing:
@@ -109,6 +135,10 @@ Then say four things out loud, because they are the ones that bite:
   website.
 - **Payment links and credentials never move into the database.** The reasoning
   is in the ADR; the boundary is enforced by construction and by a test.
+- **The anon key is public.** It ships in the bundle, so anything granted to
+  `anon` in Postgres is granted to the internet, reachable directly at
+  PostgREST where no application rate limit can see it. A test enforces that no
+  browser-reachable module holds a Supabase client.
 - **Test UI changes in WebKit.** Partner logos rendered at full size on iPhone
   for days because every check was Chromium. Playwright ships the real engine.
 

@@ -3,6 +3,7 @@ import { readSettings, writeSetting, admin, adminEmails, passwordIsCorrect } fro
 import { isEmail } from '$lib/server/validate.js';
 import { sendMail, mailReady } from '$lib/server/mail.js';
 import { canAdd, canRemove } from '$lib/admin/access.js';
+import { ADMIN_BASE } from '$lib/admin/paths.js';
 
 const list = (s) => String(s ?? '').split(/[,\s]+/).map((x) => x.trim()).filter(Boolean);
 
@@ -139,13 +140,13 @@ export const actions = {
 		// it rather than leaving a signed-in page nobody can act from.
 		if (email === me) {
 			await locals.supabase?.auth.signOut();
-			throw redirect(303, '/admin/login');
+			throw redirect(303, `${ADMIN_BASE}/login`);
 		}
 		return { saved: 'people', removed: email };
 	},
 
 	signout: async ({ locals }) => {
 		await locals.supabase?.auth.signOut();
-		throw redirect(303, '/admin/login');
+		throw redirect(303, `${ADMIN_BASE}/login`);
 	}
 };

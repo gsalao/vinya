@@ -1,6 +1,7 @@
 <script>
 	import { page } from '$app/stores';
 	import PublishBanner from '$lib/admin/PublishBanner.svelte';
+	import { ADMIN_BASE } from '$lib/admin/paths.js';
 	let { data, children } = $props();
 
 	const PAGES = [
@@ -10,7 +11,7 @@
 		['events', 'Events'],
 		['about', 'About']
 	];
-	let onLogin = $derived($page.url.pathname === '/admin/login');
+	let onLogin = $derived($page.url.pathname === `${ADMIN_BASE}/login`);
 </script>
 
 <svelte:head><meta name="robots" content="noindex, nofollow" /></svelte:head>
@@ -20,16 +21,16 @@
 {:else}
 	<div class="admin">
 		<header class="bar">
-			<a class="brand" href="/admin/home">Vinya</a>
+			<a class="brand" href="{ADMIN_BASE}/home">Vinya</a>
 			<nav>
 				{#each PAGES as [slug, label] (slug)}
-					<a href="/admin/{slug}" class:on={$page.params.page === slug}>{label}</a>
+					<a href="{ADMIN_BASE}/{slug}" class:on={$page.params.page === slug}>{label}</a>
 				{/each}
-				<a href="/admin/settings" class:on={$page.url.pathname === '/admin/settings'}>Settings</a>
+				<a href="{ADMIN_BASE}/settings" class:on={$page.url.pathname === `${ADMIN_BASE}/settings`}>Settings</a>
 			</nav>
 			<div class="who">
 				<span>{data.user?.email}</span>
-				<form method="POST" action="/admin/settings?/signout"><button>Sign out</button></form>
+				<form method="POST" action="{ADMIN_BASE}/settings?/signout"><button>Sign out</button></form>
 			</div>
 		</header>
 

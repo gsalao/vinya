@@ -12,12 +12,15 @@
 	import { detail } from '$lib/detail.js';
 	import { pay } from '$lib/pay.js';
 	import { page } from '$app/stores';
+	import { ADMIN_BASE } from '$lib/admin/paths.js';
 	let { children } = $props();
 
 	// The editor brings its own chrome. Without this the visitor-facing header,
 	// footer and booking modals render around it — two navbars stacked, and a
 	// "Book a class" button in a tool for editing the site.
-	let isAdmin = $derived($page.url.pathname.startsWith('/admin'));
+	let isAdmin = $derived(
+		$page.url.pathname === ADMIN_BASE || $page.url.pathname.startsWith(`${ADMIN_BASE}/`)
+	);
 
 	injectAnalytics({ mode: dev ? 'development' : 'production' });
 	injectSpeedInsights();

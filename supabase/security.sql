@@ -59,12 +59,23 @@ revoke all on function rate_limit_hit(text, int, int) from public, anon, authent
 grant execute on function rate_limit_hit(text, int, int) to service_role;
 
 -- --------------------------------------------------------- subscribers ---
--- The newsletter box used to insert straight from the browser using the
--- anon key, which is public by design — it ships in the site's JavaScript.
--- Anyone could therefore POST to PostgREST in a loop: unbounded rows, billed
--- to the studio, never touching the app and so invisible to any rate limit.
--- Signups now go through /api/subscribe, which is rate limited, so anon no
--- longer needs to write here at all.
+-- The newsletter box used to insert straight from the browser using the anon
+-- key, which is public by design — it ships in the site's JavaScript. Anyone
+-- could therefore POST to PostgREST in a loop: unbounded rows, billed to the
+-- studio, never touching the app and so invisible to any rate limit. Signups
+-- now go through /api/subscribe, which is rate limited, so anon no longer
+-- needs to write here at all.
+--
+-- Created here as well as in schema.sql because that file was never run
+-- against this project: the table was missing, so every signup a visitor
+-- attempted failed and showed them "something went wrong".
+create table if not exists subscribers (
+	id uuid primary key default gen_random_uuid(),
+	created_at timestamptz not null default now(),
+	email text unique
+);
+
+alter table subscribers enable row level security;
 drop policy if exists "anon can subscribe" on subscribers;
 grant all on subscribers to service_role;
 

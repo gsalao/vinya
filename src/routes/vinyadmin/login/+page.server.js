@@ -1,6 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { isAllowed, admin } from '$lib/server/admin-db.js';
 import { createSharedLimiter } from '$lib/server/ratelimit-shared.js';
+import { ADMIN_BASE } from '$lib/admin/paths.js';
 
 /** Sign-in was the one unauthenticated door with no counting on it, so a loop
  *  could guess passwords indefinitely — and, because the allow-list is read
@@ -17,7 +18,7 @@ const perEmail = createSharedLimiter({ max: 8, windowMs: 15 * 60 * 1000, prefix:
 const TOO_MANY = 'Too many sign-in attempts. Please wait a few minutes and try again.';
 
 export async function load({ locals }) {
-	if (await locals.getUser()) throw redirect(303, '/admin/home');
+	if (await locals.getUser()) throw redirect(303, `${ADMIN_BASE}/home`);
 	return {};
 }
 
@@ -53,6 +54,6 @@ export const actions = {
 		// was is nobody's business but the account holder's.
 		if (error) return fail(401, { error: 'That email and password do not match.', email });
 
-		throw redirect(303, '/admin/home');
+		throw redirect(303, `${ADMIN_BASE}/home`);
 	}
 };

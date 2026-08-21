@@ -32,11 +32,12 @@ down pauses publishing but leaves visitors unaffected.
 
 ## `src/lib/content.generated.json`
 
-Every word on the site, in one committed file. Fourteen keys:
+Every word on the site, in one committed file. Fifteen keys:
 
 ```
 copy · images · gallery · providers · classes · timetable · events
 pastEvents · offerings · faqs · teachers · partners · prices · testimonials
+socials
 ```
 
 Nobody edits it by hand — it is generated. `data.js` and `copy.js` import it, so

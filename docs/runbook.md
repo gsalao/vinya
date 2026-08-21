@@ -52,7 +52,7 @@ image reference, make sure it is not checked as a local file.
 
 ```bash
 pnpm content:sync     # read the database, validate, rewrite the content file
-pnpm test             # 248 tests
+pnpm test             # 266 tests
 pnpm dev              # local site + admin at :5173
 pnpm health           # the daily checks, needs SITE_URL
 pnpm images:backup    # copy the image bucket into ./backup, list orphans
@@ -197,6 +197,18 @@ and looks normal. Moving the editor means renaming both, together.
 
 **Renaming the editor is not a security control.** It cuts scanner noise,
 which is a cost measure. Treat the password and the allow-list as the control.
+
+**Owner-typed links are scheme-checked.** `socials.url` and `partners.href` end
+up in an href the site renders, and an href is executable when its scheme says
+so. `schema.mjs` refuses anything not beginning http:// or https://. Any new
+column that becomes a link needs the same rule — there is one check covering
+both, so extend it rather than adding a second.
+
+**app.css is loaded by the admin too.** A bare element selector there reaches
+markup it was never written for: `header{position:sticky;background:…}` painted
+the public navbar's band across every admin card title for weeks.
+`app.css.test.js` now rejects paint or positioning on a bare `header` or
+`footer`. Scope new element styles to a class.
 
 **There is no 2FA.** It was considered and deliberately deferred: for a
 single non-technical owner with nobody to call, the lockout risk on a lost

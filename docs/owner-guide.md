@@ -50,6 +50,7 @@ The menu across the top matches the pages of your website.
 | **Teachers** | Teacher profiles and photos |
 | **Events** | Upcoming gatherings, and past ones |
 | **About** | The story, the founder, the studios you teach at |
+| **Footer** | The bottom of every page: the tagline, your social links, the small print |
 | **Settings** | Who gets booking emails, who can sign in, your password |
 
 Anything that appears in two places is edited once, and says so — *"also shown on
@@ -64,6 +65,17 @@ see.
 The site rearranges itself to suit. Add a fourth partner logo and the row starts
 scrolling gently instead of wrapping. Add a second teacher and arrows appear so
 visitors can flip between you. Take one away and the rest close the gap.
+
+## Social links
+
+**Footer → Social links.** Two boxes per row: the **Name** people see, and the
+**Link** it opens. Instagram, Facebook, WhatsApp — as many or as few as you like.
+They appear under the tagline at the bottom of every page, and if you have none
+the row simply is not there.
+
+For the link, open the page in your browser and copy the whole address from the
+bar at the top, starting with `https://`. If you type just `instagram.com/...`
+it will be refused and told you so — that is the check working, not a fault.
 
 ## Pictures
 
